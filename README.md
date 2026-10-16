@@ -4,7 +4,9 @@ A guided, mobile-first AI learning website for developers who know C#, ASP.NET C
 
 ## Open the preview
 
-Double-click **index.html** in Edge or Chrome. No website build, account, server, CDN, or AI key is required. The website opens directly into a lesson.
+Double-click **index.html** in Edge or Chrome. No website build, account, server, CDN, or AI key is required. The website opens on **Home**, which explains its purpose, intended audience, learning method, project, and available content.
+
+Use **Start the foundation lessons** to begin, or **Continue learning** when you have saved progress. **Learn** opens the next topic whose understanding check is unfinished. **Course map** shows the full proposed path; **My progress** shows evidence and backups. The logo always returns to Home. Phones have a persistent, labelled bottom navigation bar and a course drawer.
 
 For a portable single-file edition, open **standalone.html**. It embeds the styling, lessons, interactions, and downloadable C# lab sources. Keep the original-v2 folder nearby only if you want the comparison link to the old academy to work.
 
@@ -48,6 +50,7 @@ assets/
   curriculum.js                 Canonical authored lessons and proposed course map
   learning-core.js              Grading, prerequisites, progress and import validation
   experiments.js                Offline teaching exercises
+  home.js                       Landing page: purpose, audience, usage and next step
   workspace.js                  Views, routing, navigation, backup and browser storage
 labs/supportdesk-rules/          Runnable C# lab, verification cases and README
 FOUNDATION_LESSONS.md            Generated readable edition of the new lessons

@@ -24,8 +24,12 @@
     return `<div class="side-heading"><span class="preview-label">Foundation preview</span><h2>Your starting point</h2><p>AI from zero. Familiar .NET thinking.</p><div class="side-progress"><div class="progress-track" role="progressbar" aria-label="Foundation understanding checks" aria-valuemin="0" aria-valuemax="6" aria-valuenow="${checked}"><span style="width:${checked/6*100}%"></span></div><span>${checked} of 6 understanding checks passed</span></div></div><div class="side-section-label"><span>Foundations</span>${icon('book')}</div><nav aria-label="Foundation lessons"><ol class="lesson-nav">${C.lessons.map((lesson,index)=>`<li><a class="lesson-link ${id===lesson.id?'active':''}" ${id===lesson.id?'aria-current="page"':''} href="${lessonUrl(lesson.id)}"><span class="lesson-number ${state.lessons[lesson.id]?.checked?'done':''}">${state.lessons[lesson.id]?.checked?icon('check'):index+1}</span><span>${esc(lesson.short)}<small>${lesson.minutes} min${state.lessons[lesson.id]?.checked?' · Check passed':state.lessons[lesson.id]?.read?' · Read':''}</small></span></a></li>`).join('')}</ol></nav><nav class="side-secondary" aria-label="Learning resources"><a href="#lab">${icon('code')}C# rules-baseline lab</a><a href="#map">${icon('map')}The complete learning path</a><a href="#progress">${icon('check')}Progress and backup</a></nav><p class="side-footnote">Learn at your own pace.<br>No AI account needed for these lessons.<a href="original-v2/index.html">Open the original academy</a></p>`;
   }
   function updateNav(){
-    const markup=navMarkup(active?.id);
+    const markup=`<a class="side-home ${active?.type==='home'?'active':''}" href="#home">${icon('home')}Home and getting started</a>`+navMarkup(active?.id);
     $('#desktop-navigation').innerHTML=markup;$('#mobile-navigation').innerHTML=markup;
+    document.querySelectorAll('[data-route]').forEach(link=>{
+      const selected=link.dataset.route===active?.type;
+      if(selected)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
+    });
   }
   function rail(lesson){
     const entry=state.lessons[lesson.id]||{};
@@ -41,7 +45,7 @@
   }
   function bottom(){return `<footer class="page-bottom"><span>Foundation preview · Your progress stays in this browser</span><a href="#progress">Export a backup</a></footer>`;}
   function warning(){return `<div class="storage-warning" id="storage-warning" role="status" ${storageFailed?'':'hidden'}>Your browser could not read or save progress. You can keep learning and <a href="#progress">export a backup</a> before closing this page.</div>`;}
-  function breadcrumb(label){return `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="#map">Learning path</a>${icon('chevron')}<span>${esc(label)}</span></nav>`;}
+  function breadcrumb(label){return `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="#home">Home</a>${icon('chevron')}<a href="#map">Learning path</a>${icon('chevron')}<span>${esc(label)}</span></nav>`;}
   function renderLesson(lesson,section){
     const index=C.lessons.indexOf(lesson), step=sections.findIndex(x=>x[0]===section), missing=core.missingPrerequisites(state,lesson.id);
     $('#main-content').innerHTML=`${breadcrumb('Foundations')}${warning()}<div class="workspace-grid"><div class="lesson-workspace"><div class="lesson-meta"><span class="current-unit">Lesson ${index+1} of 6</span><span>${icon('clock')}${lesson.minutes} min</span><span>Beginner</span></div><h1 tabindex="-1">${esc(lesson.title)}</h1><p class="lesson-summary">${esc(lesson.summary)}</p><div class="objective">${icon('target')}<p><strong>By the end of this lesson</strong>${esc(lesson.objective)}</p></div>${missing.length?`<div class="prereq-advice">Recommended first: ${missing.map(x=>`<a href="${lessonUrl(x.id)}">${esc(x.short)}</a>`).join(', ')}. You can still explore this lesson.</div>`:''}<nav class="section-tabs" aria-label="Lesson sections">${sections.map(([key,label],i)=>`<a href="${lessonUrl(lesson.id,key)}" ${section===key?'aria-current="step"':''}><span class="section-tab-number" aria-hidden="true">${i+1}</span>${label}</a>`).join('')}</nav><section class="lesson-panel" aria-label="${esc(sections[step][1])}">${renderSection(lesson,section)}</section><nav class="section-footer" aria-label="Lesson navigation">${step>0?`<a class="button secondary" href="${lessonUrl(lesson.id,sections[step-1][0])}">${icon('arrow','back-arrow')}Back</a>`:index>0?`<a class="button secondary" href="${lessonUrl(C.lessons[index-1].id,'dotnet')}">${icon('arrow','back-arrow')}Previous lesson</a>`:'<span class="section-position">One idea at a time.</span>'}${step<4?`<a class="button" href="${lessonUrl(lesson.id,sections[step+1][0])}">${step===0?'See an example':step===1?'Try it yourself':step===2?'Check understanding':'The .NET connection'}${icon('arrow')}</a>`:index<5?`<a class="button" href="${lessonUrl(C.lessons[index+1].id)}">Next lesson${icon('arrow')}</a>`:'<a class="button" href="#lab">Build the C# baseline</a>'}</nav>${bottom()}</div>${rail(lesson)}</div>`;
@@ -143,9 +147,17 @@ static string Route(string message)
     const previous=active,parts=location.hash.slice(1).split('/');
     $('#toast').hidden=true;
     let type=parts[0],id=parts[1],section=parts[2]||'understand';
-    if(!type){type='lesson';id=core.nextLesson(state).id;}
+    if(!type)type='home';
+    if(type==='learn'){
+      type='lesson';id=core.nextLesson(state).id;section='understand';
+      history.replaceState(null,'',lessonUrl(id,section));
+    }
     active={type,id,section};
-    if(type==='lesson'&&core.getLesson(id)&&sections.some(x=>x[0]===section)){
+    document.body.dataset.view=type;
+    if(type==='home'){
+      $('#main-content').innerHTML=warning()+AcademyHome.markup({lessons:C.lessons,state,next:core.nextLesson(state),esc,icon});
+      document.title='AI for .NET developers · Learn, practise, build';
+    }else if(type==='lesson'&&core.getLesson(id)&&sections.some(x=>x[0]===section)){
       renderLesson(core.getLesson(id),section);document.title=`${core.getLesson(id).short} · AI for .NET developers`;
     }else if(type==='map'){renderMap();document.title='Learning path · AI for .NET developers';}
     else if(type==='progress'){renderProgress();document.title='My progress · AI for .NET developers';}

@@ -5,7 +5,7 @@ const root=path.resolve(__dirname,'..');
 let html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 html=html.replace('<link rel="stylesheet" href="styles.css">',()=>`<style>\n${read('styles.css')}\n</style>`);
-for(const file of ['curriculum','learning-core','experiments','workspace']){
+for(const file of ['curriculum','learning-core','experiments','home','workspace']){
   let source=read(`assets/${file}.js`);
   if(file==='workspace'){
     for(const labFile of ['SupportDesk.Rules.csproj','Program.cs','README.md']){

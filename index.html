@@ -10,8 +10,9 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to lesson</a>
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/></symbol>
     <symbol id="icon-book" viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-3H4V4Zm16 0h-4a3 3 0 0 0-3 3v14a4 4 0 0 1 4-3h3V4Z"/></symbol>
     <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
     <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
@@ -29,14 +30,15 @@
   </svg>
   <header class="app-header">
     <button class="icon-button mobile-menu" id="open-course" aria-label="Open course navigation" aria-haspopup="dialog"><svg><use href="#icon-menu"/></svg></button>
-    <a class="brand" href="#lesson/ai-features/understand" aria-label="AI for .NET developers, first lesson"><span class="brand-mark">.NET</span><span class="brand-name">AI for .NET developers<span>Learning workspace</span></span></a>
+    <a class="brand" href="#home" aria-label="AI for .NET developers, home"><span class="brand-mark">.NET</span><span class="brand-name">AI for .NET developers<span>Learning workspace</span></span></a>
     <span class="header-separator" aria-hidden="true"></span><span class="header-note">Small concepts. Working software.</span>
-    <nav class="header-actions" aria-label="Workspace"><a href="#map" class="header-link" aria-label="Course map"><svg><use href="#icon-map"/></svg><span>Course map</span></a><a href="#progress" class="header-link" aria-label="My progress"><svg><use href="#icon-check"/></svg><span>My progress</span></a></nav>
+    <nav class="header-actions" aria-label="Workspace"><a href="#home" data-route="home" class="header-link">Home</a><a href="#learn" data-route="lesson" class="header-link">Learn</a><a href="#map" data-route="map" class="header-link">Course map</a><a href="#progress" data-route="progress" class="header-link">My progress</a></nav>
   </header>
   <div class="app-layout">
     <aside class="course-sidebar" aria-label="Course navigation"><div id="desktop-navigation"></div></aside>
     <main id="main-content" tabindex="-1"></main>
   </div>
+  <nav class="mobile-bottom-nav" aria-label="Main navigation"><a href="#home" data-route="home"><svg><use href="#icon-home"/></svg>Home</a><a href="#learn" data-route="lesson"><svg><use href="#icon-book"/></svg>Learn</a><a href="#map" data-route="map"><svg><use href="#icon-map"/></svg>Course map</a><a href="#progress" data-route="progress"><svg><use href="#icon-check"/></svg>Progress</a></nav>
   <dialog id="course-drawer" aria-labelledby="drawer-title">
     <div class="drawer-header"><h2 id="drawer-title">Your learning path</h2><button class="icon-button" id="close-course" aria-label="Close course navigation"><svg><use href="#icon-close"/></svg></button></div>
     <div id="mobile-navigation"></div>
@@ -46,6 +48,7 @@
   <script src="assets/curriculum.js"></script>
   <script src="assets/learning-core.js"></script>
   <script src="assets/experiments.js"></script>
+  <script src="assets/home.js"></script>
   <script src="assets/workspace.js"></script>
 </body>
 </html>

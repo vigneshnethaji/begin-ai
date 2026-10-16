@@ -18,6 +18,18 @@ const KEY='dotnet-ai-workspace-progress-v1';
   page.on('response',response=>{if(response.status()>=400)errors.push(`${response.status()} ${response.url()}`);});
   const go=async hash=>{await page.goto(base+'/'+hash);await page.locator('main h1').waitFor();};
   const readState=()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)||'{}'),KEY);
+  await go('');
+  assert.match(await page.locator('h1').innerText(),/Build AI features/);
+  await page.screenshot({path:path.join(out,'desktop-home.png'),fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:path.join(out,'mobile-home.png'),fullPage:true});
+  await page.setViewportSize({width:1440,height:1000});
+  await page.getByRole('link',{name:'Start the foundation lessons',exact:true}).click();
+  await page.waitForURL('**/#lesson/ai-features/understand');
+  await page.locator('.brand').click();await page.waitForURL('**/#home');
+  await page.getByRole('heading',{level:1,name:/Build AI features/}).waitFor();
+  assert.match(await page.locator('h1').innerText(),/Build AI features/);
+  console.log('PASS: default landing page explains the purpose and Start/Home navigation works');
   await go('#lesson/ai-features/understand');
   await page.screenshot({path:path.join(out,'desktop-understand.png'),fullPage:true});
   await page.getByLabel('I’ve read this explanation').check();
@@ -30,6 +42,9 @@ const KEY='dotnet-ai-workspace-progress-v1';
   await page.locator('[data-answer="1"]').click();
   assert.equal((await readState()).lessons['ai-features'].checked,true);
   await page.reload();assert.match(await page.locator('.lesson-panel').innerText(),/already passed/);
+  await page.goto(base+'/#learn');await page.waitForURL('**/#lesson/rules/understand');
+  await page.getByRole('heading',{level:1,name:'When ordinary C# rules are enough'}).waitFor();
+  assert.match(await page.locator('h1').innerText(),/ordinary C#/);
   console.log('PASS: independent read/check evidence, wrong-answer feedback, persistence');
   // Every authored lesson and section renders; each lesson has its own exercise.
   for(const lesson of lessons){
@@ -86,7 +101,7 @@ const KEY='dotnet-ai-workspace-progress-v1';
   // Detect page overflow on every view at narrow/mobile/tablet/desktop sizes.
   for(const width of [320,390,768,1440]){
     await page.setViewportSize({width,height:900});
-    for(const hash of ['#lesson/ai-features/understand','#lesson/ai-features/example','#lesson/rules/try','#lesson/models/dotnet','#lesson/training/check','#map','#lab','#progress']){
+    for(const hash of ['#home','#lesson/ai-features/understand','#lesson/ai-features/example','#lesson/rules/try','#lesson/models/dotnet','#lesson/training/check','#map','#lab','#progress']){
       await go(hash);
       const size=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:innerWidth}));
       assert.ok(size.scroll<=size.viewport+1,`overflow ${width}px ${hash}: ${JSON.stringify(size)}`);
@@ -103,7 +118,11 @@ const KEY='dotnet-ai-workspace-progress-v1';
   await page.getByRole('heading',{level:1,name:'Training and using a model are different'}).waitFor();
   assert.equal(await page.locator('#course-drawer').evaluate(x=>x.open),false);
   assert.match(await page.locator('h1').innerText(),/Training/);
-  console.log('PASS: 32 responsive route checks and mobile drawer/escape/focus/navigation');
+  await page.locator('.mobile-bottom-nav').getByRole('link',{name:'Home',exact:true}).click();
+  await page.getByRole('heading',{level:1,name:/Build AI features/}).waitFor();
+  await page.locator('.mobile-bottom-nav').getByRole('link',{name:'Course map',exact:true}).click();
+  await page.getByRole('heading',{level:1,name:'See how the pieces connect.'}).waitFor();
+  console.log('PASS: 36 responsive route checks, mobile drawer, and labelled mobile main navigation');
   // A local-file site must work without fetch, a server, or module loading.
   const filePage=await browser.newPage({viewport:{width:1440,height:1000}});filePage.on('pageerror',e=>errors.push(e.message));
   for(const entry of ['index.html','standalone.html']){
@@ -123,6 +142,6 @@ const KEY='dotnet-ai-workspace-progress-v1';
   console.log('PASS: multi-file and self-contained editions open directly from disk');
   console.log('PASS: isolated standalone downloads its embedded lab source without adjacent files');
   assert.deepEqual(errors,[],'No browser errors or missing assets');
-  fs.writeFileSync(path.join(out,'browser-results.json'),JSON.stringify({passed:true,lessonSections:30,responsiveRoutes:32,errors},null,2));
+  fs.writeFileSync(path.join(out,'browser-results.json'),JSON.stringify({passed:true,lessonSections:30,responsiveRoutes:36,errors},null,2));
   await browser.close();
 })().catch(error=>{console.error(error);process.exit(1);});

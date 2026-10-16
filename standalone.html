@@ -18,14 +18,54 @@
 @media(max-width:420px){.brand-name{font-size:12px}.brand-name>span{font-size:10px}.brand-mark{width:33px;height:33px;font-size:12px}.brand{gap:7px}.app-header{gap:3px;padding:0 8px}.header-link{width:40px;padding:8px;justify-content:center}.header-actions{margin-left:auto}.mobile-menu{width:40px}#main-content{padding:18px 16px 24px}h1{font-size:29px;letter-spacing:-.7px}h2{font-size:21px}.lesson-panel{padding:22px 18px}.reading p{font-size:15px;line-height:1.85}.reading p:first-of-type{font-size:16px}.section-tabs a{font-size:11px;gap:4px}.section-tab-number{display:none}.section-tabs a{min-height:50px}.section-footer .button{padding:10px 12px;font-size:12px}.section-position{font-size:11px}.objective svg{display:none}.objective{padding:12px 14px}.path-comparison{grid-template-columns:1fr}.example-message{padding:16px}.example-message blockquote{font-size:17px}.exercise-header{align-items:flex-start;flex-direction:column;gap:7px}.experiment-body{padding:16px}.scenario-text{font-size:17px}.experiment-actions{gap:8px}.experiment-actions .button{font-size:12px;padding:10px}.result-output{font-size:13px;gap:8px}.page-bottom{align-items:flex-start;flex-direction:column;gap:6px}.lab-step,.surface{padding:20px 17px}.stage-topics{margin-left:20px}.milestone{padding-left:20px}.stage-header{gap:10px}.stage-status{margin-left:34px}pre{padding:16px;font-size:12px}.code-header{padding:6px 10px;font-size:10px}.lesson-meta{gap:13px}.definition{padding:15px}.progress-layout{gap:10px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
 .code-header button{min-height:44px}
+.header-link[aria-current=page]{color:var(--primary-text);background:var(--primary-soft)}
+.mobile-bottom-nav{display:none}
+.side-home{display:flex;align-items:center;gap:10px;padding:15px 24px;min-height:54px;border-bottom:1px solid var(--line);text-decoration:none;font-size:13px;color:var(--text)}
+.side-home:hover,.side-home.active{color:var(--primary-text);background:var(--primary-soft)}
+body[data-view=home] .app-layout{display:block}
+body[data-view=home] .course-sidebar{display:none}
+body[data-view=home] #main-content{padding:0 44px 28px}
+.home-view{max-width:1160px;margin:0 auto}
+.home-intro{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:64px;align-items:center;padding:64px 0 52px}
+.home-purpose h1{font-size:clamp(35px,3.8vw,52px);line-height:1.15;letter-spacing:-1.5px;margin:22px 0;max-width:20ch}
+.home-lede{font-size:18px;color:var(--muted);line-height:1.85;max-width:58ch}
+.home-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.home-reassurance{font-size:12px;color:var(--muted);margin:18px 0 0}
+.home-next{padding:28px;border:1px solid var(--line);border-top:3px solid var(--highlight);border-radius:8px;background:var(--surface)}
+.home-next-label{font-size:13px;color:var(--primary-text);font-weight:600;margin-bottom:16px}
+.home-next h2{font-size:25px;line-height:1.3;margin-bottom:14px}
+.home-next p{font-size:14px;color:var(--muted);line-height:1.8}
+.home-next-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin:23px 0 18px}
+.home-next-meta svg{width:16px;height:16px}
+.home-next small{font-size:12px;color:var(--muted);display:block;margin-top:9px}
+.home-next .home-next-note{border-top:1px solid var(--line);padding-top:16px;margin:20px 0 0;font-size:12px}
+.home-next>.button{margin-top:20px}
+.home-fit{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:32px 0;display:grid;grid-template-columns:1.35fr 1fr;gap:70px}
+.home-fit h2{font-size:22px}.home-fit p{color:var(--muted);font-size:15px;line-height:1.85;margin:0}
+.home-fit h3{font-size:15px;margin-bottom:10px}.home-fit ul{margin:0;padding-left:20px;font-size:14px;color:var(--muted);line-height:1.9}
+.home-method{padding:44px 0}.home-section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:26px}.home-section-heading h2{margin-bottom:9px}.home-section-heading p{font-size:14px;color:var(--muted);margin:0}.home-effort{font-size:12px;color:var(--primary-text);white-space:nowrap;padding-top:6px}
+.method-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));list-style:none;gap:24px;padding:0;margin:0}
+.method-steps li{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+.method-number{height:28px;width:28px;border-radius:50%;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary-text);font-size:13px;font-weight:600;margin-bottom:17px}
+.method-steps h3{font-size:15px;margin-bottom:10px}.method-steps p{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:12px}.method-steps a{display:inline-flex;gap:3px;align-items:center;font-size:12px;min-height:44px;text-decoration:none;margin-top:auto}.method-steps a:hover{text-decoration:underline}.method-steps a svg{width:13px;height:13px}
+.home-project{display:grid;grid-template-columns:1.2fr 1fr;gap:64px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:36px}
+.home-project-name{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);margin-bottom:17px}.home-project h2{font-size:29px;line-height:1.3}.home-project p{font-size:14px;color:var(--muted);line-height:1.85}.home-project .button{margin-top:8px}
+.project-evolution{list-style:none;padding:0;margin:0}.project-evolution li{display:flex;align-items:flex-start;gap:15px;position:relative;padding:0 0 28px}.project-evolution li:last-child{padding-bottom:0}.project-evolution li:not(:last-child):before{content:"";position:absolute;left:5px;top:12px;bottom:0;width:1px;background:var(--line)}.evolution-dot{width:11px;height:11px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);flex-shrink:0;margin-top:6px;position:relative}.evolution-dot.available{background:var(--highlight);border-color:var(--highlight)}.project-evolution strong{font-size:14px;font-weight:600;display:block}.project-evolution li div>span{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.home-scope{padding:40px 0 10px;display:grid;grid-template-columns:1.5fr 1fr;gap:64px}.home-scope h2{font-size:22px}.home-scope p{font-size:14px;color:var(--muted);line-height:1.8}.home-scope-links{padding-top:0}.home-scope-links a{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;font-size:13px;text-decoration:none;border-bottom:1px solid var(--line)}.home-scope-links a:hover{text-decoration:underline}.home-scope-links svg{width:16px;height:16px}
+@media(max-width:1400px){.header-note,.header-separator{display:none}}
+@media(max-width:1000px){.home-intro{gap:32px;padding:44px 0}.home-purpose h1{font-size:39px}.home-next{padding:24px}.home-fit{gap:32px}.method-steps{grid-template-columns:repeat(3,minmax(0,1fr))}.home-project{gap:32px;padding:28px}.home-scope{gap:32px}}
+@media(max-width:760px){.header-actions{display:none}body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}.mobile-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:25;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:6px 8px calc(6px + env(safe-area-inset-bottom))}.mobile-bottom-nav a{display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center;min-height:54px;text-decoration:none;font-size:11px;line-height:1.4;color:var(--muted);border-radius:5px}.mobile-bottom-nav a[aria-current=page]{color:var(--primary-text);background:var(--primary-soft)}.mobile-bottom-nav svg{width:20px;height:20px}.toast{bottom:calc(90px + env(safe-area-inset-bottom))}body[data-view=home] #main-content{padding:0 24px 24px}.home-intro{grid-template-columns:1fr;padding:32px 0;gap:28px}.home-purpose h1{font-size:36px;letter-spacing:-1px;max-width:22ch}.home-lede{font-size:16px}.home-next h2{font-size:22px}.home-fit{grid-template-columns:1fr;gap:23px;padding:28px 0}.home-section-heading{display:block}.home-effort{display:block;margin-top:12px}.home-method{padding:32px 0}.method-steps{grid-template-columns:1fr;gap:0}.method-steps li{display:grid;grid-template-columns:30px 1fr;column-gap:14px;padding:18px 0}.method-number{grid-row:span 3;margin:0}.method-steps h3{margin:0 0 5px}.method-steps p{margin:0}.method-steps a{grid-column:2;margin-top:3px;min-height:44px}.home-project{grid-template-columns:1fr;gap:28px;padding:25px}.home-project h2{font-size:25px}.home-scope{grid-template-columns:1fr;gap:13px;padding-top:30px}.home-scope-links{padding-top:0}}
+@media(max-width:420px){body[data-view=home] #main-content{padding:0 18px 24px}.home-purpose h1{font-size:33px}.home-actions{flex-direction:column}.home-actions .button{width:100%}.home-reassurance{font-size:12px;line-height:1.9}.home-next{padding:22px}.home-project{padding:22px 20px}.home-fit h2{font-size:21px}}
+@media print{.mobile-bottom-nav,.home-actions,.home-scope-links{display:none!important}body{padding-bottom:0}}
 @media(max-width:420px){.mobile-menu,.header-link{width:44px;min-width:44px}.section-tabs a{font-size:13px}.reading p{font-size:16px}.brand-name{font-size:11px}}
 @media print{.app-header,.course-sidebar,.section-tabs,.section-footer,.context-rail,.page-bottom,.toast{display:none!important}.app-layout,.workspace-grid,.lab-layout{display:block}#main-content{padding:0}.lesson-panel{border:0;padding:0}body{background:white;color:#242424}pre{white-space:pre-wrap;color:#242424;background:#f5f5f5}a{color:inherit}}
 
 </style>
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to lesson</a>
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/></symbol>
     <symbol id="icon-book" viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-3H4V4Zm16 0h-4a3 3 0 0 0-3 3v14a4 4 0 0 1 4-3h3V4Z"/></symbol>
     <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
     <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
@@ -43,14 +83,15 @@
   </svg>
   <header class="app-header">
     <button class="icon-button mobile-menu" id="open-course" aria-label="Open course navigation" aria-haspopup="dialog"><svg><use href="#icon-menu"/></svg></button>
-    <a class="brand" href="#lesson/ai-features/understand" aria-label="AI for .NET developers, first lesson"><span class="brand-mark">.NET</span><span class="brand-name">AI for .NET developers<span>Learning workspace</span></span></a>
+    <a class="brand" href="#home" aria-label="AI for .NET developers, home"><span class="brand-mark">.NET</span><span class="brand-name">AI for .NET developers<span>Learning workspace</span></span></a>
     <span class="header-separator" aria-hidden="true"></span><span class="header-note">Small concepts. Working software.</span>
-    <nav class="header-actions" aria-label="Workspace"><a href="#map" class="header-link" aria-label="Course map"><svg><use href="#icon-map"/></svg><span>Course map</span></a><a href="#progress" class="header-link" aria-label="My progress"><svg><use href="#icon-check"/></svg><span>My progress</span></a></nav>
+    <nav class="header-actions" aria-label="Workspace"><a href="#home" data-route="home" class="header-link">Home</a><a href="#learn" data-route="lesson" class="header-link">Learn</a><a href="#map" data-route="map" class="header-link">Course map</a><a href="#progress" data-route="progress" class="header-link">My progress</a></nav>
   </header>
   <div class="app-layout">
     <aside class="course-sidebar" aria-label="Course navigation"><div id="desktop-navigation"></div></aside>
     <main id="main-content" tabindex="-1"></main>
   </div>
+  <nav class="mobile-bottom-nav" aria-label="Main navigation"><a href="#home" data-route="home"><svg><use href="#icon-home"/></svg>Home</a><a href="#learn" data-route="lesson"><svg><use href="#icon-book"/></svg>Learn</a><a href="#map" data-route="map"><svg><use href="#icon-map"/></svg>Course map</a><a href="#progress" data-route="progress"><svg><use href="#icon-check"/></svg>Progress</a></nav>
   <dialog id="course-drawer" aria-labelledby="drawer-title">
     <div class="drawer-header"><h2 id="drawer-title">Your learning path</h2><button class="icon-button" id="close-course" aria-label="Close course navigation"><svg><use href="#icon-close"/></svg></button></div>
     <div id="mobile-navigation"></div>
@@ -392,6 +433,36 @@
 
 </script>
   <script>
+/* The front door: purpose, audience, learning method, and an honest scope. */
+window.AcademyHome = {
+  markup({lessons,state,next,esc,icon}) {
+    const checked=lessons.filter(x=>state.lessons[x.id]?.checked).length;
+    const started=Object.values(state.lessons).some(x=>x.read||x.checked);
+    const complete=checked===lessons.length;
+    const action=complete?'Review foundation lessons':started?'Continue learning':'Start the foundation lessons';
+    const target=complete?lessons[0]:next;
+    return `<div class="home-view">
+      <section class="home-intro" aria-labelledby="home-title">
+        <div class="home-purpose"><span class="preview-label">A learning workspace for .NET developers</span><h1 id="home-title" tabindex="-1">Build AI features with the .NET skills you already have.</h1><p class="home-lede">Understand one small concept, try it, then connect it to C#, ASP.NET Core, and Blazor. Start with zero AI knowledge and a familiar application you can build on.</p><div class="home-actions"><a class="button" href="#lesson/${target.id}/understand">${esc(action)}${icon('arrow')}</a><a class="button secondary" href="#map">Explore the learning path</a></div><p class="home-reassurance">Self-paced lessons · Free offline exercises · No AI account needed to start</p></div>
+        <aside class="home-next" aria-label="Your starting point"><div class="home-next-label">${complete?'Your next code milestone':started?'Pick up where you left off':'Your first small step'}</div><h2>${complete?'Build the C# rules baseline':esc(target.short)}</h2><p>${complete?'Run your first SupportDesk project and prove how the rule behaves.':esc(target.objective)}</p><div class="home-next-meta">${icon(complete?'code':'clock')}<span>${complete?'Desktop lab · 20–30 min':`Lesson ${lessons.indexOf(target)+1} · About ${target.minutes} minutes`}</span></div><div class="progress-track" role="progressbar" aria-label="Foundation checks passed" aria-valuemin="0" aria-valuemax="6" aria-valuenow="${checked}"><span style="width:${checked/6*100}%"></span></div><small>${checked} of 6 foundation checks passed</small>${complete?'<a class="button secondary" href="#lab">Open the C# lab</a>':'<p class="home-next-note">You can read and try the first lesson on your phone.</p>'}</aside>
+      </section>
+      <section class="home-fit" aria-labelledby="home-fit-title"><div><h2 id="home-fit-title">You know .NET. Start learning AI here.</h2><p>This course assumes you can write basic C#, work with APIs and databases, and understand a web application. It explains AI terminology from the beginning, using examples from your development work.</p></div><div><h3>What this helps you do</h3><ul><li>Decide when to use ordinary code or a model.</li><li>Understand the behavior before choosing an SDK.</li><li>Build AI features with testing, validation, and review.</li></ul></div></section>
+      <section class="home-method" aria-labelledby="home-method-title"><div class="home-section-heading"><div><h2 id="home-method-title">How to use this workspace</h2><p>Follow these five sections inside each lesson. Move on when you can explain the idea.</p></div><span class="home-effort">About 5–15 minutes per topic</span></div><ol class="method-steps">${[
+        ['Understand','Read one concept in plain English. New terms are defined in the lesson.','understand'],
+        ['See an example','Follow a worked SupportDesk example and see why the result makes sense.','example'],
+        ['Try it','Change an input or make a choice. Observe what happens and why.','try'],
+        ['Check','Answer one focused question. Feedback explains mistakes and helps you try again.','check'],
+        ['Connect to .NET','See where the idea fits in your application. Open a coding lab when it is useful.','dotnet']
+      ].map(([title,text,section],i)=>`<li><span class="method-number">${i+1}</span><h3>${title}</h3><p>${text}</p><a href="#lesson/ai-features/${section}">See this section${icon('chevron')}</a></li>`).join('')}</ol></section>
+      <section class="home-project" aria-labelledby="home-project-title"><div><div class="home-project-name"><span class="project-monogram">S</span>Your continuing project</div><h2 id="home-project-title">One support application.<br>New capabilities, one at a time.</h2><p>SupportDesk is a fictional customer-support portal. Begin with a C# rule that routes a message. Later units introduce learned categories, draft replies, answers from help articles, and controlled workflows.</p><a class="button secondary" href="#lab">${icon('code')}Explore your first C# lab</a></div><ol class="project-evolution"><li><span class="evolution-dot available"></span><div><strong>Validate and route a message</strong><span>C# rules baseline · Available in this preview</span></div></li><li><span class="evolution-dot"></span><div><strong>Learn categories from examples</strong><span>ML.NET classifier · Planned</span></div></li><li><span class="evolution-dot"></span><div><strong>Draft replies and find evidence</strong><span>Language models and document retrieval · Planned</span></div></li><li><span class="evolution-dot"></span><div><strong>Operate a reliable application</strong><span>Evaluation, secure workflows, and Azure · Planned</span></div></li></ol></section>
+      <section class="home-scope" aria-labelledby="home-scope-title"><div><h2 id="home-scope-title">What you can use today</h2><p>Six complete foundation lessons, six interactive exercises, and one runnable C# desktop lab. The course map shows the proposed beginner-to-advanced path; later units are clearly marked <strong>Planned</strong>.</p><p>Reading and exercises work on mobile. Use a desktop with the .NET SDK for coding labs. Your progress stays in this browser; <a href="#progress">export a backup</a> to keep a copy.</p></div><div class="home-scope-links"><a href="#learn">Start or continue a lesson${icon('arrow')}</a><a href="#map">See the complete course map${icon('arrow')}</a><a href="#lab">Open the desktop lab${icon('arrow')}</a><a href="#progress">View progress and backups${icon('arrow')}</a></div></section>
+      <footer class="page-bottom"><span>AI for .NET developers · Learn at your own pace</span><a href="original-v2/index.html">Compare with the original academy</a></footer>
+    </div>`;
+  }
+};
+
+</script>
+  <script>
 /* Guided lesson views. Content and progress rules live in separate files. */
 (() => {
   'use strict';
@@ -418,8 +489,12 @@
     return `<div class="side-heading"><span class="preview-label">Foundation preview</span><h2>Your starting point</h2><p>AI from zero. Familiar .NET thinking.</p><div class="side-progress"><div class="progress-track" role="progressbar" aria-label="Foundation understanding checks" aria-valuemin="0" aria-valuemax="6" aria-valuenow="${checked}"><span style="width:${checked/6*100}%"></span></div><span>${checked} of 6 understanding checks passed</span></div></div><div class="side-section-label"><span>Foundations</span>${icon('book')}</div><nav aria-label="Foundation lessons"><ol class="lesson-nav">${C.lessons.map((lesson,index)=>`<li><a class="lesson-link ${id===lesson.id?'active':''}" ${id===lesson.id?'aria-current="page"':''} href="${lessonUrl(lesson.id)}"><span class="lesson-number ${state.lessons[lesson.id]?.checked?'done':''}">${state.lessons[lesson.id]?.checked?icon('check'):index+1}</span><span>${esc(lesson.short)}<small>${lesson.minutes} min${state.lessons[lesson.id]?.checked?' · Check passed':state.lessons[lesson.id]?.read?' · Read':''}</small></span></a></li>`).join('')}</ol></nav><nav class="side-secondary" aria-label="Learning resources"><a href="#lab">${icon('code')}C# rules-baseline lab</a><a href="#map">${icon('map')}The complete learning path</a><a href="#progress">${icon('check')}Progress and backup</a></nav><p class="side-footnote">Learn at your own pace.<br>No AI account needed for these lessons.<a href="original-v2/index.html">Open the original academy</a></p>`;
   }
   function updateNav(){
-    const markup=navMarkup(active?.id);
+    const markup=`<a class="side-home ${active?.type==='home'?'active':''}" href="#home">${icon('home')}Home and getting started</a>`+navMarkup(active?.id);
     $('#desktop-navigation').innerHTML=markup;$('#mobile-navigation').innerHTML=markup;
+    document.querySelectorAll('[data-route]').forEach(link=>{
+      const selected=link.dataset.route===active?.type;
+      if(selected)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
+    });
   }
   function rail(lesson){
     const entry=state.lessons[lesson.id]||{};
@@ -435,7 +510,7 @@
   }
   function bottom(){return `<footer class="page-bottom"><span>Foundation preview · Your progress stays in this browser</span><a href="#progress">Export a backup</a></footer>`;}
   function warning(){return `<div class="storage-warning" id="storage-warning" role="status" ${storageFailed?'':'hidden'}>Your browser could not read or save progress. You can keep learning and <a href="#progress">export a backup</a> before closing this page.</div>`;}
-  function breadcrumb(label){return `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="#map">Learning path</a>${icon('chevron')}<span>${esc(label)}</span></nav>`;}
+  function breadcrumb(label){return `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="#home">Home</a>${icon('chevron')}<a href="#map">Learning path</a>${icon('chevron')}<span>${esc(label)}</span></nav>`;}
   function renderLesson(lesson,section){
     const index=C.lessons.indexOf(lesson), step=sections.findIndex(x=>x[0]===section), missing=core.missingPrerequisites(state,lesson.id);
     $('#main-content').innerHTML=`${breadcrumb('Foundations')}${warning()}<div class="workspace-grid"><div class="lesson-workspace"><div class="lesson-meta"><span class="current-unit">Lesson ${index+1} of 6</span><span>${icon('clock')}${lesson.minutes} min</span><span>Beginner</span></div><h1 tabindex="-1">${esc(lesson.title)}</h1><p class="lesson-summary">${esc(lesson.summary)}</p><div class="objective">${icon('target')}<p><strong>By the end of this lesson</strong>${esc(lesson.objective)}</p></div>${missing.length?`<div class="prereq-advice">Recommended first: ${missing.map(x=>`<a href="${lessonUrl(x.id)}">${esc(x.short)}</a>`).join(', ')}. You can still explore this lesson.</div>`:''}<nav class="section-tabs" aria-label="Lesson sections">${sections.map(([key,label],i)=>`<a href="${lessonUrl(lesson.id,key)}" ${section===key?'aria-current="step"':''}><span class="section-tab-number" aria-hidden="true">${i+1}</span>${label}</a>`).join('')}</nav><section class="lesson-panel" aria-label="${esc(sections[step][1])}">${renderSection(lesson,section)}</section><nav class="section-footer" aria-label="Lesson navigation">${step>0?`<a class="button secondary" href="${lessonUrl(lesson.id,sections[step-1][0])}">${icon('arrow','back-arrow')}Back</a>`:index>0?`<a class="button secondary" href="${lessonUrl(C.lessons[index-1].id,'dotnet')}">${icon('arrow','back-arrow')}Previous lesson</a>`:'<span class="section-position">One idea at a time.</span>'}${step<4?`<a class="button" href="${lessonUrl(lesson.id,sections[step+1][0])}">${step===0?'See an example':step===1?'Try it yourself':step===2?'Check understanding':'The .NET connection'}${icon('arrow')}</a>`:index<5?`<a class="button" href="${lessonUrl(C.lessons[index+1].id)}">Next lesson${icon('arrow')}</a>`:'<a class="button" href="#lab">Build the C# baseline</a>'}</nav>${bottom()}</div>${rail(lesson)}</div>`;
@@ -537,9 +612,17 @@ static string Route(string message)
     const previous=active,parts=location.hash.slice(1).split('/');
     $('#toast').hidden=true;
     let type=parts[0],id=parts[1],section=parts[2]||'understand';
-    if(!type){type='lesson';id=core.nextLesson(state).id;}
+    if(!type)type='home';
+    if(type==='learn'){
+      type='lesson';id=core.nextLesson(state).id;section='understand';
+      history.replaceState(null,'',lessonUrl(id,section));
+    }
     active={type,id,section};
-    if(type==='lesson'&&core.getLesson(id)&&sections.some(x=>x[0]===section)){
+    document.body.dataset.view=type;
+    if(type==='home'){
+      $('#main-content').innerHTML=warning()+AcademyHome.markup({lessons:C.lessons,state,next:core.nextLesson(state),esc,icon});
+      document.title='AI for .NET developers · Learn, practise, build';
+    }else if(type==='lesson'&&core.getLesson(id)&&sections.some(x=>x[0]===section)){
       renderLesson(core.getLesson(id),section);document.title=`${core.getLesson(id).short} · AI for .NET developers`;
     }else if(type==='map'){renderMap();document.title='Learning path · AI for .NET developers';}
     else if(type==='progress'){renderProgress();document.title='My progress · AI for .NET developers';}
