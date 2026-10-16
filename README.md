@@ -31,7 +31,7 @@ This is the representative preview approved in the design discussion, not the co
 
 Model outputs in the foundation exercises are authored examples, labelled in context. No real model or paid service runs in the preview. Coding labs are intended for a desktop; the explanations and experiments work on a phone.
 
-The design uses Fluent 2 as a reference, the approved navy/blue/neutral palette, system typography, and WCAG 2.2 AA as a target. Browser checks and visual review are recorded in the verification note; a comprehensive accessibility audit has not been performed.
+The website uses a dark theme: charcoal canvas and reading surfaces, Material Blue 700 primary buttons, Blue 200 links, and Blue 400 highlights. The complete supplied Material Blue 50–900 palette remains available as design tokens. Navigation follows the established Fluent-referenced structure, with system typography and WCAG 2.2 AA as a target. Browser checks and visual review are recorded in the verification note; a comprehensive accessibility audit has not been performed.
 
 ## Learning progress
 

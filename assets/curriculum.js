@@ -28,7 +28,7 @@
         input: 'I paid twice. Can you return one payment?',
         paths: [
           { title: 'A rule you wrote', detail: 'Contains “refund”? No.', result: 'General queue', tone: 'neutral' },
-          { title: 'A learned model', detail: 'Recognizes a payment problem.', result: 'Billing suggestion', tone: 'blue' }
+          { title: 'A learned model', detail: 'Recognizes a payment problem.', result: 'Billing suggestion', tone: 'accent' }
         ],
         explanation: 'The rule checks an exact condition. A model may recognize a similar meaning. Its answer can still be wrong, so a staff member can correct it. The model result shown here is an authored teaching example.'
       },
@@ -56,7 +56,7 @@
       takeaway: 'Use a model for ambiguity. Use explicit code for requirements that must be enforced exactly.',
       example: { title: 'An empty message has an exact answer.', input: 'Message: three spaces', paths: [
         { title: 'Your requirement', detail: 'A message must contain visible text.', result: 'Reject the request', tone: 'neutral' },
-        { title: 'Your C# implementation', detail: 'string.IsNullOrWhiteSpace(message)', result: 'true', tone: 'blue' }
+        { title: 'Your C# implementation', detail: 'string.IsNullOrWhiteSpace(message)', result: 'true', tone: 'accent' }
       ], explanation: 'There is nothing to predict. A unit test can prove this condition for empty strings, spaces, and real messages. A model would add uncertainty to an exact requirement.' },
       experiment: 'keyword',
       exercise: 'Change a message and the keyword. Watch which queue an exact rule chooses. Try “Please return my payment” with the keyword “refund”.',
@@ -81,7 +81,7 @@
       ],
       takeaway: 'A prediction is data coming back from a component. Your application owns its consequences.',
       example: { title: 'Give the model a small, clear job.', input: 'I cannot sign in after changing my password.', paths: [
-        { title: 'Inside the model boundary', detail: 'Message text in; category out.', result: 'Account', tone: 'blue' },
+        { title: 'Inside the model boundary', detail: 'Message text in; category out.', result: 'Account', tone: 'accent' },
         { title: 'Outside that boundary', detail: 'Application decides what to display.', result: 'Suggest Account to staff', tone: 'neutral' }
       ], explanation: 'The category is a fixed illustrative response here. A real integration would also handle errors, unsupported output, and slow responses. It would not send private account details without an appropriate reason.' },
       experiment: 'model-boundary',
@@ -108,7 +108,7 @@
       takeaway: 'Training changes learned patterns. Inference uses the current learned patterns.',
       example: { title: 'Two processes, connected by a saved model.', input: 'Past examples: “refund please” → Billing; “password reset” → Account', paths: [
         { title: 'Training process', detail: 'Learn from labelled past examples.', result: 'Saved category model', tone: 'neutral' },
-        { title: 'Application request', detail: 'New message → saved model.', result: 'Category prediction', tone: 'blue' }
+        { title: 'Application request', detail: 'New message → saved model.', result: 'Category prediction', tone: 'accent' }
       ], explanation: 'Saving corrected categories can improve a later dataset, but the model changes only when an appropriate update process runs. Training and inference can happen on different machines and at different times.' },
       experiment: 'training-sort',
       exercise: 'Sort the actions into training, inference, or collecting feedback. Look for whether learned patterns are changing, being used, or merely being recorded.',
@@ -134,7 +134,7 @@
       takeaway: 'Measure errors on new examples, then design the application around their consequences.',
       example: { title: 'A plausible category can miss the actual problem.', input: 'My refund button crashes whenever I click it.', paths: [
         { title: 'Illustrative model output', detail: 'Focuses on the word “refund”.', result: 'Billing', tone: 'neutral' },
-        { title: 'Reviewed category', detail: 'The customer reports a software failure.', result: 'Technical', tone: 'blue' }
+        { title: 'Reviewed category', detail: 'The customer reports a software failure.', result: 'Technical', tone: 'accent' }
       ], explanation: 'One failure does not make every model useless. It gives you a concrete case to include in evaluation and a reason to let staff change a suggestion.' },
       experiment: 'evaluate',
       exercise: 'Reveal five illustrative predictions, compare them with reviewed labels, and inspect the mistakes. These are authored examples, not a benchmark for a real model.',
@@ -160,8 +160,8 @@
       takeaway: 'Choose the simplest approach that meets the requirement and can be tested against it.',
       example: { title: 'Three jobs in the same application.', input: 'SupportDesk needs validation, routing, and draft replies.', paths: [
         { title: 'Exact requirement', detail: 'Reject an empty message.', result: 'C# rule', tone: 'neutral' },
-        { title: 'Learn a category', detail: 'Route messages from reviewed examples.', result: 'Small classifier', tone: 'blue' },
-        { title: 'Generate language', detail: 'Draft a reply for staff to review.', result: 'LLM', tone: 'blue' }
+        { title: 'Learn a category', detail: 'Route messages from reviewed examples.', result: 'Small classifier', tone: 'accent' },
+        { title: 'Generate language', detail: 'Draft a reply for staff to review.', result: 'LLM', tone: 'accent' }
       ], explanation: 'The classifier choice assumes suitable labelled data and acceptable measured results. The LLM generates a proposal; staff review and application authorization still matter.' },
       experiment: 'choose',
       exercise: 'Choose a sensible first approach for three SupportDesk requirements. Read why each answer fits and where other approaches could make sense.',
