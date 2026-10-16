@@ -1,1 +1,212 @@
-<h1> Hello World 2</h1>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1976d2">
+  <meta name="description" content="A step-by-step, hands-on AI engineering academy for C#, ASP.NET Core, Blazor and Azure developers. 72 modules, 18 projects, complete Day 1 through Day 360 path.">
+  <title>.NET AI Engineering Academy — Learn by Building</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="course-data.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <!-- Small inline SVG icon library: no external icon CDN. -->
+  <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9L12 3Z"/><path d="m19 18 .6 1.4L21 20l-1.4.6L19 22l-.6-1.4L17 20l1.4-.6L19 18ZM5 2l.7 1.3L7 4l-1.3.7L5 6l-.7-1.3L3 4l1.3-.7L5 2Z"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Z"/><path d="M9 21v-7h6v7"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h9a4 4 0 0 0 0-8H7a4 4 0 0 1 0-8h9"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h2M14 14h2M8 18h2"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14Z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .3 1.8l.1.1-2 2-.1-.1a1.65 1.65 0 0 0-1.8-.3l-.1.05V21h-3v-.2a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.4l-.1.1-2-2 .1-.1a1.7 1.7 0 0 0 .3-1.8l-.1-.1H5.5v-3h.2a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.4-1.8l-.1-.1 2-2 .1.1a1.65 1.65 0 0 0 1.8.3l.1-.05V5h3v.2a1.7 1.7 0 0 0 1.1 1.5 1.7 1.7 0 0 0 1.8-.4l.1-.1 2 2-.1.1a1.65 1.65 0 0 0-.3 1.8l.05.1H21v3h-.2a1.7 1.7 0 0 0-1.4 1.8Z" transform="translate(-1.5 -1.5)"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5m6 6-6-6 6-6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></symbol>
+    <symbol id="i-checkcircle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m7 4 13 8-13 8V4Z"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-15-2 20"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4 1-5-2-6-3m6 5v-3a4 4 0 0 1-2-3c-3-.5-4-3-4-6a5.5 5.5 0 0 1 1.5-4 4.5 4.5 0 0 1 .2-3.4S7 1.5 9 3a13 13 0 0 1 6 0c2-1.5 4.3-1.4 4.3-1.4a4.5 4.5 0 0 1 .2 3.4A5.5 5.5 0 0 1 21 9c0 3-1 5.5-4 6a4 4 0 0 1-2 3v3"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M14 3h7v7M10 14 21 3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6 18 18M18 6 6 18"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 17V5m-5 5 5-5 5 5M4 17v4h16v-4"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m6 9 3 3-3 3m6 0h5"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 2 9 4v5c0 6-3.7 9.3-9 11-5.3-1.7-9-5-9-11V6l9-4Z"/><path d="m8 12 2.5 2.5L16 9"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></symbol>
+    <symbol id="i-brain" viewBox="0 0 24 24"><path d="M12 5a4 4 0 0 0-7 2 4 4 0 0 0-1 7 4 4 0 0 0 5 6c1.2 0 2.3-.5 3-1.5V5Zm0 0a4 4 0 0 1 7 2 4 4 0 0 1 1 7 4 4 0 0 1-5 6c-1.2 0-2.3-.5-3-1.5M8 8c2 0 3 1 4 3m4-3c-2 0-3 1-4 3m-4 5c2 0 3-1 4-3m4 3c-2 0-3-1-4-3"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="m13 2-9 11h7l-1 9 10-12h-7V2Z"/></symbol>
+    <symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M9 14c-2-1.3-3-3.1-3-5a6 6 0 0 1 12 0c0 1.9-1 3.7-3 5l-.5 3h-5L9 14Z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3 6 6.5 1-4.8 4.7 1.2 6.8L12 17.3 6.1 20.5l1.2-6.8L2.5 9 9 8l3-6Z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M8 17V12m5 5V7m5 10V4"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.7 2.7 0 0 1 5.3 1c0 2-2.8 2.2-2.8 4M12 17h.01"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6ZM14 2v6h6M8 13h8M8 17h8"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M6 19h13a4 4 0 0 0 .2-8 7 7 0 0 0-13-2A5 5 0 0 0 6 19Z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="11" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4M12 15v3"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></symbol>
+    <symbol id="i-workflow" viewBox="0 0 24 24"><rect x="2" y="3" width="7" height="5" rx="1"/><rect x="15" y="3" width="7" height="5" rx="1"/><rect x="8.5" y="16" width="7" height="5" rx="1"/><path d="M5.5 8v5h13V8M12 13v3"/></symbol>
+    <symbol id="i-graduation" viewBox="0 0 24 24"><path d="m2 10 10-5 10 5-10 5-10-5Zm4 2v5c3.5 3.5 8.5 3.5 12 0v-5M22 10v7"/></symbol>
+  </svg>
+
+  <div class="app-shell">
+    <div class="sidebar-scrim" id="sidebar-scrim"></div>
+    <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+      <a class="brand" href="#overview" aria-label="AI Academy home">
+        <div class="brand-logo"><svg><use href="#i-sparkles"></use></svg></div>
+        <div><strong>AI Academy</strong><small>THE .NET DEVELOPER PATH</small></div>
+      </a>
+      <div class="side-label">YOUR WORKSPACE</div>
+      <nav class="side-nav">
+        <a href="#overview" data-nav="overview" class="nav-link active"><svg><use href="#i-home"></use></svg><span>Overview</span></a>
+        <a href="#path" data-nav="path" class="nav-link"><svg><use href="#i-route"></use></svg><span>Learning path</span><span class="nav-num">72</span></a>
+        <a href="#projects" data-nav="projects" class="nav-link"><svg><use href="#i-box"></use></svg><span>Build projects</span><span class="nav-num">18</span></a>
+        <a href="#kickstart" data-nav="kickstart" class="nav-link"><svg><use href="#i-calendar"></use></svg><span>Day 1 → Day 360</span><span class="nav-num">360</span></a>
+      </nav>
+      <div class="side-label secondary-label">REFERENCE LIBRARY</div>
+      <nav class="side-nav">
+        <a href="#glossary" data-nav="glossary" class="nav-link"><svg><use href="#i-book"></use></svg><span>AI glossary</span></a>
+        <a href="#toolkit" data-nav="toolkit" class="nav-link"><svg><use href="#i-settings"></use></svg><span>Setup & resources</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="side-progress-card">
+          <div class="mini-top"><span>YOUR LEARNING PROGRESS</span><svg><use href="#i-target"></use></svg></div>
+          <div class="side-progress-number" id="side-progress-number">0% <small>completed</small></div>
+          <div class="progress-track"><span id="side-progress-bar" style="width:0%"></span></div>
+          <div class="tiny-muted" id="side-progress-caption">Start with your first module</div>
+        </div>
+        <div class="side-footer">Made for C# • ASP.NET Core • Azure</div>
+      </div>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="topbar-start">
+          <button type="button" class="icon-button mobile-menu" id="open-sidebar" aria-label="Open navigation"><svg><use href="#i-menu"></use></svg></button>
+          <div class="breadcrumb"><span>AI Academy</span><svg><use href="#i-chevron-right"></use></svg><strong id="page-heading">Overview</strong></div>
+        </div>
+        <div class="topbar-end">
+          <div class="topbar-search"><svg><use href="#i-search"></use></svg><input type="search" id="global-search" placeholder="Search any lesson..." aria-label="Search course modules"><kbd>/</kbd></div>
+          <div class="top-progress-pill" id="top-progress">0% complete</div>
+          <button type="button" id="continue-top" class="button button-primary button-compact">Continue <svg><use href="#i-arrow-right"></use></svg></button>
+        </div>
+      </header>
+
+      <main id="main-content">
+        <section id="view-overview" class="view active" aria-label="Overview">
+          <div class="hero">
+            <div class="hero-copy">
+              <div class="eyebrow eyebrow-invert"><span class="eyebrow-dot"></span> THE COMPLETE AI LEARNING JOURNEY</div>
+              <h1>From <span>.NET Developer</span><br>to AI Engineer.</h1>
+              <p>One clear path. Real C# projects. Learn AI from the very basics through RAG, agents, multimodal, Azure and production engineering — without getting lost in theory.</p>
+              <div class="hero-actions"><button class="button button-white" type="button" id="hero-start"><svg><use href="#i-play"></use></svg> Start learning <svg><use href="#i-arrow-right"></use></svg></button><button type="button" id="hero-projects" class="button button-outline-light">Explore projects</button></div>
+              <div class="hero-bottom"><span><svg><use href="#i-checkcircle"></use></svg> Beginner-friendly</span><span><svg><use href="#i-code"></use></svg> C# first</span><span><svg><use href="#i-cloud"></use></svg> Azure ready</span></div>
+            </div>
+            <div class="hero-visual" aria-hidden="true">
+              <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+              <div class="orbit-card orbit-top"><div class="orbit-symbol"><svg><use href="#i-code"></use></svg></div><div><strong>ASP.NET Core</strong><small>Your skills today</small></div><span class="orbit-status">01</span></div>
+              <div class="orbit-connector"><span></span><span></span><span></span></div>
+              <div class="orbit-card orbit-mid"><div class="orbit-symbol"><svg><use href="#i-brain"></use></svg></div><div><strong>LLMs + RAG</strong><small>Intelligence layer</small></div><span class="orbit-status">02</span></div>
+              <div class="orbit-connector"><span></span><span></span><span></span></div>
+              <div class="orbit-card orbit-bottom"><div class="orbit-symbol"><svg><use href="#i-workflow"></use></svg></div><div><strong>AI Engineering</strong><small>Secure and production-ready</small></div><span class="orbit-status">03</span></div>
+              <div class="floating-spark float-left"><svg><use href="#i-sparkles"></use></svg></div><div class="floating-spark float-right"><svg><use href="#i-zap"></use></svg></div>
+            </div>
+          </div>
+          <div class="stats-grid" id="stats-grid"></div>
+          <div class="section-heading home-next-heading"><div><span class="overline">START THE RIGHT WAY</span><h2>Your next step is already planned.</h2><p>No rush and no random tutorials. Learn one small concept, write a tiny C# experiment and verify it.</p></div><button type="button" class="text-button" id="view-full-path">View full learning path <svg><use href="#i-arrow-right"></use></svg></button></div>
+          <div class="onboarding-grid"><div class="onboard-card"><div class="onboard-icon i-one"><svg><use href="#i-book"></use></svg></div><span class="step-no">STEP 01</span><h3>Understand one concept</h3><p>Plain English first. Connect it to familiar .NET ideas, with no unexplained jargon.</p></div><div class="onboard-card"><div class="onboard-icon i-two"><svg><use href="#i-code"></use></svg></div><span class="step-no">STEP 02</span><h3>Build it in C#</h3><p>A small executable lab or API. Reuse your knowledge of DI, services and controllers.</p></div><div class="onboard-card"><div class="onboard-icon i-three"><svg><use href="#i-checkcircle"></use></svg></div><span class="step-no">STEP 03</span><h3>Test, then continue</h3><p>Verify an actual result, record a lesson learned and check off the task.</p></div></div>
+          <div class="home-feature-grid">
+            <div class="feature-panel feature-next"><div class="feature-head"><span class="overline">PICK UP WHERE YOU LEFT OFF</span><span class="tiny-dot blue-dot"></span></div><div id="next-module-card"></div></div>
+            <div class="feature-panel feature-roadmap"><span class="overline">YOUR DESTINATION</span><h3>18 projects. One complete platform.</h3><p>Start with AI vs ordinary C# and ML.NET, then add LLM chat, tools, search, RAG, agents, MCP, security and Azure deployment.</p><div class="mini-stages"><span>ML.NET</span><svg><use href="#i-arrow-right"></use></svg><span>LLMs</span><svg><use href="#i-arrow-right"></use></svg><span>RAG</span><svg><use href="#i-arrow-right"></use></svg><span>Agents</span><svg><use href="#i-arrow-right"></use></svg><span>Azure</span></div><button class="text-button" type="button" id="feature-projects">See the project ladder <svg><use href="#i-arrow-right"></use></svg></button></div>
+          </div>
+          <div class="notice-bar"><svg><use href="#i-info"></use></svg><div><strong>What you need:</strong> You already know C#, ASP.NET Core and Azure. You do <strong>not</strong> need Python, a GPU or advanced mathematics to start. This contains <strong>360 learning sessions</strong>, not 360 fixed calendar days. Learn at your own pace. You can take extra days whenever you need.</div></div>
+        </section>
+
+        <section id="view-path" class="view" aria-label="Learning path">
+          <div class="page-head"><div><span class="overline">YOUR CURRICULUM</span><h1>Learn in the right order.</h1><p>Follow the lessons top to bottom. Each module tells you what it means, what to build, how to test it and which official GitHub samples to use.</p></div><div class="head-aside"><div class="course-percent" id="path-progress-label">0% complete</div><div class="progress-track"><span id="path-progress-bar" style="width:0%"></span></div></div></div>
+          <div class="path-toolbar"><div class="filter-chips" id="level-filters"><button type="button" data-level="All" class="chip active">All levels</button><button type="button" data-level="Beginner" class="chip">Beginner</button><button type="button" data-level="Intermediate" class="chip">Intermediate</button><button type="button" data-level="Advanced" class="chip">Advanced</button></div><div class="results-count" id="module-results-count">72 modules</div></div>
+          <div class="learning-layout"><div class="phase-list" id="phase-list"></div><div class="module-details" id="module-details"></div></div>
+        </section>
+
+        <section id="view-projects" class="view" aria-label="Projects">
+          <div class="page-head"><div><span class="overline">LEARN BY SHIPPING SOFTWARE</span><h1>18 practical projects, from zero to production.</h1><p>Build them in order. Each project solves a recognizable business problem and proves you learned the concept.</p></div></div>
+          <div class="project-banner"><svg><use href="#i-lightbulb"></use></svg><p><strong>A simple rule:</strong> Read a reference repo, run it, then implement a smaller version yourself. Do not copy the entire sample without understanding it.</p></div>
+          <div id="project-grid" class="project-grid"></div>
+        </section>
+
+        <section id="view-kickstart" class="view" aria-label="Day 1 to Day 360 course">
+          <div class="page-head"><div><span class="overline">YOUR FULL LEARNING JOURNEY</span><h1>Day 1 → Day 360. One easy step at a time.</h1><p>Every day has one clear idea, a tiny C#/.NET-focused activity, a result to check and external learning references. These are learning sessions, <strong>not deadlines</strong>—take as long as you need.</p></div><div class="head-aside"><div class="course-percent" id="daily-progress-label">0 / 360 lessons</div><div class="progress-track"><span id="daily-progress-bar" style="width:0%"></span></div></div></div>
+          <div class="kickstart-bar"><div><svg><use href="#i-calendar"></use></svg><span id="daily-next-message">Day 1 is waiting for you.</span></div><button type="button" class="button button-primary button-compact" id="daily-continue">Continue where I stopped <svg><use href="#i-arrow-right"></use></svg></button></div>
+          <div class="daily-intro-note"><svg><use href="#i-lightbulb"></use></svg><div><strong>The rule for every day:</strong> Understand → Do in C# → Check the result → Mark done. If something is confusing, open the related Module for its .NET analogy and starter code. Rest days are up to you.</div></div>
+          <div class="daily-toolbar"><div class="field-with-icon daily-search-field"><svg><use href="#i-search"></use></svg><input id="day-search" type="search" placeholder="Find any of the 360 days…" aria-label="Search daily learning sessions"></div><select id="day-module-select" aria-label="Jump to a module"></select><button type="button" id="previous-block" class="button button-outline button-compact"> <svg><use href="#i-arrow-left"></use></svg> Previous </button><button type="button" id="next-block" class="button button-outline button-compact">Next <svg><use href="#i-arrow-right"></use></svg></button></div>
+          <div class="daily-phase-strip" id="daily-phase-strip" aria-label="Learning phases"></div>
+          <div id="day-search-results" class="daily-search-results" hidden></div>
+          <div class="daily-layout"><div class="daily-module-nav" id="daily-module-nav"></div><div id="weeks-grid" class="daily-day-stack"></div></div>
+        </section>
+
+        <section id="view-glossary" class="view" aria-label="Glossary">
+          <div class="page-head"><div><span class="overline">UNDERSTAND THE LANGUAGE</span><h1>AI concepts, in plain English.</h1><p>Short definitions you can refer to while you build. You don't have to memorize everything before starting.</p></div></div>
+          <div class="glossary-tools"><div class="field-with-icon"><svg><use href="#i-search"></use></svg><input type="search" id="glossary-search" aria-label="Search AI concepts" placeholder="Search a term, such as ‘embeddings’..." /></div><select id="glossary-category" aria-label="Filter concepts by category"><option value="All">All categories</option></select><span id="glossary-count" class="results-count"></span></div>
+          <div id="glossary-grid" class="glossary-grid"></div>
+        </section>
+
+        <section id="view-toolkit" class="view" aria-label="Setup and resources">
+          <div class="page-head"><div><span class="overline">EVERYTHING YOU NEED</span><h1>Setup, tools & GitHub references.</h1><p>Begin with a normal .NET setup. Add a vector DB, agents or Azure services only when you reach those modules.</p></div></div>
+          <div class="toolkit-layout">
+            <div class="toolkit-main">
+              <div class="tool-card"><div class="card-heading"><span class="round-icon"><svg><use href="#i-terminal"></use></svg></span><div><h2>01. Create your starter repository</h2><p>These commands do not call any paid AI service.</p></div></div><div class="code-wrap"><div class="code-heading"><span>Terminal · .NET SDK</span><button type="button" class="code-copy" data-copy-target="start-code"><svg><use href="#i-copy"></use></svg> Copy</button></div><pre id="start-code"><code>dotnet --info
+mkdir dotnet-ai-learning
+cd dotnet-ai-learning
+dotnet new sln -n DotNetAiLearning
+dotnet new console -n Warmup -o src/Warmup
+dotnet sln add src/Warmup/Warmup.csproj
+dotnet new xunit -n Warmup.Tests -o tests/Warmup.Tests
+dotnet sln add tests/Warmup.Tests/Warmup.Tests.csproj
+dotnet run --project src/Warmup
+# ML.NET is introduced later; a paid model API is introduced much later</code></pre></div><p class="helper-text">When you reach Module 25, choose an API provider. Store credentials using environment variables or .NET user secrets. Do not paste an API key into the browser or this offline learning site.</p></div>
+              <div class="tool-card"><div class="card-heading"><span class="round-icon"><svg><use href="#i-box"></use></svg></span><div><h2>02. Add tools only as you need them</h2><p>Keep the learning stack small at the beginning.</p></div></div><div class="stack-table"><div><strong>Foundations first</strong><span>C# • .NET SDK • xUnit • ML.NET; no AI API needed initially</span></div><div><strong>Search & RAG</strong><span>float[] + LINQ first, then pgvector/Qdrant, PDF parser, Azure AI Search</span></div><div><strong>Agents & MCP</strong><span>Tool calling first, then Microsoft.Extensions.AI • Agent Framework • MCP C# SDK</span></div><div><strong>Production</strong><span>Entra ID • Blob Storage • Key Vault • OpenTelemetry • App Insights</span></div><div><strong>Optional depth</strong><span>Ollama • ONNX Runtime for C# • Azure ML • advanced research later</span></div></div></div>
+              <div class="tool-card"><div class="card-heading"><span class="round-icon"><svg><use href="#i-file"></use></svg></span><div><h2>03. Keep one tidy Git repository</h2><p>Every project has a README, tests and a record of what you learned.</p></div></div><div class="code-wrap"><div class="code-heading"><span>Suggested structure</span><button type="button" class="code-copy" data-copy-target="folder-code"><svg><use href="#i-copy"></use></svg> Copy</button></div><pre id="folder-code"><code>dotnet-ai-learning/
+├── 01-ai-fundamentals/
+├── 02-vector-and-statistics/
+├── 03-mlnet-sentiment/
+├── 04-delivery-regression/
+├── 05-console-llm-chat/
+├── 06-blazor-chat/
+├── 07-structured-text-api/
+├── 08-order-tool-calling/
+├── 09-semantic-product-search/
+├── 10-pgvector-search/
+├── 11-basic-rag/
+├── 12-enterprise-rag/
+├── 13-agent-and-workflows/
+├── 14-mcp-csharp/
+├── 15-multimodal/
+├── 16-evaluation-security/
+├── 17-azure-capstone/
+└── README.md</code></pre></div></div>
+              <div class="tool-card"><div class="card-heading"><span class="round-icon"><svg><use href="#i-github"></use></svg></span><div><h2>04. Official websites + GitHub reference library</h2><p>Microsoft Learn and C# GitHub examples are the default. Optional non-C# references are clearly labeled.</p></div></div><div id="resource-groups"></div></div>
+              <div class="tool-card"><div class="card-heading"><span class="round-icon purple-icon"><svg><use href="#i-graduation"></use></svg></span><div><h2>05. After the core: explore an AI specialization</h2><p>These are optional depth tracks, not prerequisites. The main course is C#/.NET/Azure-first; no course can cover every topic in AI research.</p></div></div><div class="electives-grid" id="electives-grid"></div></div>
+            </div>
+            <div class="toolkit-side">
+              <div class="side-tool-card"><div class="round-icon purple-icon"><svg><use href="#i-checkcircle"></use></svg></div><h3>Before Day 1</h3><div class="setup-checks" id="setup-checks"></div></div>
+              <div class="side-tool-card"><div class="round-icon amber-icon"><svg><use href="#i-info"></use></svg></div><h3>Know the costs</h3><p>All HTML lessons are free and offline. Some later labs use paid model APIs or cloud infrastructure. Choose a small budget, use sample data, and tear down unused Azure resources.</p></div>
+              <div class="side-tool-card"><div class="round-icon"><svg><use href="#i-download"></use></svg></div><h3>Back up your progress</h3><p>Progress lives in <strong>this browser only</strong>, using local storage. Export a JSON backup if you switch machines.</p><button type="button" id="export-progress" class="button button-outline button-wide"><svg><use href="#i-download"></use></svg> Export progress</button><button type="button" id="import-progress" class="button button-outline button-wide"><svg><use href="#i-upload"></use></svg> Import progress</button><button type="button" id="reset-progress" class="button button-danger-text button-wide"><svg><use href="#i-reset"></use></svg> Reset all progress</button><input type="file" id="import-file" accept="application/json,.json" hidden></div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer class="page-footer"><span>AI Academy for .NET Developers · Material Blue · Works offline after download</span><span>Learn → Build → Test → Ship <svg><use href="#i-sparkles"></use></svg></span></footer>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <noscript><div style="padding:24px;text-align:center">This local learning website needs JavaScript enabled to show the course and save your progress.</div></noscript>
+</body>
+</html>
