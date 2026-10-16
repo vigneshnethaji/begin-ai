@@ -1,0 +1,6 @@
+# Local lab build and browser verification output
+labs/**/bin/
+labs/**/obj/
+.artifacts/
+node_modules/
+docs/superpowers/
