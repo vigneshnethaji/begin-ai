@@ -8,6 +8,8 @@ Double-click **index.html** in Edge or Chrome. No website build, account, server
 
 Use **Start the foundation lessons** to begin, or **Continue learning** when you have saved progress. **Learn** opens the next topic whose understanding check is unfinished. **Course map** shows the full proposed path; **My progress** shows evidence and backups. The logo always returns to Home. Phones have a persistent, labelled bottom navigation bar and a course drawer.
 
+Side navigation follows the active page: Course map lists all 11 units and jumps to the selected section, lessons show the foundation lesson sequence, the desktop lab shows related prerequisites, and Progress shows relevant next actions. The map highlights the unit currently in view; planned units remain labelled Planned. The mobile course drawer follows the same context.
+
 For a portable single-file edition, open **standalone.html**. It embeds the styling, lessons, interactions, and downloadable C# lab sources. Keep the original-v2 folder nearby only if you want the comparison link to the old academy to work.
 
 Optional local hosting with Node:

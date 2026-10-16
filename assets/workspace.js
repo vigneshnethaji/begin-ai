@@ -24,7 +24,16 @@
     return `<div class="side-heading"><span class="preview-label">Foundation preview</span><h2>Your starting point</h2><p>AI from zero. Familiar .NET thinking.</p><div class="side-progress"><div class="progress-track" role="progressbar" aria-label="Foundation understanding checks" aria-valuemin="0" aria-valuemax="6" aria-valuenow="${checked}"><span style="width:${checked/6*100}%"></span></div><span>${checked} of 6 understanding checks passed</span></div></div><div class="side-section-label"><span>Foundations</span>${icon('book')}</div><nav aria-label="Foundation lessons"><ol class="lesson-nav">${C.lessons.map((lesson,index)=>`<li><a class="lesson-link ${id===lesson.id?'active':''}" ${id===lesson.id?'aria-current="page"':''} href="${lessonUrl(lesson.id)}"><span class="lesson-number ${state.lessons[lesson.id]?.checked?'done':''}">${state.lessons[lesson.id]?.checked?icon('check'):index+1}</span><span>${esc(lesson.short)}<small>${lesson.minutes} min${state.lessons[lesson.id]?.checked?' · Check passed':state.lessons[lesson.id]?.read?' · Read':''}</small></span></a></li>`).join('')}</ol></nav><nav class="side-secondary" aria-label="Learning resources"><a href="#lab">${icon('code')}C# rules-baseline lab</a><a href="#map">${icon('map')}The complete learning path</a><a href="#progress">${icon('check')}Progress and backup</a></nav><p class="side-footnote">Learn at your own pace.<br>No AI account needed for these lessons.<a href="original-v2/index.html">Open the original academy</a></p>`;
   }
   function updateNav(){
-    const markup=`<a class="side-home ${active?.type==='home'?'active':''}" href="#home">${icon('home')}Home and getting started</a>`+navMarkup(active?.id);
+    let context=navMarkup(active?.id);
+    if(active?.type==='map'){
+      const selected=active.id||C.stages[0].id;
+      context=`<div class="side-heading"><span class="preview-label">Complete learning path</span><h2>Course map</h2><p>${C.stages.length} units, from foundations to production.</p></div><div class="side-section-label"><span>Jump to a unit</span>${icon('map')}</div><nav aria-label="Course units"><ol class="lesson-nav unit-nav">${C.stages.map((stage,index)=>`<li><a class="lesson-link unit-link ${stage.id===selected?'active':''}" href="#map/${stage.id}" ${stage.id===selected?'aria-current="location"':''}><span class="lesson-number">${index+1}</span><span>${esc(stage.title)}<small class="${stage.available?'unit-available':''}">${stage.available?'Available now':'Planned'}</small></span></a></li>`).join('')}</ol></nav><p class="side-footnote">These links jump to units on the map. Planned units describe what comes later; their lessons are not published yet.</p><nav class="side-secondary" aria-label="Learning resources"><a href="#learn">${icon('book')}Continue learning</a><a href="#lab">${icon('code')}C# rules-baseline lab</a></nav>`;
+    }else if(active?.type==='progress'){
+      context=`<div class="side-heading"><h2>My progress</h2><p>Reading, understanding checks, and coding milestones.</p></div><nav class="side-secondary" aria-label="Progress navigation"><a href="#learn">${icon('book')}Continue learning</a><a href="#lab">${icon('code')}Your coding milestone</a><a href="#map">${icon('map')}Explore the course map</a></nav><p class="side-footnote">Use the backup controls on this page to export or restore progress.</p>`;
+    }else if(active?.type==='lab'){
+      context=`<div class="side-heading"><span class="preview-label">Desktop lab</span><h2>C# rules baseline</h2><p>Your first SupportDesk code milestone.</p></div><div class="side-section-label"><span>Related lessons</span>${icon('book')}</div><nav aria-label="Lab prerequisites"><ol class="lesson-nav">${['rules','choose-approach'].map(id=>`<li><a class="lesson-link" href="${lessonUrl(id)}">${icon('book')}<span>${esc(core.getLesson(id).short)}</span></a></li>`).join('')}</ol></nav><nav class="side-secondary" aria-label="Lab navigation"><a href="#progress">${icon('check')}Progress and backup</a><a href="#map">${icon('map')}See the project path</a></nav><p class="side-footnote">Run the lab on a desktop with .NET 10. The page includes source downloads, commands, and expected results.</p>`;
+    }
+    const markup=`<a class="side-home ${active?.type==='home'?'active':''}" href="#home">${icon('home')}Home and getting started</a>`+context;
     $('#desktop-navigation').innerHTML=markup;$('#mobile-navigation').innerHTML=markup;
     document.querySelectorAll('[data-route]').forEach(link=>{
       const selected=link.dataset.route===active?.type;
@@ -72,9 +81,10 @@
       $('#course-stages').innerHTML=C.stages.map((stage,index)=>{
         const overall=`${stage.title} ${stage.outcome} ${stage.milestone}`.toLowerCase().includes(term);
         const topics=stage.topics.map((topic,i)=>({topic,i})).filter(x=>overall||x.topic.toLowerCase().includes(term));if(!topics.length)return '';found++;
-        return `<section class="stage"><div class="stage-header"><span class="stage-index">${index+1}</span><div><h2>${esc(stage.title)}</h2><p>${esc(stage.outcome)}</p></div><span class="stage-status ${stage.available?'available':''}">${stage.available?'Available now':'Planned'}</span></div><ul class="stage-topics">${topics.map(({topic,i})=>`<li>${stage.available?`<a href="${lessonUrl(C.lessons[i].id)}">${esc(topic)}${icon('chevron')}</a>`:esc(topic)}</li>`).join('')}</ul><p class="milestone">Project milestone: <strong>${esc(stage.milestone)}</strong></p></section>`;
+        return `<section class="stage" id="unit-${stage.id}"><div class="stage-header"><span class="stage-index">${index+1}</span><div><h2 tabindex="-1">${esc(stage.title)}</h2><p>${esc(stage.outcome)}</p></div><span class="stage-status ${stage.available?'available':''}">${stage.available?'Available now':'Planned'}</span></div><ul class="stage-topics">${topics.map(({topic,i})=>`<li>${stage.available?`<a href="${lessonUrl(C.lessons[i].id)}">${esc(topic)}${icon('chevron')}</a>`:esc(topic)}</li>`).join('')}</ul><p class="milestone">Project milestone: <strong>${esc(stage.milestone)}</strong></p></section>`;
       }).join('')||'<p class="empty-search">No matching topic. Try a shorter term, such as “model”, “search”, or “Azure”.</p>';
       $('#search-count').textContent=term?`${found} matching ${found===1?'unit':'units'}. Planned topics are shown for context.`:`${C.stages.length} connected units · 1 available in this preview`;
+      syncMapSidebar();
     }
     $('#course-search').addEventListener('input',event=>drawStages(event.target.value));drawStages();
   }
@@ -164,6 +174,14 @@ static string Route(string message)
     else if(type==='lab'){renderLab();document.title='C# rules-baseline lab · AI for .NET developers';}
     else{$('#main-content').innerHTML=`<div class="wide-view"><h1 tabindex="-1">That lesson link is unavailable.</h1><p>Choose a foundation lesson or explore the course map.</p><a class="button" href="#map">Open the course map</a></div>`;}
     updateNav();
+    const mapTarget=type==='map'&&id?document.getElementById('unit-'+id):null;
+    if(mapTarget){
+      closeDrawer();mapTarget.querySelector('h2').focus({preventScroll:true});
+      const headerHeight=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header'));
+      window.scrollTo({top:Math.max(0,mapTarget.getBoundingClientRect().top+scrollY-headerHeight-20),behavior:'instant'});
+      syncMapSidebar();
+      return;
+    }
     if(!initial){
       closeDrawer();const same=previous?.type==='lesson'&&type==='lesson'&&previous.id===id;
       const focusTarget=same?$('.lesson-panel h2'):$('h1');
@@ -173,6 +191,27 @@ static string Route(string message)
     }
   }
   window.addEventListener('hashchange',()=>render(false));
+  function syncMapSidebar(){
+    if(active?.type!=='map')return;
+    const boundary=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header'))+140;
+    const stages=Array.from(document.querySelectorAll('.stage'));
+    const current=stages.filter(stage=>stage.getBoundingClientRect().top<=boundary).at(-1)||stages[0];
+    if(!current)return;
+    const id=current.id.replace('unit-','');active.id=id;
+    document.querySelectorAll('.unit-link').forEach(link=>{
+      const selected=link.getAttribute('href')==='#map/'+id;
+      link.classList.toggle('active',selected);
+      if(selected)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current');
+    });
+  }
+  let scrollPending=false;
+  window.addEventListener('scroll',()=>{
+    if(active?.type!=='map'||scrollPending)return;
+    scrollPending=true;
+    requestAnimationFrame(()=>{
+      scrollPending=false;syncMapSidebar();
+    });
+  },{passive:true});
   window.addEventListener('storage',event=>{if(event.key===KEY){try{state=core.sanitizeProgress(JSON.parse(event.newValue||'null'));render(true);}catch{storageFailed=true;syncWarning();}}});
   render(true);
 })();
