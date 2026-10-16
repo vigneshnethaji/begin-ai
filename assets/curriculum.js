@@ -1,16 +1,17 @@
 /* Authored preview curriculum. Classic script also works when opened from disk. */
 (function (root, factory) {
-  const value = factory();
+  const value = factory(typeof module === 'object' && module.exports ? require('./mlnet-content.js') : root.AcademyMlnetContent);
   if (typeof module === 'object' && module.exports) module.exports = value;
   else root.AcademyContent = value;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (mlnet) {
   'use strict';
   const references = {
+    ...mlnet.references,
     overview: { title: 'Microsoft Learn: AI in .NET', url: 'https://learn.microsoft.com/en-us/dotnet/ai/overview', note: 'Optional reading after this lesson. The course explains the terms you need here.' },
     ml: { title: 'Microsoft Learn: How ML.NET works', url: 'https://learn.microsoft.com/en-us/dotnet/machine-learning/how-does-mldotnet-work', note: 'See how data becomes a model and how a .NET application uses it. You do not need to run this guide yet.' },
     console: { title: 'Microsoft Learn: Create a .NET console app', url: 'https://learn.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio-code', note: 'Extra help with the console project used in our desktop lab.' }
   };
-  const lessons = [
+  const foundationLessons = [
     {
       id: 'ai-features', conceptId: 'ai-feature', title: 'What makes a feature an AI feature?', short: 'Recognize an AI feature', minutes: 8, prerequisites: [],
       objective: 'Tell the difference between code that follows a rule and a model that learns patterns.',
@@ -170,13 +171,14 @@
         { text: 'Use rules for validation, evaluate a classifier for routing, and review LLM-generated drafts.', why: 'Correct. Each component has a clear job, and uncertain outputs get evaluation and review.' },
         { text: 'Never use models if an application already has C# services.', why: 'A model can be one component behind a service interface. Existing .NET architecture gives you a place to integrate it.' }
       ], answer: 1 },
-      dotnet: { title: 'Your first project milestone is a decision, not a framework.', text: 'Write a short decision for each proposed feature: input, required output, simplest approach, failure consequence, and proof it works. Then run the rules-baseline lab. Later units add ML.NET, Blazor, and provider integrations in that order.', code: 'Feature: Reject an empty message\nInput: Customer message text\nOutput: Accept or reject\nApproach: C# validation rule\nFailure: An empty request enters the queue\nProof: Tests for empty, spaces, and valid text', label: 'Engineering decision · worked example', contribution: 'You can justify the first three capabilities in the SupportDesk roadmap.', next: 'Complete the desktop rules lab, then continue into labelled data and ML.NET when those lessons are published.', lab: true },
+      dotnet: { title: 'Your first project milestone is a decision, not a framework.', text: 'Write a short decision for each proposed feature: input, required output, simplest approach, failure consequence, and proof it works. Then run the rules-baseline lab. The next unit adds a first ML.NET classifier; later units introduce Blazor and provider integrations.', code: 'Feature: Reject an empty message\nInput: Customer message text\nOutput: Accept or reject\nApproach: C# validation rule\nFailure: An empty request enters the queue\nProof: Tests for empty, spaces, and valid text', label: 'Engineering decision · worked example', contribution: 'You can justify the first three capabilities in the SupportDesk roadmap.', next: 'Complete the desktop rules lab, then continue into labelled data and ML.NET.', lab: true },
       reference: 'overview'
     }
   ];
+  const lessons = [...foundationLessons.map(x=>({...x,unitId:'foundations',labId:'rules-baseline'})),...mlnet.lessons];
   const stages = [
-    { id: 'foundations', title: 'Foundations', outcome: 'Explain where AI belongs in a .NET application.', topics: lessons.map(x=>x.short), milestone: 'SupportDesk rules baseline', available: true },
-    { id: 'first-mlnet-model', title: 'Data and your first ML.NET model', outcome: 'Train and evaluate a small category classifier.', topics: ['Rows, features, and labels', 'Good examples and bad data', 'Training and test splits', 'Your first ML.NET pipeline', 'Accuracy and mistake analysis', 'Save a model and call it from C#'], milestone: 'A measured message classifier' },
+    { id: 'foundations', title: 'Foundations', outcome: 'Explain where AI belongs in a .NET application.', topics: foundationLessons.map(x=>x.short), milestone: 'SupportDesk rules baseline', available: true },
+    { id: 'first-mlnet-model', title: 'Data and your first ML.NET model', outcome: 'Train and evaluate a small category classifier.', topics: mlnet.lessons.map(x=>x.short), milestone: 'A measured message classifier', available: true },
     { id: 'language-models', title: 'Language models in C#', outcome: 'Call a language model through a .NET service.', topics: ['Generated text and its limits', 'Tokens and context limits', 'A first provider call', 'Server-side credentials', 'Timeouts and cancellation', 'Streaming a response into Blazor'], milestone: 'A draft reply with a sample-response mode' },
     { id: 'reliable-outputs', title: 'Reliable prompts and outputs', outcome: 'Turn generated text into a validated feature.', topics: ['Instructions and message roles', 'Examples inside a prompt', 'Supplying useful context', 'Structured JSON and DTOs', 'Validation and refusal handling', 'Comparing prompt changes'], milestone: 'A validated ticket-summary feature' },
     { id: 'tools-actions', title: 'Tools and safe actions', outcome: 'Give a model narrowly scoped application capabilities.', topics: ['A tool is a callable function', 'Typed arguments', 'Tool selection versus execution', 'Authorization and approvals', 'Retries and duplicate actions', 'Audit trails and unknown results'], milestone: 'A reviewed ticket-lookup tool' },
@@ -187,5 +189,7 @@
     { id: 'model-choices', title: 'More inputs and model choices', outcome: 'Choose the right input and hosting approach.', topics: ['Images and OCR', 'Speech and transcripts', 'Combining input types', 'Local model inference', 'ONNX and quantization basics', 'When fine-tuning is justified'], milestone: 'A reviewed attachment-processing feature' },
     { id: 'azure-operations', title: 'Operate and deploy on Azure', outcome: 'Deploy, observe, and maintain the application.', topics: ['Identity and secrets', 'Evaluation gates in CI', 'Logging and tracing', 'Latency, caching, and cost', 'Azure deployment and rollback', 'Capstone acceptance and failure drills'], milestone: 'An observable SupportDesk capstone' }
   ];
-  return { lessons, stages, references, version: 1, labId: 'rules-baseline' };
+  for(const stage of stages)stage.lessonIds=lessons.filter(x=>x.unitId===stage.id).map(x=>x.id);
+  const labs=[{id:'rules-baseline',title:'C# rules baseline',url:'#lab'},{id:'mlnet-classifier',title:'ML.NET ticket classifier',url:'#lab/mlnet-classifier'}];
+  return { lessons, stages, references, labs, version: 1, labId: 'rules-baseline' };
 });

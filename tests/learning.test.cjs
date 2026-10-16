@@ -47,3 +47,19 @@ test('invalid choices cannot award understanding or crash feedback', () => {
   assert.equal(core.grade('ai-features', '1').correct, false);
   assert.equal(core.getLesson('missing'), undefined);
 });
+test('finishing foundations continues into the real ML.NET lessons', () => {
+  const ids=['ai-features','rules','models','training','predictions','choose-approach'];
+  const state={lessons:Object.fromEntries(ids.map(id=>[id,{checked:true}]))};
+  assert.equal(core.nextLesson(state).id,'data-examples');
+});
+test('each available unit resolves its own lessons rather than foundation array positions', () => {
+  assert.equal(typeof core.lessonsForUnit,'function');
+  assert.equal(core.lessonsForUnit('first-mlnet-model')[0].id,'data-examples');
+  assert.equal(core.lessonsForUnit('foundations').length,6);
+  assert.equal(core.unitForLesson('save-load').id,'first-mlnet-model');
+});
+test('new lab progress imports alongside old lab evidence without accepting unknown IDs', () => {
+  const state=core.sanitizeProgress({lessons:{'data-examples':{read:true,checked:true}},labs:{'rules-baseline':true,'mlnet-classifier':true,unknown:true}});
+  assert.deepEqual(state.labs,{'rules-baseline':true,'mlnet-classifier':true});
+  assert.equal(state.lessons['data-examples'].checked,true);
+});

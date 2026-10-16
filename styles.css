@@ -10,6 +10,7 @@
 .code-header button{min-height:44px}
 .header-link[aria-current=page]{color:var(--primary-text);background:var(--primary-soft)}
 .mobile-bottom-nav{display:none}
+.breadcrumb{flex-wrap:wrap;row-gap:0}
 .stage{scroll-margin-top:calc(var(--header) + 20px)}
 .unit-nav .lesson-link{min-height:66px;align-items:flex-start}.unit-nav .lesson-number{margin-top:2px}.lesson-link small.unit-available{color:#95d39a}
 .side-home{display:flex;align-items:center;gap:10px;padding:15px 24px;min-height:54px;border-bottom:1px solid var(--line);text-decoration:none;font-size:13px;color:var(--text)}

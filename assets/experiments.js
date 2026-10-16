@@ -78,5 +78,6 @@
     else if(type==='keyword')keyword(node);
     else if(type==='model-boundary')boundary(node);
     else if(type==='evaluate')evaluate(node);
+    else if(type.startsWith('ml-'))AcademyMlnetExperiments.mount(node,type);
   }};
 })();

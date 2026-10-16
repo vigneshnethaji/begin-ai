@@ -1,0 +1,55 @@
+Label	Text
+Billing	The invoice for our fictional team includes a fee we did not approve.
+Billing	Please refund the payment taken after I cancelled the subscription.
+Billing	My card was charged twice for the same monthly plan.
+Billing	Can you send a receipt for the purchase made yesterday?
+Billing	The total on my bill does not match the advertised price.
+Billing	I need to replace the credit card used for recurring payments.
+Billing	Our subscription renewed at the wrong rate this month.
+Billing	Please explain the tax added to the latest invoice.
+Billing	The refund has not reached my bank after a week.
+Billing	I paid the balance but the bill still says overdue.
+Billing	How can I switch from monthly billing to annual billing?
+Billing	The discount code did not reduce my checkout total.
+Billing	I would like a copy of all receipts for this quarter.
+Billing	A failed payment left an unexpected charge on my statement.
+Billing	Please remove the extra seat fee from our next invoice.
+Billing	My prepaid credit was not applied to the subscription cost.
+Billing	Which currency will you use to charge my debit card?
+Billing	I cancelled the trial before renewal but you still took money.
+Account	I forgot my password and need help resetting it.
+Account	The sign in page says my username cannot be found.
+Account	Please change the email address associated with my profile.
+Account	My account is locked after several login attempts.
+Account	I lost the phone that receives my authentication codes.
+Account	How do I invite a teammate to our workspace?
+Account	Please delete my account and remove my profile details.
+Account	The password reset link expired before I could use it.
+Account	I need to update the display name on my profile.
+Account	My verification email never arrived in my inbox.
+Account	Can you restore access to my disabled user account?
+Account	I want to enable two factor authentication for sign in.
+Account	The invitation link says I am already a workspace member.
+Account	How can I transfer workspace ownership to another user?
+Account	I cannot log in after changing my email address.
+Account	Please revoke the old sessions connected to my account.
+Account	My administrator role no longer lets me manage members.
+Account	I need to recover my username without my old email inbox.
+Technical	The application crashes whenever I open the dashboard.
+Technical	Uploading a small image fails with a server error.
+Technical	The search page stays blank even after refreshing the browser.
+Technical	My exported report contains broken columns and missing rows.
+Technical	The mobile app freezes when I scroll through the activity list.
+Technical	File downloads stop halfway through on a stable connection.
+Technical	The dashboard loads very slowly since the latest update.
+Technical	I get a timeout when saving a new project.
+Technical	Notifications do not appear until I restart the application.
+Technical	The chart renders outside its panel on a narrow screen.
+Technical	My document changes are not syncing between devices.
+Technical	Clicking the export button produces an empty file.
+Technical	The browser shows an error instead of the settings screen.
+Technical	The calendar widget displays the wrong date after refresh.
+Technical	A video attachment will not play in the desktop app.
+Technical	The filter returns no results even though matching records exist.
+Technical	The application disconnects every time I upload a document.
+Technical	The save button remains disabled after I edit a task.

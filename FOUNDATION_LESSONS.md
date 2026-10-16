@@ -1,6 +1,6 @@
-# AI for .NET developers — foundation preview
+# AI for .NET developers — foundations
 
-Six complete lessons. Later units are a proposed course map, not completed lessons. Open index.html for the interactive exercises.
+The six foundation lessons. Continue into the available ML.NET unit in LEARNING_GUIDE.md or the website.
 
 ## 1. What makes a feature an AI feature?
 
@@ -368,7 +368,7 @@ Answer: 2. Correct. Each component has a clear job, and uncertain outputs get ev
 
 ### .NET connection
 
-Write a short decision for each proposed feature: input, required output, simplest approach, failure consequence, and proof it works. Then run the rules-baseline lab. Later units add ML.NET, Blazor, and provider integrations in that order.
+Write a short decision for each proposed feature: input, required output, simplest approach, failure consequence, and proof it works. Then run the rules-baseline lab. The next unit adds a first ML.NET classifier; later units introduce Blazor and provider integrations.
 
 Engineering decision · worked example
 
@@ -383,138 +383,6 @@ Proof: Tests for empty, spaces, and valid text
 
 Contribution: You can justify the first three capabilities in the SupportDesk roadmap.
 
-Next: Complete the desktop rules lab, then continue into labelled data and ML.NET when those lessons are published.
+Next: Complete the desktop rules lab, then continue into labelled data and ML.NET.
 
 Reference: [Microsoft Learn: AI in .NET](https://learn.microsoft.com/en-us/dotnet/ai/overview)
-
-## Later units — planned
-
-### 2. Data and your first ML.NET model
-
-Train and evaluate a small category classifier.
-
-- Rows, features, and labels
-- Good examples and bad data
-- Training and test splits
-- Your first ML.NET pipeline
-- Accuracy and mistake analysis
-- Save a model and call it from C#
-
-Milestone: A measured message classifier
-
-### 3. Language models in C#
-
-Call a language model through a .NET service.
-
-- Generated text and its limits
-- Tokens and context limits
-- A first provider call
-- Server-side credentials
-- Timeouts and cancellation
-- Streaming a response into Blazor
-
-Milestone: A draft reply with a sample-response mode
-
-### 4. Reliable prompts and outputs
-
-Turn generated text into a validated feature.
-
-- Instructions and message roles
-- Examples inside a prompt
-- Supplying useful context
-- Structured JSON and DTOs
-- Validation and refusal handling
-- Comparing prompt changes
-
-Milestone: A validated ticket-summary feature
-
-### 5. Tools and safe actions
-
-Give a model narrowly scoped application capabilities.
-
-- A tool is a callable function
-- Typed arguments
-- Tool selection versus execution
-- Authorization and approvals
-- Retries and duplicate actions
-- Audit trails and unknown results
-
-Milestone: A reviewed ticket-lookup tool
-
-### 6. Vectors and semantic search
-
-Find related help articles by meaning.
-
-- Vectors as float arrays
-- Similarity with a worked example
-- What embeddings represent
-- Creating and storing embeddings
-- Vector indexes
-- Filters and hybrid search
-
-Milestone: Search across fictional help articles
-
-### 7. Answers grounded in documents
-
-Build a RAG flow with inspectable evidence.
-
-- Retrieval before generation
-- Parsing and chunking
-- Choosing useful evidence
-- Prompting with retrieved passages
-- Citations and unsupported answers
-- Testing retrieval separately
-
-Milestone: An answer with source passages
-
-### 8. Production retrieval
-
-Improve retrieval without crossing data boundaries.
-
-- Retrieval evaluation sets
-- Ranking and reranking
-- Freshness and indexing
-- Document access and tenant filters
-- Prompt injection in documents
-- Tracing a bad answer
-
-Milestone: A measured and permission-aware RAG service
-
-### 9. Agents and workflows
-
-Choose controlled orchestration for multi-step work.
-
-- A workflow versus an agent
-- State and memory
-- Bounded loops and budgets
-- Microsoft Agent Framework
-- MCP tools and resources
-- Approvals and recovery
-
-Milestone: A bounded support-triage workflow
-
-### 10. More inputs and model choices
-
-Choose the right input and hosting approach.
-
-- Images and OCR
-- Speech and transcripts
-- Combining input types
-- Local model inference
-- ONNX and quantization basics
-- When fine-tuning is justified
-
-Milestone: A reviewed attachment-processing feature
-
-### 11. Operate and deploy on Azure
-
-Deploy, observe, and maintain the application.
-
-- Identity and secrets
-- Evaluation gates in CI
-- Logging and tracing
-- Latency, caching, and cost
-- Azure deployment and rollback
-- Capstone acceptance and failure drills
-
-Milestone: An observable SupportDesk capstone

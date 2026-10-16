@@ -55,7 +55,34 @@ const KEY='dotnet-ai-workspace-progress-v1';
       assert.ok((await page.locator('.lesson-panel').innerText()).length>200);
     }
   }
-  console.log('PASS: all 30 lesson sections render');
+  console.log(`PASS: all ${lessons.length*5} lesson sections render`);
+  await go('#map/first-mlnet-model');
+  const modelUnit=page.locator('#unit-first-mlnet-model');
+  assert.match(await modelUnit.innerText(),/Available now/);
+  assert.equal(await modelUnit.locator('.stage-topics a').count(),8);
+  await modelUnit.getByRole('link',{name:'Examples and datasets',exact:true}).click();
+  await page.getByRole('heading',{level:1,name:'Start with one example, then a dataset'}).waitFor();
+  assert.equal(await page.locator('#desktop-navigation').getByRole('navigation',{name:'ML.NET lessons'}).getByRole('link').count(),8);
+  assert.match(await page.locator('.current-unit').innerText(),/Lesson 1 of 8/);
+  await page.screenshot({path:path.join(out,'desktop-mlnet-start.png'),fullPage:false});
+  await go('#lesson/data-examples/try');
+  await page.locator('[data-row="1"]').click();assert.match(await page.locator('#ml-row-detail').innerText(),/Account/);
+  for(const id of ['input-features','target-labels','clean-examples','train-test-split','save-load']){
+    await go(`#lesson/${id}/try`);await page.locator('[data-ml-choice="0"]').click();
+    assert.match(await page.locator('.feedback').innerText(),/That fits/);
+  }
+  await go('#lesson/mlnet-pipeline/try');
+  await page.locator('[data-pipeline-step="2"]').click();assert.match(await page.locator('.feedback').innerText(),/next operation needs/);
+  for(const step of [0,1,2,3])await page.locator(`[data-pipeline-step="${step}"]`).click();
+  assert.match(await page.locator('.feedback').innerText(),/ready to train in C#/);
+  await go('#lesson/evaluate-model/try');await page.getByRole('button',{name:'Compare predictions with labels'}).click();
+  assert.match(await page.locator('#ml-evaluation').innerText(),/4 of 5 match/);
+  await go('#lesson/data-examples/check');await page.locator('[data-answer="2"]').click();
+  assert.equal((await readState()).lessons['data-examples'].checked,false);
+  await page.locator('[data-answer="0"]').click();assert.equal((await readState()).lessons['data-examples'].checked,true);
+  await go('#lesson/save-load/dotnet');assert.equal(await page.getByRole('link',{name:'Open the ML.NET desktop lab'}).getAttribute('href'),'#lab/mlnet-classifier');
+  await page.screenshot({path:path.join(out,'desktop-mlnet-lesson.png'),fullPage:true});
+  console.log('PASS: Unit 2 map owns 8 real lessons, per-unit navigation, all new exercises, and quiz evidence');
   await go('#lesson/rules/try');
   await page.getByRole('button',{name:'Same intent, different words',exact:true}).click();
   assert.equal(await page.locator('#rule-result').innerText(),'General');
@@ -113,10 +140,20 @@ const KEY='dotnet-ai-workspace-progress-v1';
   assert.equal((await readState()).labs['rules-baseline'],true);
   for(const file of ['SupportDesk.Rules.csproj','Program.cs','README.md'])assert.equal((await page.request.get(base+'/labs/supportdesk-rules/'+file)).status(),200);
   console.log('PASS: runnable lab downloads and independent lab milestone');
+  await go('#lab/mlnet-classifier');
+  await page.getByLabel('I trained, evaluated, and reloaded the model').check();
+  assert.equal((await readState()).labs['mlnet-classifier'],true);
+  assert.equal((await readState()).labs['rules-baseline'],true);
+  assert.match(await page.locator('#desktop-navigation').innerText(),/ML.NET ticket classifier/);
+  await page.screenshot({path:path.join(out,'desktop-mlnet-lab.png'),fullPage:true});
+  for(const [file]of require('../assets/lab-files.js'))assert.equal((await page.request.get(base+'/labs/supportdesk-classifier/'+file)).status(),200);
+  const zipPromise=page.waitForEvent('download');await page.getByRole('link',{name:'Download complete lab (.zip)'}).click();
+  await (await zipPromise).saveAs(path.join(out,'classifier-source.zip'));
+  console.log('PASS: both lab milestones coexist, all classifier sources download, and the complete ZIP downloads');
   // Detect page overflow on every view at narrow/mobile/tablet/desktop sizes.
   for(const width of [320,390,768,1440]){
     await page.setViewportSize({width,height:900});
-    for(const hash of ['#home','#lesson/ai-features/understand','#lesson/ai-features/example','#lesson/rules/try','#lesson/models/dotnet','#lesson/training/check','#map','#lab','#progress']){
+    for(const hash of ['#home','#lesson/ai-features/understand','#lesson/ai-features/example','#lesson/rules/try','#lesson/models/dotnet','#lesson/training/check','#map','#lab','#progress','#lesson/data-examples/try','#lesson/mlnet-pipeline/dotnet','#lab/mlnet-classifier']){
       await go(hash);
       const size=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:innerWidth}));
       assert.ok(size.scroll<=size.viewport+1,`overflow ${width}px ${hash}: ${JSON.stringify(size)}`);
@@ -145,7 +182,11 @@ const KEY='dotnet-ai-workspace-progress-v1';
   await page.waitForFunction(()=>document.querySelector('#unit-agents-workflows')?.getBoundingClientRect().top<150);
   assert.equal(await page.locator('#course-drawer').evaluate(x=>x.open),false);
   console.log('PASS: mobile Course map drawer lists every unit and jumps to a planned unit');
-  console.log('PASS: 36 responsive route checks, mobile drawer, and labelled mobile main navigation');
+  await go('#lesson/mlnet-pipeline/try');await page.getByRole('button',{name:'Open course navigation'}).click();
+  assert.equal(await page.locator('#course-drawer').getByRole('navigation',{name:'ML.NET lessons'}).getByRole('link').count(),8);
+  await page.getByRole('button',{name:'Close course navigation'}).click();
+  await page.screenshot({path:path.join(out,'mobile-mlnet-lesson.png'),fullPage:true});
+  console.log('PASS: 48 responsive route checks, both unit drawers, and labelled mobile main navigation');
   // A local-file site must work without fetch, a server, or module loading.
   const filePage=await browser.newPage({viewport:{width:1440,height:1000}});filePage.on('pageerror',e=>errors.push(e.message));
   for(const entry of ['index.html','standalone.html']){
@@ -161,10 +202,15 @@ const KEY='dotnet-ai-workspace-progress-v1';
   const labDownload=await fileDownloadPromise;
   await labDownload.saveAs(path.join(out,'downloaded-Program.cs'));
   assert.equal(fs.readFileSync(path.join(out,'downloaded-Program.cs'),'utf8'),fs.readFileSync(path.join(root,'labs/supportdesk-rules/Program.cs'),'utf8'));
+  await filePage.goto(pathToFileURL(path.join(isolated,'standalone.html')).href+'#lab/mlnet-classifier');
+  const standaloneZipPromise=filePage.waitForEvent('download');await filePage.getByRole('link',{name:'Download complete lab (.zip)'}).click();
+  await (await standaloneZipPromise).saveAs(path.join(out,'standalone-classifier-source.zip'));
+  assert.deepEqual(fs.readFileSync(path.join(out,'standalone-classifier-source.zip')),fs.readFileSync(path.join(root,'downloads/supportdesk-classifier.zip')));
+  console.log('PASS: isolated standalone embeds the complete ML.NET project ZIP');
   await filePage.close();
   console.log('PASS: multi-file and self-contained editions open directly from disk');
   console.log('PASS: isolated standalone downloads its embedded lab source without adjacent files');
   assert.deepEqual(errors,[],'No browser errors or missing assets');
-  fs.writeFileSync(path.join(out,'browser-results.json'),JSON.stringify({passed:true,lessonSections:30,responsiveRoutes:36,errors},null,2));
+  fs.writeFileSync(path.join(out,'browser-results.json'),JSON.stringify({passed:true,lessonSections:lessons.length*5,responsiveRoutes:48,errors},null,2));
   await browser.close();
 })().catch(error=>{console.error(error);process.exit(1);});

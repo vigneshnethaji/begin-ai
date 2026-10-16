@@ -4,6 +4,8 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function(content) {
   'use strict';
   const getLesson = id => content.lessons.find(x => x.id === id);
+  const lessonsForUnit = id => content.lessons.filter(x=>x.unitId===id);
+  const unitForLesson = id => content.stages.find(x=>x.id===getLesson(id)?.unitId);
   function sanitizeProgress(input) {
     const state = { lessons: {}, labs: {} };
     if (!input || typeof input !== 'object' || Array.isArray(input)) return state;
@@ -13,7 +15,7 @@
         state.lessons[lesson.id] = { read: entry.read === true, checked: entry.checked === true };
       }
     }
-    if (input.labs?.[content.labId] === true) state.labs[content.labId] = true;
+    for(const lab of content.labs)if(input.labs?.[lab.id]===true)state.labs[lab.id]=true;
     return state;
   }
   function grade(id, choice) {
@@ -48,5 +50,5 @@
     if (!backup.progress || typeof backup.progress !== 'object' || Array.isArray(backup.progress)) throw new Error('The backup has no valid progress object.');
     return sanitizeProgress(backup.progress);
   }
-  return { getLesson, sanitizeProgress, grade, recordAnswer, nextLesson, missingPrerequisites, classifyRule, readBackup };
+  return { getLesson, lessonsForUnit, unitForLesson, sanitizeProgress, grade, recordAnswer, nextLesson, missingPrerequisites, classifyRule, readBackup };
 });
