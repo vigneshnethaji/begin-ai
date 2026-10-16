@@ -80,5 +80,7 @@
     else if(type==='evaluate')evaluate(node);
     else if(type.startsWith('ml-'))AcademyMlnetExperiments.mount(node,type);
     else if(type.startsWith('lm-'))AcademyLanguageExperiments.mount(node,type);
+    else if(type.startsWith('reliable-'))AcademyReliableExperiments.mount(node,type);
+    else if(type.startsWith('tools-'))AcademyToolsExperiments.mount(node,type);
   }};
 })();

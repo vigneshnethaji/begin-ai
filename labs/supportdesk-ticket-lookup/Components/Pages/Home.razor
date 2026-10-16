@@ -1,0 +1,156 @@
+@page "/"
+@inject LookupExecutor Executor
+
+<PageTitle>SupportDesk · Safe ticket lookup</PageTitle>
+<main>
+    <header>
+        <p class="eyebrow">SupportDesk / Unit 5 / Tools and safe actions</p>
+        <h1>A proposal needs permission.<br />A tool needs approval.</h1>
+        <p class="intro">Inspect a local tool proposal, check its scope, then explicitly approve one fictional ticket lookup.</p>
+        <p class="badge">Local demo · Read-only · No model or provider calls</p>
+    </header>
+    <aside class="notice">SIMULATION — this identity selector is not real authentication. These team and permission checks teach boundaries; they are not production authorization. Use fictional data only. No customer data, secrets, database or actual write actions.</aside>
+
+    <div class="workspace">
+        <section class="panel" aria-labelledby="proposal-heading">
+            <p class="step">1 / Propose</p>
+            <h2 id="proposal-heading">Inspect the local proposal</h2>
+            <label for="lookup-proposal">Tool proposal JSON</label>
+            <textarea id="lookup-proposal" rows="7" maxlength="4000" @bind="raw" @bind:event="oninput" @bind:after="InputsChanged" disabled="@(!interactiveReady)" aria-describedby="proposal-help" spellcheck="false"></textarea>
+            <p id="proposal-help" class="hint">@raw.Length / 4000 characters · Maximum JSON depth 6. Only lookup_ticket and ticketId are accepted. Identity, tenant and approval never come from this JSON.</p>
+            <label for="lookup-identity">Demo identity — SIMULATION</label>
+            <select id="lookup-identity" @bind="identity" @bind:after="InputsChanged" disabled="@(!interactiveReady)">
+                <option value="billing">Billing · team A · lookup allowed</option>
+                <option value="technical">Technical · team B · lookup allowed</option>
+                <option value="no-access">No access · team A · lookup denied</option>
+            </select>
+            <label for="lookup-scenario">Simulated execution scenario</label>
+            <select id="lookup-scenario" @bind="scenario" @bind:after="InputsChanged" disabled="@(!interactiveReady)">
+                <option value="normal">Normal · one local read</option>
+                <option value="transient">Transient · fail before read, retry once</option>
+                <option value="unknown">Unknown · response lost after read</option>
+            </select>
+            <button id="validate-tool" type="button" @onclick="Validate" disabled="@(!interactiveReady)">Validate tool proposal</button>
+            <p class="hint">Validation parses the proposal and checks demo permission and team routing. It does not invoke the lookup.</p>
+        </section>
+
+        <section class="panel" aria-labelledby="approval-heading">
+            <p class="step">2 / Review and approve</p>
+            <h2 id="approval-heading">Staff control the boundary</h2>
+            <p id="lookup-status" role="status" aria-live="polite">@status</p>
+            @if (review?.Canonical is not null)
+            {
+                <h3>Canonical proposal</h3>
+                <pre>@review.Canonical</pre>
+                <p>Demo caller: <strong>@identity</strong><br />Scenario: @scenario</p>
+            }
+            <p class="hint">Current request ID</p>
+            <code class="request-id">@requestId</code>
+            <p>Approval binds this request ID, canonical proposal, demo identity and scenario in the server session. Any edit clears the result and approval and creates a fresh request.</p>
+            <div class="actions">
+                <button id="approve-tool" type="button" @onclick="Approve" disabled="@(!interactiveReady || review?.CanApprove != true || approved)">Approve this lookup</button>
+                <button id="execute-tool" type="button" @onclick="Execute" disabled="@(!interactiveReady || !approved || result is not null)">Invoke local function</button>
+                <button id="replay-tool" class="secondary" type="button" @onclick="Execute" disabled="@(!interactiveReady || !approved || result is null)">Replay exact request</button>
+            </div>
+            <p class="hint">@(approved ? "Staff approval recorded for this exact snapshot, in memory only." : "Explicit staff approval required before invocation.")</p>
+            <p class="counter">Actual local lookups this session: <output id="invocation-count" aria-live="polite">@Executor.InvocationCount</output></p>
+            <p class="hint">The counter accumulates across identity and scenario changes. Validation, approval, denial and cached replay add no reads.</p>
+        </section>
+    </div>
+
+    <section class="panel" aria-labelledby="result-heading">
+        <p class="step">3 / Observe</p>
+        <h2 id="result-heading">Typed, redacted result</h2>
+        <div id="lookup-result" role="region" aria-label="Lookup result" aria-live="polite">
+            @if (result is null)
+            {
+                <p class="hint">No result yet. Validate, approve, then invoke. A missing ticket and a ticket outside this demo team are both unavailable.</p>
+            }
+            else
+            {
+                <p><strong>@result.Outcome</strong> · @result.Message</p>
+                <p>Attempts: @result.Attempts · @(result.Replay ? "Replay: cached outcome, no additional lookup." : "First response for this request.")</p>
+                @if (result.Ticket is { } ticket)
+                {
+                    <dl><dt>Ticket</dt><dd>@ticket.TicketId</dd><dt>Subject</dt><dd>@ticket.Subject</dd><dt>Status</dt><dd>@ticket.Status</dd><dt>Summary</dt><dd>@ticket.Summary</dd></dl>
+                }
+            }
+        </div>
+        <p class="notice">Unknown is terminal for this request. This read-only example illustrates why a lost response to a write would need reconciliation before retrying. This lab implements no writes.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="audit-heading">
+        <h2 id="audit-heading">Session audit</h2>
+        <p class="hint">Latest 128 invocation decisions. Request ID, tool, ticket ID, demo caller, outcome, attempts, replay and Unknown only. No raw proposal or ticket content.</p>
+        <div id="lookup-audit" role="region" aria-label="Session audit" aria-live="polite">
+            @if (Executor.Audit.Count == 0) { <p>No invocation decisions yet.</p> }
+            else
+            {
+                <ol class="audit">
+                    @foreach (var item in Executor.Audit.Reverse())
+                    {
+                        <li><code>@item.RequestId</code><br />@item.Tool · @item.TicketId · Caller: @item.Caller<br /><strong>@item.Outcome</strong> · Attempts: @item.Attempts · Replay: @item.Replay · Unknown: @item.Unknown</li>
+                    }
+                </ol>
+            }
+        </div>
+    </section>
+
+    <footer class="panel">
+        <h2>Try the boundary</h2>
+        <p>Invoke DEMO-104 as Billing, then replay it. Switch to Technical and confirm the counter stays still. Change the proposal to DEMO-205 to try Technical's export issue. Try No access, an unknown tool, Transient, and Unknown.</p>
+        <p class="hint">Approval, cache and audit live only in this scoped session. They vanish when the session ends or the app restarts. The bounded cache is not durable and offers no persisted exactly-once guarantee. Blazor uses only a loopback browser-to-server connection.</p>
+    </footer>
+</main>
+
+@code {
+    private string raw = "{\"tool\":\"lookup_ticket\",\"arguments\":{\"ticketId\":\"DEMO-104\"}}";
+    private string identity = "billing";
+    private string scenario = "normal";
+    private Guid requestId = Guid.NewGuid();
+    private ReviewResult? review;
+    private LookupResult? result;
+    private bool approved;
+    private bool interactiveReady;
+    private string status = "Connecting to the local interactive session…";
+    private LookupScenario Mode => scenario switch
+    {
+        "normal" => LookupScenario.Normal, "transient" => LookupScenario.Transient,
+        "unknown" => LookupScenario.Unknown, _ => (LookupScenario)(-1)
+    };
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+        interactiveReady = true;
+        status = "Ready. Validate the local proposal; no lookup has run.";
+        StateHasChanged();
+    }
+    private void InputsChanged()
+    {
+        Executor.InvalidateReview();
+        requestId = Guid.NewGuid();
+        review = null; result = null; approved = false;
+        status = "Input changed. Result and approval cleared. Validate the new request.";
+    }
+    private void Validate()
+    {
+        if (!interactiveReady) return;
+        approved = false; result = null;
+        review = Executor.Validate(requestId, raw, identity, Mode);
+        status = $"{review.Outcome}: {review.Message}";
+    }
+    private void Approve()
+    {
+        if (!interactiveReady) return;
+        approved = Executor.Approve(requestId, raw, identity, Mode);
+        status = approved ? "Approved. Invoke the local function when ready; no lookup has run from this approval." : "Approval denied. Validate this exact request again.";
+    }
+    private void Execute()
+    {
+        if (!interactiveReady) return;
+        result = Executor.Invoke(requestId, raw, identity, Mode);
+        status = $"{(result.Replay ? "Replay · " : "")}{result.Outcome}: {result.Message} Attempts: {result.Attempts}.";
+        if (result.Outcome is not (LookupOutcome.Success or LookupOutcome.Unknown)) approved = false;
+    }
+}

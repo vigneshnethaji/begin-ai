@@ -76,3 +76,29 @@ test('draft lab evidence survives backup while unknown lab markers are discarded
   assert.equal(state.lessons['generated-text'].checked,true);
   assert.deepEqual(state.labs,{'rules-baseline':true,'mlnet-classifier':true,'draft-replies':true});
 });
+
+test('finishing language-model lessons continues into reliable prompt instructions', () => {
+  const ids=['ai-features','rules','models','training','predictions','choose-approach','data-examples','input-features','target-labels','clean-examples','train-test-split','mlnet-pipeline','evaluate-model','save-load','generated-text','tokens-context','first-provider-call','server-credentials','timeouts-cancellation','blazor-streaming'];
+  assert.equal(core.nextLesson({lessons:Object.fromEntries(ids.map(id=>[id,{checked:true}]))}).id,'prompt-roles');
+  assert.equal(core.unitForLesson('structured-json').id,'reliable-outputs');
+  assert.equal(core.lessonsForUnit('reliable-outputs').length,6);
+});
+
+test('summary lab completion and understanding restore without losing previous milestones', () => {
+  const state=core.readBackup(JSON.stringify({app:'dotnet-ai-workspace',version:1,progress:{lessons:{'validate-responses':{read:true,checked:true}},labs:{'rules-baseline':true,'mlnet-classifier':true,'draft-replies':true,'ticket-summary':true,unknown:true}}}));
+  assert.equal(state.lessons['validate-responses'].checked,true);
+  assert.deepEqual(state.labs,{'rules-baseline':true,'mlnet-classifier':true,'draft-replies':true,'ticket-summary':true});
+});
+
+test('finishing reliable-output lessons continues into callable tools', () => {
+  const ids=['ai-features','rules','models','training','predictions','choose-approach','data-examples','input-features','target-labels','clean-examples','train-test-split','mlnet-pipeline','evaluate-model','save-load','generated-text','tokens-context','first-provider-call','server-credentials','timeouts-cancellation','blazor-streaming','prompt-roles','prompt-examples','useful-context','structured-json','validate-responses','compare-prompts'];
+  assert.equal(core.nextLesson({lessons:Object.fromEntries(ids.map(id=>[id,{checked:true}]))}).id,'tool-function');
+  assert.equal(core.unitForLesson('tool-audit').id,'tools-actions');
+  assert.equal(core.lessonsForUnit('tools-actions').length,6);
+});
+
+test('lookup evidence imports alongside all earlier milestones and rejects unknown tools', () => {
+  const state=core.readBackup(JSON.stringify({app:'dotnet-ai-workspace',version:1,progress:{lessons:{'tool-authorization':{checked:true}},labs:{'rules-baseline':true,'mlnet-classifier':true,'draft-replies':true,'ticket-summary':true,'ticket-lookup':true,'unapproved-write':true}}}));
+  assert.equal(state.lessons['tool-authorization'].checked,true);
+  assert.deepEqual(state.labs,{'rules-baseline':true,'mlnet-classifier':true,'draft-replies':true,'ticket-summary':true,'ticket-lookup':true});
+});

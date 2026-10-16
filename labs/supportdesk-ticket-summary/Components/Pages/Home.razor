@@ -1,0 +1,146 @@
+@page "/"
+@inject SummaryValidator Validator
+@inject PromptComparison Comparison
+
+<PageTitle>SupportDesk · Validated ticket summary</PageTitle>
+<main>
+    <header>
+        <p class="eyebrow">SupportDesk / Unit 4 / Reliable prompts and outputs</p>
+        <h1>Validate the shape.<br />Review the facts.</h1>
+        <p class="intro">Turn an authored response into a typed ticket summary. Learn what validation catches—and what still needs your judgment.</p>
+        <p class="badge">Free authored sample only · No AI or provider calls</p>
+    </header>
+    <aside class="notice">Synthetic data only. Do not enter customer details, credentials or confidential information. This lab has no sending, storage or database feature. Blazor uses a local browser-to-server circuit.</aside>
+
+    <div class="workspace">
+        <section class="panel" aria-labelledby="fixture-heading">
+            <p class="step">01 / Inspect the source</p>
+            <h2 id="fixture-heading">Choose a fixed fixture</h2>
+            <label for="summary-scenario">Authored response scenario</label>
+            <select id="summary-scenario" @bind="scenarioId" @bind:after="ScenarioChanged" disabled="@(!interactiveReady)">
+                @foreach (var item in Fixtures.Scenarios) { <option value="@item.Id">@item.Label</option> }
+            </select>
+            <h3>Synthetic source ticket</h3>
+            <p id="summary-ticket" class="ticket">@Selected.Ticket</p>
+            <button id="load-summary" type="button" @onclick="Load" disabled="@(!interactiveReady)">Load sample response</button>
+            <p class="hint">Loading copies fixed authored text. It does not run either prompt or personalize a response.</p>
+        </section>
+        <section class="panel" aria-labelledby="json-heading">
+            <p class="step">02 / Check the contract</p>
+            <h2 id="json-heading">Inspect and validate JSON</h2>
+            <p id="sample-response-state">Response state: @(loaded?.Status.ToString().ToLowerInvariant() ?? "not loaded")</p>
+            <label for="summary-json">Editable raw response</label>
+            <textarea id="summary-json" rows="12" maxlength="16000" @bind="raw" @bind:event="oninput" @bind:after="RawChanged" disabled="@(loaded is null || !interactiveReady)" aria-describedby="json-help"></textarea>
+            <p id="json-help" class="hint">@raw.Length / 16000 characters · Maximum depth 8. Editing content does not change the fixture's response state.</p>
+            <button id="validate-summary" type="button" @onclick="Validate" disabled="@(loaded is null || !interactiveReady)">Validate response</button>
+        </section>
+    </div>
+
+    <section class="panel" aria-labelledby="preview-heading">
+        <p class="step">03 / Keep staff in charge</p>
+        <h2 id="preview-heading">Typed preview and review</h2>
+        <p id="summary-status" role="status" aria-live="polite">@status</p>
+        <div id="summary-errors" aria-live="polite">
+            @if (errors.Length > 0) { <ul>@foreach (var error in errors) { <li>@error</li> }</ul> }
+        </div>
+        <div id="summary-result" role="region" aria-label="Typed summary">
+            @if (summary is not null)
+            {
+                <p class="notice">Shape valid · Facts unverified. A typed DTO does not guarantee factual truth. Staff review is always required.</p>
+                <h3>@summary.Title</h3>
+                <p><strong>Category:</strong> @summary.Category</p>
+                <h4>Facts to check against the ticket</h4>
+                <ul>@foreach (var fact in summary.Facts) { <li>@fact</li> }</ul>
+                <h4>Missing information</h4>
+                @if (summary.MissingInformation.Length == 0) { <p>None listed. Check for omissions yourself.</p> }
+                else { <ul>@foreach (var item in summary.MissingInformation) { <li>@item</li> }</ul> }
+            }
+        </div>
+        <label class="review" for="review-summary">
+            <input id="review-summary" type="checkbox" @bind="reviewed" disabled="@(summary is null || !interactiveReady)" />
+            <span>I have checked this summary against the source ticket for factual accuracy and omissions.</span>
+        </label>
+        <p class="hint">@(reviewed ? "Staff review recorded in this session only. Nothing sent or stored." : "Staff review required. Do not approve the unsupported refund claim.")</p>
+    </section>
+
+    <section class="panel" aria-labelledby="prompts-heading">
+        <p class="step">04 / Make instructions explicit</p>
+        <h2 id="prompts-heading">Read prompt v1 and v2</h2>
+        <div class="workspace">
+            <div><h3>v1 · Broad request</h3><pre>@Fixtures.PromptV1</pre></div>
+            <div><h3>v2 · Bounded contract</h3><pre>@Fixtures.PromptV2</pre></div>
+        </div>
+        <p class="hint">These prompts are teaching text. Neither is sent to a model. Better instructions still require deterministic validation and human review.</p>
+    </section>
+    <section class="panel" aria-labelledby="comparison-heading">
+        <p class="step">05 / Evaluate reviewed examples</p>
+        <h2 id="comparison-heading">Compare four authored fixtures</h2>
+        <p>Each case has a reviewed category and required fact strings. C# validates the saved responses, compares categories exactly, and checks that every required fact is present. Invalid responses count as failures for all measures.</p>
+        <button id="compare-prompts" type="button" @onclick="Compare" disabled="@(!interactiveReady)">Compare prompts</button>
+        <div id="comparison-result" role="region" aria-label="Authored fixture comparison" aria-live="polite">
+            @if (scores is not null)
+            {
+                <div class="table-scroll"><table><caption>Authored fixtures, not a model benchmark</caption><thead><tr><th>Saved response set</th><th>Valid shape</th><th>Correct label</th><th>All required facts</th></tr></thead><tbody>
+                    @foreach (var score in scores) { <tr><th>@score.Prompt</th><td>@score.ValidShape / @score.Total</td><td>@score.CorrectLabels / @score.Total</td><td>@score.RequiredFactsPresent / @score.Total</td></tr> }
+                </tbody></table></div>
+                <p>No prompts were executed. These deterministic counts describe four hand-authored examples, not evidence that v2 improves any real model. Exact fact matching does not detect every unsupported extra claim.</p>
+                @foreach (var item in Fixtures.ReviewedCases)
+                {
+                    <details><summary>@item.Name · reviewed expectations and saved outputs</summary><p>@item.Ticket</p><p>Expected category: @item.ExpectedCategory</p><ul>@foreach (var fact in item.RequiredFacts) { <li>@fact</li> }</ul><h4>Authored v1 response</h4><pre>@item.V1.Content</pre><h4>Authored v2 response</h4><pre>@item.V2.Content</pre></details>
+                }
+            }
+        </div>
+    </section>
+    <footer class="panel">
+        <p class="step">06 / Complete the milestone</p>
+        <h2>Explain the boundary</h2>
+        <p>Load a valid response, break one field, validate, repair it, then inspect the unsupported-claim fixture. Explain why a valid DTO can contain a false refund claim, why a refusal cannot be parsed as a summary, and why four authored cases cannot prove prompt quality.</p>
+        <p class="hint">Contract: title ≤80 nonblank; category Billing / Account / Technical / General; facts 1–4 nonblank strings ≤160; missingInformation 0–3 nonblank strings ≤120. Exact case and property names; no missing, extra, duplicate, null or wrong-type values.</p>
+    </footer>
+</main>
+
+@code {
+    private string scenarioId = "valid";
+    private string raw = "";
+    private SampleResponse? loaded;
+    private SummaryDto? summary;
+    private string[] errors = [];
+    private string status = "Connecting to the local interactive session…";
+    private bool reviewed;
+    private bool interactiveReady;
+    private ComparisonScore[]? scores;
+    private SummaryScenario Selected => Fixtures.Scenarios.Single(item => item.Id == scenarioId);
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+        interactiveReady = true;
+        status = "Ready. Choose a fixture and load its sample response.";
+        StateHasChanged();
+    }
+    private void Clear(string message) { summary = null; reviewed = false; errors = []; status = message; }
+    private void ScenarioChanged() { loaded = null; raw = ""; Clear("Scenario changed. Load its sample response."); }
+    private void Load()
+    {
+        if (!interactiveReady) return;
+        loaded = Selected.Response;
+        raw = loaded.Content;
+        Clear($"Loaded authored sample ({loaded.Status.ToString().ToLowerInvariant()}). Validate before review.");
+    }
+    private void RawChanged() => Clear("Response edited. Previous DTO and review cleared. Validate again.");
+    private void Validate()
+    {
+        if (!interactiveReady || loaded is null) return;
+        Clear("Validation failed. No typed summary is available.");
+        switch (Validator.Validate(loaded with { Content = raw }))
+        {
+            case ValidSummary valid: summary = valid.Summary; status = "Shape valid. Facts unverified; staff review required."; break;
+            case InvalidSummary invalid: errors = invalid.Errors; break;
+        }
+    }
+    private void Compare()
+    {
+        if (!interactiveReady) return;
+        scores = [Comparison.Evaluate("v1", Fixtures.ReviewedCases, false), Comparison.Evaluate("v2", Fixtures.ReviewedCases, true)];
+    }
+}
