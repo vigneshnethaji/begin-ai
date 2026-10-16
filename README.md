@@ -22,25 +22,27 @@ Open http://127.0.0.1:4173. The host listens only on the local computer. Stop it
 
 ## What is available
 
-Two units are available, with 14 complete lessons and two runnable labs. The remaining nine course-map units are still planned. It includes:
+Three units are available, with 20 complete lessons and three runnable labs. The remaining eight course-map units are still planned. It includes:
 
 - Six fully written foundation lessons: AI features; exact C# rules; models; training versus inference; prediction mistakes; selecting rules, a classifier, or an LLM.
 - Eight ML.NET lessons: examples/datasets; features; labels; data quality; training/test separation; the pipeline; evaluation; saving/loading a model.
+- Six language-model lessons: generated text; tokens/context; a C# provider boundary; server-only credentials; timeouts/cancellation; streaming into Blazor.
 - Five sections per lesson: Understand, Example, Try it, Check, and .NET.
 - A unique offline exercise for each topic, with explanatory feedback.
 - Explicit prerequisites and links from each concept to the SupportDesk application.
 - Separate read markers, passed understanding checks, and self-reported lab completion.
 - The .NET 10 rules-baseline lab with six executable checks, plus a real ML.NET classifier lab with nine workflow checks, 54 synthetic training messages, and 18 separate test messages. Download the complete classifier source ZIP from its lab page.
+- A .NET 10 Blazor Interactive Server draft-reply lab with free sample streaming, Stop, explicit staff review, and an optional server-only OpenAI Responses adapter. Download its complete source ZIP from the lab page. Local verification uses controlled HTTP fixtures and never makes paid calls.
 - A searchable proposed course map from fundamentals through ML.NET, LLMs, tools, RAG, agents, and Azure operations. Later units are clearly labelled **Planned**.
 - Progress export, confirmed import/reset, browser storage warnings, keyboard navigation, and a modal mobile course drawer.
 
-Browser model outputs are authored teaching examples, labelled in context. The downloadable classifier lab trains a real local model using Microsoft.ML 5.0.1. Its first NuGet restore needs internet access; it needs no AI account or paid service. Coding labs are intended for a desktop; the explanations and experiments work on a phone.
+Browser model outputs are authored teaching examples, labelled in context. The downloadable classifier lab trains a real local model using Microsoft.ML 5.0.1. Its first NuGet restore needs internet access; it needs no AI account or paid service. The Blazor lab starts in local sample mode; it does not run a model until explicitly configured for a provider. Live provider access and billing are not verified by local fixture tests. Coding labs are intended for a desktop; the explanations and experiments work on a phone.
 
 The website uses a dark theme: charcoal canvas and reading surfaces, Material Blue 700 primary buttons, Blue 200 links, and Blue 400 highlights. The complete supplied Material Blue 50–900 palette remains available as design tokens. Navigation follows the established Fluent-referenced structure, with system typography and WCAG 2.2 AA as a target. Browser checks and visual review are recorded in the verification note; a comprehensive accessibility audit has not been performed.
 
 ## Learning progress
 
-The new workspace uses its own key: `dotnet-ai-workspace-progress-v1`. Existing foundation IDs and progress remain valid. Finishing the six foundation checks now continues into the ML.NET lessons. It does not reinterpret the original academy’s day checkmarks. “Read” is self-reported; “Check” records a correct answer; each lab milestone is self-reported.
+The new workspace uses its own key: `dotnet-ai-workspace-progress-v1`. Existing foundation IDs and progress remain valid. Finishing the six foundation checks continues into ML.NET; finishing ML.NET continues into Language models in C#. It does not reinterpret the original academy’s day checkmarks. “Read” is self-reported; “Check” records a correct answer; each lab milestone is self-reported.
 
 Progress stays in the browser for the current origin/file location. It does not automatically follow you to another browser, URL, device, or copy of the website. Use **My progress → Export progress** to back it up, and **Import backup** to restore. Import and reset ask before replacing data.
 
@@ -52,6 +54,10 @@ styles.css                      Tokens, desktop layout, mobile layout, focus sty
 assets/
   curriculum.js                 Canonical authored lessons and proposed course map
   mlnet-content.js              Eight small ML.NET lessons with explicit unit ownership
+  language-content.js           Six small language-model lessons
+  language-experiments.js       Offline generation, context, security and stream exercises
+  draft-files.js                Complete Blazor source manifest for downloads
+  draft-lab.js                  Guided Blazor lab page
   mlnet-experiments.js           Offline data, pipeline, evaluation and lifecycle exercises
   mlnet-lab.js                   Desktop classifier instructions and source downloads
   lab-files.js                   Complete classifier source-distribution manifest
@@ -61,9 +67,10 @@ assets/
   workspace.js                  Views, routing, navigation, backup and browser storage
 labs/supportdesk-rules/          Runnable C# lab, verification cases and README
 labs/supportdesk-classifier/     Real ML.NET classifier, synthetic splits and verification
-downloads/                      Generated complete classifier source ZIP
+labs/supportdesk-draft-replies/  Runnable Blazor lab, server-only adapter and local verification
+downloads/                      Generated complete classifier and Blazor source ZIPs
 FOUNDATION_LESSONS.md            Generated readable edition of the six foundation lessons
-LEARNING_GUIDE.md                Generated readable edition of all 14 available lessons
+LEARNING_GUIDE.md                Generated readable edition of all 20 available lessons
 standalone.html                 Generated portable edition, including lab downloads
 scripts/
   serve.cjs                     Optional local development host
@@ -71,6 +78,7 @@ scripts/
 tests/
   learning.test.cjs              Node tests for learning/progress behavior
   browser.cjs                   Real Chromium interaction and responsive checks
+  language-browser.cjs          Third-unit routes, mobile drawer and portable downloads
 docs/superpowers/                Approved design, plan, and verification notes
 original-v2/                    Untouched copy of all nine original ZIP files
 ```
@@ -86,9 +94,10 @@ node scripts/build-standalone.cjs
 node --test tests/learning.test.cjs
 dotnet run --project labs/supportdesk-rules -- --verify
 dotnet run --project labs/supportdesk-classifier -- --verify
+dotnet run --project labs/supportdesk-draft-replies -- --verify
 ```
 
-For browser checks, start the local host in a separate terminal and run `node tests/browser.cjs`. The test uses an installed Playwright package or the bundled Codex runtime package on this machine. Other machines need Playwright and Chromium installed to run that developer-only check. Learners do not need Node or Playwright.
+For browser checks, start the local host in a separate terminal and run `node tests/browser.cjs` and `node tests/language-browser.cjs`. The test uses an installed Playwright package or the bundled Codex runtime package on this machine. Other machines need Playwright and Chromium installed to run that developer-only check. Learners do not need Node or Playwright.
 
 Verification screenshots/results are generated in ignored `.artifacts/`; C# build output is also ignored. No Git commit or publication is included in this delivery.
 

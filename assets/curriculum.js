@@ -1,12 +1,14 @@
 /* Authored preview curriculum. Classic script also works when opened from disk. */
 (function (root, factory) {
-  const value = factory(typeof module === 'object' && module.exports ? require('./mlnet-content.js') : root.AcademyMlnetContent);
+  const node = typeof module === 'object' && module.exports;
+  const value = factory(node ? require('./mlnet-content.js') : root.AcademyMlnetContent, node ? require('./language-content.js') : root.AcademyLanguageContent);
   if (typeof module === 'object' && module.exports) module.exports = value;
   else root.AcademyContent = value;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (mlnet) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (mlnet, language) {
   'use strict';
   const references = {
     ...mlnet.references,
+    ...language.references,
     overview: { title: 'Microsoft Learn: AI in .NET', url: 'https://learn.microsoft.com/en-us/dotnet/ai/overview', note: 'Optional reading after this lesson. The course explains the terms you need here.' },
     ml: { title: 'Microsoft Learn: How ML.NET works', url: 'https://learn.microsoft.com/en-us/dotnet/machine-learning/how-does-mldotnet-work', note: 'See how data becomes a model and how a .NET application uses it. You do not need to run this guide yet.' },
     console: { title: 'Microsoft Learn: Create a .NET console app', url: 'https://learn.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio-code', note: 'Extra help with the console project used in our desktop lab.' }
@@ -175,11 +177,11 @@
       reference: 'overview'
     }
   ];
-  const lessons = [...foundationLessons.map(x=>({...x,unitId:'foundations',labId:'rules-baseline'})),...mlnet.lessons];
+  const lessons = [...foundationLessons.map(x=>({...x,unitId:'foundations',labId:'rules-baseline'})),...mlnet.lessons,...language.lessons];
   const stages = [
     { id: 'foundations', title: 'Foundations', outcome: 'Explain where AI belongs in a .NET application.', topics: foundationLessons.map(x=>x.short), milestone: 'SupportDesk rules baseline', available: true },
     { id: 'first-mlnet-model', title: 'Data and your first ML.NET model', outcome: 'Train and evaluate a small category classifier.', topics: mlnet.lessons.map(x=>x.short), milestone: 'A measured message classifier', available: true },
-    { id: 'language-models', title: 'Language models in C#', outcome: 'Call a language model through a .NET service.', topics: ['Generated text and its limits', 'Tokens and context limits', 'A first provider call', 'Server-side credentials', 'Timeouts and cancellation', 'Streaming a response into Blazor'], milestone: 'A draft reply with a sample-response mode' },
+    { id: 'language-models', title: 'Language models in C#', outcome: 'Build a reviewable draft reply through a .NET service.', topics: language.lessons.map(x=>x.short), milestone: 'A Blazor draft reply with free sample mode', available: true },
     { id: 'reliable-outputs', title: 'Reliable prompts and outputs', outcome: 'Turn generated text into a validated feature.', topics: ['Instructions and message roles', 'Examples inside a prompt', 'Supplying useful context', 'Structured JSON and DTOs', 'Validation and refusal handling', 'Comparing prompt changes'], milestone: 'A validated ticket-summary feature' },
     { id: 'tools-actions', title: 'Tools and safe actions', outcome: 'Give a model narrowly scoped application capabilities.', topics: ['A tool is a callable function', 'Typed arguments', 'Tool selection versus execution', 'Authorization and approvals', 'Retries and duplicate actions', 'Audit trails and unknown results'], milestone: 'A reviewed ticket-lookup tool' },
     { id: 'semantic-search', title: 'Vectors and semantic search', outcome: 'Find related help articles by meaning.', topics: ['Vectors as float arrays', 'Similarity with a worked example', 'What embeddings represent', 'Creating and storing embeddings', 'Vector indexes', 'Filters and hybrid search'], milestone: 'Search across fictional help articles' },
@@ -190,6 +192,6 @@
     { id: 'azure-operations', title: 'Operate and deploy on Azure', outcome: 'Deploy, observe, and maintain the application.', topics: ['Identity and secrets', 'Evaluation gates in CI', 'Logging and tracing', 'Latency, caching, and cost', 'Azure deployment and rollback', 'Capstone acceptance and failure drills'], milestone: 'An observable SupportDesk capstone' }
   ];
   for(const stage of stages)stage.lessonIds=lessons.filter(x=>x.unitId===stage.id).map(x=>x.id);
-  const labs=[{id:'rules-baseline',title:'C# rules baseline',url:'#lab'},{id:'mlnet-classifier',title:'ML.NET ticket classifier',url:'#lab/mlnet-classifier'}];
+  const labs=[{id:'rules-baseline',title:'C# rules baseline',url:'#lab'},{id:'mlnet-classifier',title:'ML.NET ticket classifier',url:'#lab/mlnet-classifier'},{id:'draft-replies',title:'Blazor draft replies',url:'#lab/draft-replies'}];
   return { lessons, stages, references, labs, version: 1, labId: 'rules-baseline' };
 });

@@ -6,17 +6,19 @@ let html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 html=html.replace('<link rel="stylesheet" href="styles.css">',()=>`<style>\n${read('styles.css')}\n</style>`);
 const labDownloads={};
-const labFiles=require('../assets/lab-files.js').map(([file])=>file);
-const sourceZip=require('./source-zip.cjs')(path.join(root,'labs/supportdesk-classifier'),labFiles);
 fs.mkdirSync(path.join(root,'downloads'),{recursive:true});
-fs.writeFileSync(path.join(root,'downloads/supportdesk-classifier.zip'),sourceZip);
-labDownloads['downloads/supportdesk-classifier.zip']='data:application/zip;base64,'+sourceZip.toString('base64');
-for(const file of labFiles){
-  const target='labs/supportdesk-classifier/'+file;
-  labDownloads[target]='data:application/octet-stream;charset=utf-8,'+encodeURIComponent(read(target)).replace(/'/g,'%27');
+for(const [folder,manifest]of [['supportdesk-classifier','lab-files'],['supportdesk-draft-replies','draft-files']]){
+  const labFiles=require('../assets/'+manifest+'.js').map(([file])=>file);
+  const sourceZip=require('./source-zip.cjs')(path.join(root,'labs',folder),labFiles);
+  fs.writeFileSync(path.join(root,'downloads',folder+'.zip'),sourceZip);
+  labDownloads['downloads/'+folder+'.zip']='data:application/zip;base64,'+sourceZip.toString('base64');
+  for(const file of labFiles){
+    const target='labs/'+folder+'/'+file;
+    labDownloads[target]='data:application/octet-stream;charset=utf-8,'+encodeURIComponent(read(target)).replace(/'/g,'%27');
+  }
 }
 html=html.replace('<script src="assets/mlnet-content.js"></script>',()=>`<script>window.AcademyLabDownloads=${JSON.stringify(labDownloads)};</script>\n<script src="assets/mlnet-content.js"></script>`);
-for(const file of ['mlnet-content','curriculum','learning-core','mlnet-experiments','experiments','home','lab-files','mlnet-lab','workspace']){
+for(const file of ['mlnet-content','language-content','curriculum','learning-core','mlnet-experiments','language-experiments','experiments','home','lab-files','mlnet-lab','draft-files','draft-lab','workspace']){
   let source=read(`assets/${file}.js`);
   if(file==='workspace'){
     for(const labFile of ['SupportDesk.Rules.csproj','Program.cs','README.md']){
@@ -29,7 +31,7 @@ for(const file of ['mlnet-content','curriculum','learning-core','mlnet-experimen
 }
 fs.writeFileSync(path.join(root,'standalone.html'),html);
 const {lessons,references,stages}=require('../assets/curriculum.js');
-let md=`# AI for .NET developers — available lessons\n\n${lessons.length} complete lessons across ${stages.filter(s=>s.available).length} units. Open index.html for interactive exercises and the two desktop labs. Later units remain clearly marked Planned.\n`;
+let md=`# AI for .NET developers — available lessons\n\n${lessons.length} complete lessons across ${stages.filter(s=>s.available).length} units. Open index.html for interactive exercises and the three desktop labs. Later units remain clearly marked Planned.\n`;
 let foundations='# AI for .NET developers — foundations\n\nThe six foundation lessons. Continue into the available ML.NET unit in LEARNING_GUIDE.md or the website.\n';
 for(const [index,l]of lessons.entries()){
   const prior=md.length;

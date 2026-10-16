@@ -63,3 +63,16 @@ test('new lab progress imports alongside old lab evidence without accepting unkn
   assert.deepEqual(state.labs,{'rules-baseline':true,'mlnet-classifier':true});
   assert.equal(state.lessons['data-examples'].checked,true);
 });
+
+test('finishing the classifier continues into language generation without repeating foundations', () => {
+  const ids=['ai-features','rules','models','training','predictions','choose-approach','data-examples','input-features','target-labels','clean-examples','train-test-split','mlnet-pipeline','evaluate-model','save-load'];
+  assert.equal(core.nextLesson({lessons:Object.fromEntries(ids.map(id=>[id,{checked:true}]))}).id,'generated-text');
+  assert.equal(core.unitForLesson('blazor-streaming').id,'language-models');
+  assert.equal(core.lessonsForUnit('language-models').length,6);
+});
+
+test('draft lab evidence survives backup while unknown lab markers are discarded', () => {
+  const state=core.readBackup(JSON.stringify({app:'dotnet-ai-workspace',version:1,progress:{lessons:{'generated-text':{checked:true}},labs:{'rules-baseline':true,'mlnet-classifier':true,'draft-replies':true,unknown:true}}}));
+  assert.equal(state.lessons['generated-text'].checked,true);
+  assert.deepEqual(state.labs,{'rules-baseline':true,'mlnet-classifier':true,'draft-replies':true});
+});

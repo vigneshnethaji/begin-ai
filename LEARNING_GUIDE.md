@@ -1,6 +1,6 @@
 # AI for .NET developers — available lessons
 
-14 complete lessons across 2 units. Open index.html for interactive exercises and the two desktop labs. Later units remain clearly marked Planned.
+20 complete lessons across 3 units. Open index.html for interactive exercises and the three desktop labs. Later units remain clearly marked Planned.
 
 ## 1. What makes a feature an AI feature?
 
@@ -892,24 +892,416 @@ var suggestion = engine.Predict(new SupportMessage
 
 Contribution: You have a trained, evaluated, reusable classifier to compare with the original C# rule.
 
-Next: Run the full classifier lab. The next planned unit introduces language models in C#.
+Next: Run the full classifier lab. Continue into the available Language models in C# unit, starting with generated text and its limits.
 
 Reference: [Microsoft Learn: Save and load trained models](https://learn.microsoft.com/en-us/dotnet/machine-learning/how-to-guides/save-load-machine-learning-models-ml-net)
 
+## 15. Generated text is a draft, not a verified answer
+
+Objective: Distinguish generating a useful draft from checking whether its claims are true.
+
+Prerequisite: Save the model, then use it from C#
+
+Your ML.NET classifier proposed one category. A language model can instead compose a reply, such as a polite acknowledgement of a duplicate charge. You supply a message and instructions; the model generates text rather than selecting only Billing, Account, or Technical.
+
+That flexibility creates a new failure to inspect. A draft might say “Your refund was processed today” even though the application never checked a payment record. The sentence sounds helpful but adds an unsupported fact. Generated text is not truth, and confidence in its wording does not verify it.
+
+For SupportDesk, ask for a draft that acknowledges the issue and avoids promising actions. Display it for human review. Staff should verify payment facts through the authorized application, edit the reply, and explicitly decide whether to send it. Generating a draft must not issue a refund or send a message.
+
+Begin the draft-replies lab in its free sample-response mode. It returns authored text so you can learn the service and screen without an account, network call, or charge. That sample is not model inference. The optional provider mode can generate different text and needs the same review boundary.
+
+**Generated text:** New text produced from instructions and supplied context using a model’s learned patterns. Fluent wording is not evidence that its claims are correct.
+
+### Worked example
+
+A convincing refund claim can still be unsupported.
+
+> Fictional ticket: “I was charged twice.” No payment records were supplied.
+
+- Unsafe draft: “Your refund was processed today.” Result: Unsupported claim: review required.
+- A bounded draft: “Thanks for reporting the duplicate charge. Our team will review it.” Result: Acknowledge without claiming a completed refund.
+
+The second draft still needs review, including whether it matches team policy. Neither sentence proves anything happened in the payment system.
+
+### Try it
+
+Inspect an authored draft with an unsupported refund claim. Choose the next action and read why it matters. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+A generated reply says a refund is complete, but no payment record was checked. What should happen?
+
+1. Send it because the wording is confident.
+2. Verify the payment facts and edit the draft before deciding to send.
+3. Ask for a longer reply so the claim becomes reliable.
+
+Answer: 2. Correct. A person checks claims against an authorized source and controls sending.
+
+### .NET connection
+
+Illustrative C# contract shared by the free sample and optional provider. Each yielded string is a text fragment, not a verified fact or necessarily one token. The lab supplies the implementations.
+
+C# · illustrative draft service contract
+
+```text
+public interface IDraftReplyService
+{
+    IAsyncEnumerable<string> StreamAsync(
+        string message, CancellationToken cancellationToken);
+}
+
+// Review the assembled draft before sending anything.
+```
+
+Contribution: SupportDesk gains a reviewable reply draft without coupling its screen to a provider.
+
+Next: Understand how the supplied context and output share a limited budget.
+
+Reference: [OpenAI: Text generation](https://developers.openai.com/api/docs/guides/text)
+
+## 16. Plan room for instructions, history, and the reply
+
+Objective: Explain tokens and context, and reserve output space without treating a rough estimate as an exact count.
+
+Prerequisite: Generated text is a draft, not a verified answer
+
+A provider represents text as tokens. A short word might be one token, while a longer word or identifier can be split into several pieces. Punctuation, code, and different languages affect counts. A character count divided by four is only a rough teaching estimate for some English text, not a tokenizer.
+
+A drafting request may include instructions, the current message, and selected conversation history. These all consume input space. Reserve room for the reply too. Exact accounting and limits depend on the chosen model, and some models also use a reasoning budget; consult that model’s documentation before relying on a numeric limit.
+
+More history is not automatically more useful. Keep the facts needed for this reply, remove irrelevant repetition, and use approved summaries where appropriate. Do not silently drop a customer’s important constraint just to make the request fit. If context is insufficient, ask for clarification instead of inventing details.
+
+The browser exercise uses a fictional 128-token capacity and estimates fixed English samples by character count. Changing history or the output reserve makes the tradeoff visible. These numbers describe only this simulation. The optional server provider uses OPENAI_MODEL so the lab does not promise one model’s context size forever.
+
+**Token and context:** A token is a model-specific piece of encoded text. Context is the information available for a request, subject to that model’s limits. A token is not always a word or character.
+
+### Worked example
+
+A fictional budget exposes the tradeoff.
+
+> Teaching capacity: 128 units. Estimated input: 92. Reserved output: 48.
+
+- Keep everything: 92 + 48 = 140 estimated units. Result: 12 over the teaching capacity.
+- Remove irrelevant history: An edited input of 60 plus the same 48 reserve is 108. Result: 20 units of teaching headroom.
+
+This arithmetic is illustrative, not a provider quota or actual tokenizer result. Review what was removed and use model-specific accounting for a real request.
+
+### Try it
+
+Choose short or repeated history, reserve output space, and check the resulting fictional budget. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+What does this exercise’s characters-divided-by-four estimate tell you?
+
+1. An approximate teaching budget, not the exact token count for a model.
+2. The exact bill for every provider call.
+3. That one word always equals one token.
+
+Answer: 1. Correct. Real counts depend on the tokenizer and the complete request.
+
+### .NET connection
+
+Illustrative application validation before StreamAsync. A character limit protects your input boundary; it is not a substitute for model-specific token counting or an output limit in the optional provider.
+
+C# · illustrative input boundary
+
+```text
+if (string.IsNullOrWhiteSpace(message))
+    throw new ArgumentException("Enter a message.");
+if (message.Length > 2000)
+    throw new ArgumentException("Keep the message within 2000 characters.");
+
+await foreach (var part in drafts.StreamAsync(message, cancellationToken))
+{
+    // Accumulate as plain text for human review.
+}
+```
+
+Contribution: You decide what context SupportDesk sends and keep requests bounded.
+
+Next: Follow one request through the sample service and optional provider.
+
+Reference: [OpenAI: Counting tokens](https://developers.openai.com/api/docs/guides/token-counting)
+
+## 17. Follow a first request through the .NET service
+
+Objective: Trace a draft request from the service contract to an optional server-side Responses API call.
+
+Prerequisite: Plan room for instructions, history, and the reply
+
+First run the sample implementation of IDraftReplyService. The screen submits a fictional support message and consumes text fragments from StreamAsync(string, CancellationToken). A fixed sample is enough to check loading, cancellation, and review behavior without making a paid call.
+
+The optional server implementation uses HttpClient to POST JSON to the OpenAI Responses endpoint. It supplies the configured model, instructions, input, and stream: true. OPENAI_MODEL selects the model and OPENAI_API_KEY authorizes the request. This mode sends the supplied data externally and may incur provider charges.
+
+A successful streaming response contains server-sent events, or SSE: typed event messages carried over HTTP. The adapter extracts response.output_text.delta text, handles completion and failure events, and yields strings through the same contract. A network read is not necessarily a complete SSE event; use proper event framing rather than treating every line or byte block as a finished reply.
+
+Check the HTTP status before reading events. A rejected request, interrupted stream, refusal, or incomplete result needs an honest user-facing state. Never quietly replace a provider error with the sample and claim a model succeeded. This browser exercise only looks up authored outcomes; it never contacts OpenAI.
+
+**Provider:** The external service hosting the language model. Your server adapts its HTTP protocol into the draft service contract used by the application.
+
+### Worked example
+
+The same screen can use two honest modes.
+
+> SupportDesk asks: draft a reply to “I was charged twice.”
+
+- Sample mode: The local service yields authored sample fragments. Result: Free sample, visibly labelled.
+- Optional provider mode: The server sends an authorized HTTPS request and parses SSE. Result: Generated draft or an explicit error.
+
+The browser simulation does neither operation for real. The lab implements the shared contract, with the sample as the default learning path.
+
+### Try it
+
+Select a service mode and a simulated provider outcome. Observe when an error must be shown instead of a draft. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+The optional provider returns HTTP 401. What should the adapter do?
+
+1. Render the HTTP error body as a customer reply.
+2. Claim the sample was a successful model response.
+3. Report a safe configuration failure and keep sample mode explicitly separate.
+
+Answer: 3. Correct. Check server configuration without exposing credentials or inventing success.
+
+### .NET connection
+
+Illustrative server-only excerpt inside the optional provider, with an injected HttpClient named http and a configured model. It is not a complete StreamAsync implementation: the lab must parse SSE, yield text deltas, handle terminal events, and dispose the stream.
+
+C# · illustrative Responses HTTP boundary
+
+```text
+using var request = new HttpRequestMessage(
+    HttpMethod.Post, "https://api.openai.com/v1/responses");
+request.Content = JsonContent.Create(new
+{
+    model, input = message,
+    instructions = "Draft for human review. Do not invent completed actions.",
+    stream = true
+});
+// Server adds the Authorization header from its configuration.
+using var response = await http.SendAsync(request,
+    HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+response.EnsureSuccessStatusCode();
+```
+
+Contribution: You connect the draft contract to a provider without changing the review screen.
+
+Next: Keep authorization on the server and out of browser-delivered files.
+
+Reference: [OpenAI: Streaming API responses](https://developers.openai.com/api/docs/guides/streaming-responses)
+
+## 18. Keep provider credentials on the server
+
+Objective: Locate provider credentials in server configuration and explain why browser-delivered assets cannot hold secrets.
+
+Prerequisite: Follow a first request through the .NET service
+
+The .NET 10 lab uses Blazor InteractiveServer. Component event handlers and the draft service execute on the server, while UI updates reach the browser through the Blazor connection. The optional provider’s HttpClient call belongs on that server. This is not a WebAssembly example that embeds a key in downloaded code.
+
+Read OPENAI_API_KEY and OPENAI_MODEL from the server process environment when configuring the optional provider. These variable names are configuration inputs, not values to paste into a page. The free sample path needs neither variable. Do not force learners to obtain credentials just to practise the workflow.
+
+A browser JavaScript file, local storage entry, or WebAssembly assembly can be inspected by its user. Committing the key to a settings file also exposes it to repository readers and history. Keep secrets out of these locations and out of exception details, screenshots, request logs, and responses sent to the browser.
+
+Server storage does not replace application controls. Authorize who may request drafts, bound input and output, and apply usage limits appropriate to the application. This exercise asks where configuration belongs and never asks for a real or pretend key. Review the optional provider configuration privately on the server.
+
+**Server-side credential:** Authorization material read only by trusted server code and excluded from browser payloads, repository history, and logs.
+
+### Worked example
+
+Follow configuration without copying its value.
+
+> An operator configures the optional provider for the server process.
+
+- Correct boundary: Server environment → provider configuration → Authorization header. Result: The browser receives no key.
+- Exposed boundary: Key in a JavaScript bundle or committed appsettings file. Result: Treat it as exposed and replace it.
+
+Do not log or render secret values to demonstrate configuration. The model identifier is not a credential, but both settings belong to the optional server provider’s configuration.
+
+### Try it
+
+Choose a location for the provider key. Inspect the explanation without entering any credential. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+Where should the optional provider read OPENAI_API_KEY?
+
+1. From browser local storage.
+2. From server configuration, without returning or logging the value.
+3. From a settings file committed beside public assets.
+
+Answer: 2. Correct. The server uses the key for authorization and returns only safe application results.
+
+### .NET connection
+
+Illustrative server startup excerpt used only when provider mode is explicitly selected. The environment must belong to the server process; sample mode should work with no configuration.
+
+C# · illustrative server configuration
+
+```text
+var key = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+var model = Environment.GetEnvironmentVariable("OPENAI_MODEL");
+if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(model))
+    throw new InvalidOperationException(
+        "Provider mode needs server configuration.");
+
+// Inside the server adapter; never log this header.
+request.Headers.Authorization =
+    new AuthenticationHeaderValue("Bearer", key);
+```
+
+Contribution: SupportDesk can use a provider without distributing its credentials.
+
+Next: Make waiting bounded and pass cancellation through every async layer.
+
+Reference: [Microsoft Learn: Blazor security overview](https://learn.microsoft.com/en-us/aspnet/core/blazor/security/?view=aspnetcore-10.0)
+
+## 19. Make a slow request stoppable
+
+Objective: Distinguish a deadline from a user stop, and propagate their cancellation through a streaming request.
+
+Prerequisite: Keep provider credentials on the server
+
+A provider can respond slowly or stop midway through a stream. Leaving a spinner forever is not a useful outcome. Set a deliberate deadline and give the user a Stop button. A cancelled or timed-out draft remains incomplete, even if some text is already visible.
+
+The component owns cancellation for its active request. Pass its token into IDraftReplyService.StreamAsync(string, CancellationToken), then through HttpClient.SendAsync and stream reads. For an async iterator, connect the token to enumeration as well. Merely cancelling a local flag while the HTTP operation ignores the token does not stop the waiting work.
+
+The provider can link the caller token with a deadline token. Catch OperationCanceledException at the application boundary and distinguish a user stop from an expired deadline where possible. Disposing a token source alone does not request cancellation. Cancel active work before cleaning up its resources, and dispose request resources after the operation unwinds.
+
+The exercise advances a fictional clock one second per click and has a five-second deadline. Choose a response delay, start, then either advance or stop. It makes no request and measures no real latency. Stopping local work is also not a promise that a remote provider has instantly stopped processing or that no usage will be charged.
+
+**Cancellation and timeout:** Cancellation asks cooperative work to stop. A timeout is a deadline that triggers cancellation when the allowed waiting period expires.
+
+### Worked example
+
+The first terminal outcome wins.
+
+> Teaching response delay: 8 seconds. Teaching deadline: 5 seconds.
+
+- Wait five steps: The deadline arrives before the response. Result: Timed out; no completed draft.
+- Stop after two steps: Caller cancellation arrives before the deadline. Result: Stopped by user; no completed draft.
+
+A three-second response would complete before this deadline. At exactly five seconds, this simulation gives the deadline priority; real concurrent operations still need one consistent terminal state.
+
+### Try it
+
+Compare completion, manual cancellation, and a five-second deadline using a clock you advance yourself. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+What makes the Stop button effective across the service boundary?
+
+1. Pass the cancellation token through the service, HTTP send, and stream reads.
+2. Hide the spinner but leave the request running.
+3. Dispose a token source without calling Cancel.
+
+Answer: 1. Correct. Each awaited operation must observe the request’s cancellation.
+
+### .NET connection
+
+Illustrative excerpt inside the optional provider. Keep the linked source alive for the full stream, not just until headers arrive. The component still calls StreamAsync(message, itsRequestToken); error handling and SSE parsing are omitted here.
+
+C# · illustrative streaming deadline
+
+```text
+using var deadline = CancellationTokenSource.CreateLinkedTokenSource(
+    cancellationToken);
+deadline.CancelAfter(TimeSpan.FromSeconds(30));
+
+using var response = await http.SendAsync(request,
+    HttpCompletionOption.ResponseHeadersRead, deadline.Token);
+response.EnsureSuccessStatusCode();
+await using var body = await response.Content.ReadAsStreamAsync(deadline.Token);
+// Pass deadline.Token to every subsequent body read too.
+```
+
+Contribution: SupportDesk can stop waiting and accurately label an unfinished draft.
+
+Next: Consume fragments in an InteractiveServer component and stop work when it is disposed.
+
+Reference: [Microsoft Learn: Razor component lifecycle and cancelable work](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-10.0)
+
+## 20. Show a draft in Blazor as fragments arrive
+
+Objective: Consume service fragments in an InteractiveServer component while managing completion, stop, and disposal.
+
+Prerequisite: Make a slow request stoppable
+
+A .NET 10 InteractiveServer component can await foreach over IDraftReplyService.StreamAsync(string, CancellationToken). Append each fragment to a draft string and request a render so the user sees progress before the event handler finishes. Display the string using ordinary Razor text interpolation; never treat a model reply as trusted HTML.
+
+Keep explicit states for idle, receiving, completed, stopped, and failed. Disable duplicate starts while a request is active. A complete-looking sentence is not proof that the stream completed: a completion event and successful service enumeration establish delivery state. Even a fully delivered reply still needs human review before sending.
+
+Navigation can dispose the component while an awaited operation is suspended. On disposal, cancel active work and prevent continuations from changing disposed UI state. Release request resources when the operation unwinds, and do not call StateHasChanged from Dispose. Avoid starting a paid request automatically during initialization, which can also run during prerendering.
+
+The free sample lab lets you practise this lifecycle with authored fragments. The browser simulation delivers three fixed chunks only when you press Receive next chunk. Stop preserves the partial draft; Dispose blocks further delivery; Mount fresh component starts a new lifecycle. There are no timers or animated typing, so the interaction also works without motion.
+
+**Streaming draft:** A reply displayed incrementally as text fragments arrive. Fragments are delivery pieces, not necessarily whole words, sentences, or tokens.
+
+### Worked example
+
+A partial draft must remain visibly partial.
+
+> Three authored fragments: “Thanks for ”, “reporting this. ”, “Our team will review it.”
+
+- Receive all three: The simulated stream completes successfully. Result: Complete draft; human review still required.
+- Stop or dispose after one: Only “Thanks for ” has arrived. Result: Partial draft; further chunks are blocked.
+
+The simulated component releases its controls on real unmount through the returned cleanup function. A real Blazor component uses its disposal lifecycle to cancel the server operation.
+
+### Try it
+
+Start, receive chunks, stop, and dispose the simulated component. Mount a fresh component to compare a complete draft with a partial one. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+The user navigates away during streaming. What should the component do?
+
+1. Continue updating the old screen until the reply is complete.
+2. Call StateHasChanged inside Dispose to show one final chunk.
+3. Cancel its active request and guard continuations against updating disposed state.
+
+Answer: 3. Correct. Cancellation and a disposed-state guard protect the request and component lifecycle.
+
+### .NET connection
+
+Illustrative .NET 10 Razor excerpt: use @rendermode InteractiveServer, inject IDraftReplyService as Drafts, and display @draft as text. Complete event wiring and error UI belong in the lab. A local source is disposed in finally, after its operation unwinds; Dispose only signals cancellation.
+
+Razor / C# · illustrative InteractiveServer lifecycle
+
+```text
+// Fields: string draft = "", message = ""; bool disposed;
+// CancellationTokenSource? active;
+async Task GenerateAsync()
+{
+    if (disposed || active is not null) return;
+    using var requestCts = new CancellationTokenSource();
+    active = requestCts;
+    draft = "";
+    try
+    {
+        await foreach (var part in Drafts.StreamAsync(message, requestCts.Token))
+        {
+            if (disposed || requestCts.IsCancellationRequested) break;
+            draft += part;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    catch (OperationCanceledException) when (requestCts.IsCancellationRequested)
+    { /* Mark stopped only if the component is still alive. */ }
+    finally { active = null; }
+}
+void Stop() => active?.Cancel();
+public void Dispose() { disposed = true; active?.Cancel(); }
+```
+
+Contribution: You can assemble a reviewable SupportDesk draft with honest loading and stop behavior.
+
+Next: Run the draft-replies lab in free sample mode, then inspect the optional server provider only if you choose to configure it.
+
+Reference: [Microsoft Learn: Razor component disposal](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/component-disposal?view=aspnetcore-10.0)
+
 ## Later units — planned
-
-### Language models in C#
-
-Call a language model through a .NET service.
-
-- Generated text and its limits
-- Tokens and context limits
-- A first provider call
-- Server-side credentials
-- Timeouts and cancellation
-- Streaming a response into Blazor
-
-Milestone: A draft reply with a sample-response mode
 
 ### Reliable prompts and outputs
 

@@ -1,0 +1,129 @@
+@page "/"
+@implements IDisposable
+@inject IDraftReplyService Drafts
+@inject LabMode Mode
+
+<PageTitle>SupportDesk · Draft replies lab</PageTitle>
+
+<main>
+    <header>
+        <p class="lab-name">SupportDesk / Learning lab 3</p>
+        <h1>Draft a reply.<br />Keep the human in charge.</h1>
+        <p class="intro">Explore streaming text in .NET. Create a draft, watch it arrive, and review every word.</p>
+        <p id="provider-mode" class="mode">@(Mode.IsSample ? "Free sample · Simulated stream · No AI or network calls" : "OpenAI · Live server provider · API usage may cost money")</p>
+    </header>
+
+    <aside class="notice">Synthetic tickets only. Use fictional names and situations. Never enter customer data, credentials or confidential information.</aside>
+
+    <div class="workspace">
+        <section class="panel" aria-labelledby="ticket-heading">
+            <h2 id="ticket-heading">Start with a ticket</h2>
+            <label for="ticket">Synthetic support ticket</label>
+            <textarea id="ticket" rows="8" maxlength="2000" disabled="@(running || !interactiveReady)"
+                      @bind="ticket" @bind:event="oninput" @bind:after="TicketChanged"
+                      aria-describedby="ticket-help ticket-count"></textarea>
+            <div class="input-meta"><span id="ticket-help">Describe the issue and what was tried.</span><span id="ticket-count">@ticket.Length / 2000</span></div>
+            <div class="actions">
+                <button id="generate-draft" type="button" @onclick="GenerateAsync" disabled="@(running || !interactiveReady)">Generate draft</button>
+                <button id="stop-draft" class="secondary" type="button" @onclick="Stop" disabled="@(!running)">Stop</button>
+            </div>
+            <p class="hint">@(Mode.IsSample ? "The sample always streams the same fixed reply. It does not understand or personalize your ticket." : "Your synthetic ticket will be sent to the server-configured OpenAI model. There is no automatic retry or sample fallback.")</p>
+        </section>
+
+        <section class="panel draft-panel" aria-labelledby="draft-heading" aria-busy="@running">
+            <div class="draft-header"><h2 id="draft-heading">Draft workspace</h2><span class="draft-tag">Draft only</span></div>
+            <p id="draft-status" role="status" aria-live="polite">@status</p>
+            @if (draft.Length == 0)
+            {
+                <p class="empty">Your draft will appear here, one chunk at a time.</p>
+            }
+            @* Plain Razor text is encoded. Never use MarkupString or render model HTML. *@
+            <pre id="draft-output" role="region" aria-label="Draft reply">@draft</pre>
+            <div class="review">
+                <label class="review-label" for="staff-review">
+                    <input id="staff-review" type="checkbox" @bind="reviewed" disabled="@(!complete || running)" />
+                    <span>I have checked this draft for accuracy and tone</span>
+                </label>
+                <p id="review-status" role="status">@(reviewed ? "Reviewed locally — nothing sent." : "Staff review required")</p>
+                <p class="hint">Check facts, policy and tone before using a draft elsewhere. This lab has no send operation.</p>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <h2>What you are learning</h2>
+        <p><code>IAsyncEnumerable&lt;string&gt;</code> delivers chunks. Blazor refreshes the draft after each chunk. A cancellation token connects Stop to the work on the server.</p>
+        <p>Sample mode simulates the experience. The optional HTTP provider reads server-sent events and requires an explicit completion event.</p>
+        <a href="https://developers.openai.com/api/docs/guides/streaming-responses" target="_blank" rel="noreferrer">Read the official streaming guide</a>
+    </footer>
+</main>
+
+@code {
+    private string ticket = "In our fictional shop, my demo parcel has not arrived. I checked the sample tracking page, but it still says processing.";
+    private string draft = "";
+    private string status = "Ready to draft";
+    private bool running;
+    private bool complete;
+    private bool reviewed;
+    private bool disposed;
+    private bool interactiveReady;
+    private CancellationTokenSource? stop;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // OnAfterRender is not called during prerender: wait for a live circuit.
+        if (!firstRender || disposed) return;
+        interactiveReady = true;
+        StateHasChanged();
+    }
+
+    private void TicketChanged()
+    {
+        complete = reviewed = false;
+        draft = "";
+        status = "Ready to draft";
+    }
+
+    private async Task GenerateAsync()
+    {
+        if (running || disposed || !interactiveReady) return;
+        running = true;
+        complete = reviewed = false;
+        draft = "";
+        status = "Drafting — staff review will be required";
+        using var generation = new CancellationTokenSource();
+        stop = generation;
+        try
+        {
+            await foreach (var chunk in Drafts.StreamAsync(ticket, generation.Token))
+            {
+                if (disposed) return;
+                generation.Token.ThrowIfCancellationRequested();
+                draft += chunk;
+                StateHasChanged();
+            }
+            if (disposed) return;
+            generation.Token.ThrowIfCancellationRequested();
+            complete = true;
+            status = "Ready for staff review";
+        }
+        catch (OperationCanceledException)
+        {
+            if (disposed) return;
+            status = generation.IsCancellationRequested
+                ? "Stopped — partial draft, not ready for review. Generate a new draft to restart."
+                : "Timed out — partial draft, not ready for review. Try again.";
+        }
+        catch (ArgumentException error) { if (!disposed) status = error.Message; }
+        catch (DraftReplyException error) { if (!disposed) status = error.Message + " Partial text is not ready for review."; }
+        catch (Exception) { if (!disposed) status = "Generation failed. Check the server connection and try again. Partial text is not ready for review."; }
+        finally
+        {
+            stop = null;
+            if (!disposed) { running = false; StateHasChanged(); }
+        }
+    }
+
+    private void Stop() => stop?.Cancel();
+    public void Dispose() { disposed = true; stop?.Cancel(); }
+}
