@@ -16,7 +16,7 @@ test('six lessons preserve the sequential journey and offer the runnable lab',()
     assert.ok(x.quiz.options[x.quiz.answer].why);assert.ok(references[x.reference].url.startsWith('https://'));
     assert.ok(x.example.paths.length>=2);assert.ok(x.experiment.startsWith('workflow-'));
   });
-  assert.match(lessons.at(-1).dotnet.next,/Unit 10.*planned/i);
+  assert.match(lessons.at(-1).dotnet.next,/Unit 10.*attachments/i);
 });
 test('route choice and explicit checkpoint distinguish orchestration from model decisions and persistence',()=>{
   const {evaluate}=load('workflow-experiments.js');

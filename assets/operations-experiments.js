@@ -1,0 +1,37 @@
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.AcademyOperationsExperiments=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
+ 'use strict';
+ function identity(role,action){const policies={reader:['help.read'],reviewer:['help.read','release.promote']};return Object.hasOwn(policies,role)&&policies[role].includes(action)?'Allowed DEMO':'Denied';}
+ function gates(quality,safety,samples){if(!Number.isFinite(quality)||quality<0||quality>100||!Number.isInteger(safety)||safety<0||safety>10000||!Number.isInteger(samples)||samples<1||samples>10000||safety>samples)return 'Invalid';return quality>=90&&safety===0&&samples>=20?'Pass':'Blocked';}
+ function cost(input,output){if(![input,output].every(x=>Number.isInteger(x)&&x>0&&x<=100000))return null;return (input+output*3)/1000000;}
+ function cacheKey(tenant,permission,revision){return [tenant,permission,revision].every(x=>typeof x==='string'&&/^[a-z0-9-]{1,24}$/.test(x))?[tenant,permission,revision].join('|'):null;}
+ function trace(operation,outcome){return ['gate','promote','smoke'].includes(operation)&&['pass','blocked','unknown'].includes(outcome)?{operation,outcome}:null;}
+ function release(checked,approved,health){if(checked!==true)return 'Blocked: gates required';if(approved!==true)return 'Blocked: review required';return health==='healthy'?'Complete: V2':health==='bad'?'RolledBack: V1':'Unknown: inspect evidence';}
+ const boundaries={rules:'validated input',classifier:'measured classification',draft:'reviewed draft',rag:'scoped retrieval evidence',workflow:'bounded workflow',attachments:'attachment boundary'};
+ function drill(boundary,pass){return Object.hasOwn(boundaries,boundary)?(pass===true?'Accepted: ':'Blocked: ')+boundaries[boundary]:'Invalid';}
+ const mounted=new WeakMap();
+ function mount(node,type){
+  if(!node?.ownerDocument)throw new TypeError('Experiment host required');mounted.get(node)?.();
+  const doc=node.ownerDocument,listeners=[];let disposed=false;
+  const el=(tag,text,cls)=>{const n=doc.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
+  const body=el('div',undefined,'experiment-body');body.style.cssText='min-width:0;overflow-wrap:anywhere';node.replaceChildren(body);
+  const title={identity:'Test a DEMO permission',evaluation:'Change evaluation evidence',trace:'Record safe telemetry',cost:'Calculate cost and scope a cache key',release:'Compare release outcomes',drills:'Practice capstone acceptance'}[type.replace('operations-','')];
+  body.append(el('h3',title||'Unknown experiment'),el('p','Authored local teaching inputs. No provider call, Azure authentication, shared cache or deployment occurs.'));
+  const field=(key,label,value,options)=>{const wrap=el('label',undefined,'field');wrap.append(el('span',label));const input=el(options?'select':'input');input.setAttribute('data-operations-'+key,'');input.style.cssText='min-height:44px;width:100%;min-width:0;box-sizing:border-box;background:#272727;color:#eee;border:1px solid #b7bdc6;padding:8px;font:inherit';if(options){for(const [v,t] of options){const o=el('option',t);o.value=v;input.append(o);}}else{input.type='text';input.maxLength=80;}input.value=value;wrap.style.cssText='display:block;margin:12px 0';wrap.append(input);body.append(wrap);return input;};
+  const number=(key,label,value)=>{const n=field(key,label,String(value));n.inputMode='decimal';return n;};
+  let compute;
+  if(type==='operations-identity'){const role=field('role','DEMO policy','reader',[['reader','Reader'],['reviewer','Reviewer'],['admin','Unknown forged policy']]);const action=field('action','Requested operation','help.read',[['help.read','Read help'],['release.promote','Promote local revision']]);compute=()=>identity(role.value,action.value)+' — server-owned policy; never real Azure auth.';}
+  else if(type==='operations-evaluation'){const quality=number('quality','Quality percentage (0–100)',95),safety=number('safety','Safety failures (0–10000)',0),samples=number('samples','Sample count (1–10000)',100);compute=()=>gates(Number(quality.value||NaN),Number(safety.value===''?NaN:safety.value),Number(samples.value||NaN))+' — quality ≥90, safety failures 0, samples ≥20.';}
+  else if(type==='operations-trace'){const op=field('operation','Operation','gate',[['gate','Gate'],['promote','Promote'],['smoke','Smoke']]),out=field('outcome','Outcome','blocked',[['pass','Pass'],['blocked','Blocked'],['unknown','Unknown']]);field('private','Fictional private payload (not recorded)','Fictional account 123');compute=()=>JSON.stringify(trace(op.value,out.value))+' — private payload omitted; no exporter.';}
+  else if(type==='operations-cost'){const input=number('input','Input tokens (1–100000)',1000),output=number('output','Output tokens (1–100000)',500),tenant=field('tenant','DEMO tenant key','demo-a'),permission=field('permission','Permission scope','reader',[['reader','Reader'],['reviewer','Reviewer']]),revision=field('revision','Content/model revision','v2');compute=()=>{const amount=cost(Number(input.value||NaN),Number(output.value||NaN)),key=cacheKey(tenant.value,permission.value,revision.value);return amount===null||key===null?'Invalid — positive bounded whole tokens and lowercase key segments required.':`Estimate ${amount.toFixed(6)} illustrative units; cache key ${key}. Prices: input 1, output 3 per million. Not provider billing.`;};}
+  else if(type==='operations-release'){const checked=field('checked','Gate snapshot','yes',[['yes','Passed'],['no','Not passed']]),approved=field('approved','Reviewer approval','yes',[['yes','Exact snapshot approved'],['no','Not approved']]),health=field('health','Post-promotion health','healthy',[['healthy','Healthy'],['bad','Bad health'],['unknown','Unknown response']]);compute=()=>release(checked.value==='yes',approved.value==='yes',health.value)+' — local decision exercise; no slot change.';}
+  else if(type==='operations-drills'){const boundary=field('boundary','SupportDesk boundary','rules',Object.keys(boundaries).map(k=>[k,k])),pass=field('passed','Authored acceptance evidence','yes',[['yes','Passed'],['no','Failed']]);compute=()=>drill(boundary.value,pass.value==='yes')+' — independent learning evidence, not one deployed application.';}
+  else compute=()=> 'Invalid experiment; no operation performed.';
+  const button=el('button','Run experiment','button');button.type='button';button.setAttribute('data-operations-run','');button.style.cssText='min-height:44px;padding:10px 16px;background:#1976d2;color:white;border:0;font:inherit;cursor:pointer';
+  const output=el('p','Change inputs and run to inspect the result.','exercise-output');for(const [k,v] of Object.entries({role:'status','aria-live':'polite','aria-atomic':'true'}))output.setAttribute(k,v);
+  const on=(n,event,fn)=>{n.addEventListener(event,fn);listeners.push(()=>n.removeEventListener(event,fn));};
+  for(const n of [...body.querySelectorAll('input,select'),button]){on(n,'focus',()=>{n.style.outline='3px solid #90caf9';n.style.outlineOffset='3px';});on(n,'blur',()=>{n.style.outline='';});}
+  on(button,'click',()=>{if(!disposed)output.textContent=compute();});body.append(button,output);
+  const dispose=()=>{disposed=true;listeners.forEach(fn=>fn());if(mounted.get(node)===dispose)mounted.delete(node);};mounted.set(node,dispose);return dispose;
+ }
+ return {mount,identity,gates,cost,cacheKey,trace,release,drill};
+});

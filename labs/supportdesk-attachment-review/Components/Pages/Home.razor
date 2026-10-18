@@ -1,0 +1,63 @@
+@page "/"
+@inject Intake Intake
+<PageTitle>SupportDesk · attachment review</PageTitle>
+<main>
+    <header><p class="eyebrow">UNIT 10 / SUPPORTDESK / LOCAL LEARNING LAB</p><h1>Keep every observation traceable.</h1><p class="lede">Authored evidence → normalization → exact-input review → local preview.</p><p id="inputs-ready" class="badge" role="status">@(interactiveReady?"Interactive ready":"Connecting interactive session…")</p></header>
+    <aside class="notice"><strong>Authored fixtures · synthetic data · nothing sent</strong><p>This app executes C# validation, evidence, review and model-choice policies. It does not perform OCR, ASR, vision, inference, training or uploads. No ONNX Runtime, model, cloud provider, keys or database is installed. Confidence is not truth; speaker labels are not identity.</p></aside>
+    <div class="layout">
+        <section class="panel" aria-labelledby="intake-heading"><h2 id="intake-heading">1. Define the fictional intake</h2>
+            <label for="inputs-fixture">Authored attachment fixture</label><select id="inputs-fixture" value="@fixture" @onchange="ChangeFixture" disabled="@(!interactiveReady)"><option value="bundle">Bundle: image, audio and text</option><option value="image">Image observation</option><option value="audio">Audio transcript observation</option><option value="text">Text observation</option></select>
+            <label for="inputs-type">Declared media type (maximum 64 characters)</label><input id="inputs-type" value="@media" @oninput="ChangeMedia" maxlength="64" disabled="@(!interactiveReady)" />
+            <p class="muted">Allowed pairs: image/png for Image, audio/wav for Audio, text/plain for Text, application/x-supportdesk-fixture for Bundle. Types deliberately remain editable to test mismatches.</p>
+            <label for="inputs-notes">Fictional review notes (1–2,000 nonblank characters)</label><textarea id="inputs-notes" value="@notes" @oninput="ChangeNotes" rows="4" maxlength="2000" disabled="@(!interactiveReady)"></textarea>
+            <p class="muted">Every input edit clears evidence, review and results, including model requirement changes. No files are selected or uploaded.</p>
+            <button id="normalize-inputs" @onclick="Normalize" disabled="@(!interactiveReady)">Normalize observations</button>
+        </section>
+        <section class="panel" aria-labelledby="evidence-heading"><h2 id="evidence-heading">2. Inspect and review evidence</h2>
+            <div id="inputs-status" class="state" role="status" aria-live="polite" aria-atomic="true"><strong id="inputs-phase">@Intake.Phase</strong><p>@Intake.Message</p></div>
+            <h3>Current exact input</h3><pre id="inputs-snapshot">Fixture: @fixture
+Media type: @media
+Notes: @notes</pre>
+            <p id="inputs-conflict" class="badge">@(Intake.Evidence.Count==0?"No normalized evidence.":Intake.HasConflict?"Unresolved conflict — no value selected as truth.":"No disagreement in this fixture; review still required.")</p>
+            <ul id="inputs-evidence">@foreach(var e in Intake.Evidence){<li><strong>@e.SourceId: @e.Field=@e.Value</strong><span> · @e.Modality · authored confidence @e.Confidence.ToString("0.00",System.Globalization.CultureInfo.InvariantCulture)</span>@if(e.Modality=="audio"){<span> · @e.Speaker · @e.StartSeconds–@e.EndSeconds seconds</span>}</li>}</ul>
+            <p id="inputs-review">@(Intake.Reviewed?"Reviewed for this exact input; uncertainty remains.":"No current staff review.")</p>
+            <div class="actions"><button id="review-inputs" @onclick="Review" disabled="@(!interactiveReady||Intake.Phase!="AwaitingReview"||Intake.Reviewed)">Review exact input</button><button id="deny-inputs" class="secondary" @onclick="Deny" disabled="@(!interactiveReady||Intake.Phase!="AwaitingReview")">Deny review</button><button id="preview-inputs" @onclick="Preview" disabled="@(!interactiveReady||Intake.Phase!="AwaitingReview"||!Intake.Reviewed)">Create local preview</button></div>
+            <p class="muted">Review acknowledges this evidence; it does not resolve an amount or authenticate a staff member. Only the separate preview action accepts a local result.</p>
+            <pre id="inputs-result" role="status" aria-live="polite" aria-atomic="true">@(Intake.Result.Length==0?"No preview.":Intake.Result)</pre>
+        </section>
+        <section class="panel" aria-labelledby="choice-heading"><h2 id="choice-heading">3. Apply requirements before scores</h2>
+            <p>Fictional profiles: local-text supports text, requires 4 GiB and has authored score 80. cloud-general advertises text/vision/speech and has authored score 70. These are not measured models or benchmarks.</p>
+            <label for="inputs-capability">Required capability</label><select id="inputs-capability" value="@capability" @onchange="ChangeCapability" disabled="@(!interactiveReady)"><option value="text">Text</option><option value="vision">Vision</option><option value="speech">Speech</option></select>
+            <label class="check" for="inputs-no-cloud"><input id="inputs-no-cloud" type="checkbox" checked="@noCloud" @onchange="ChangeCloud" disabled="@(!interactiveReady)" /><span>Forbid cloud transfer</span></label>
+            <label for="inputs-memory">Available local memory (whole GiB, 1–128)</label><input id="inputs-memory" type="number" value="@memory" @oninput="ChangeMemory" min="1" max="128" step="1" disabled="@(!interactiveReady)" />
+            <div class="actions"><button id="choose-inputs" @onclick="Choose" disabled="@(!interactiveReady)">Compare fictional profiles</button></div>
+            <pre id="inputs-choice" role="status" aria-live="polite" aria-atomic="true">@choice</pre>
+            <p class="muted">A missing capability cannot override privacy. Local execution still needs model/hardware, quality and complete data-path testing. No actual inference or cloud transfer occurs.</p>
+        </section>
+        <section class="panel" aria-labelledby="concepts-heading"><h2 id="concepts-heading">4. Keep conceptual work explicit</h2><p>ONNX is a model format; ONNX Runtime executes supported models. Quantization may change storage, latency and accuracy. This project has neither runtime nor model and claims no measured speedup.</p><p>Fine-tuning needs a measured prompt baseline, suitable training examples and independent held-out evaluation. Current facts often call for approved retrieval. This project does not train or deploy anything.</p><h3>Independent verification</h3><pre>dotnet run -- --verify</pre><p>The verification branch exits before host creation and tests these production services without mocks. See README.md for exact expected results, bounds and browser scenarios.</p></section>
+    </div>
+    <footer>Synthetic SupportDesk examples. The reviewed attachment milestone is self-reported in the academy. Continue with identity-secrets in the next unit. Stop the host with Ctrl+C.</footer>
+</main>
+@code {
+    private bool interactiveReady,noCloud=true;
+    private string fixture="bundle",media="application/x-supportdesk-fixture",notes="Fictional billing review",capability="text",memory="8",choice="Compare the current fictional profile requirements.";
+    protected override void OnInitialized()=>Update();
+    protected override void OnAfterRender(bool firstRender){if(firstRender){interactiveReady=true;StateHasChanged();}}
+    private void Update(){Intake.SetInput(new(fixture,media,notes));choice="Inputs changed. Compare the current fictional profile requirements again.";}
+    private void ChangeFixture(ChangeEventArgs e){fixture=e.Value?.ToString()??"";Update();}
+    private void ChangeMedia(ChangeEventArgs e){media=e.Value?.ToString()??"";Update();}
+    private void ChangeNotes(ChangeEventArgs e){notes=e.Value?.ToString()??"";Update();}
+    private void ChangeCapability(ChangeEventArgs e){capability=e.Value?.ToString()??"";Update();}
+    private void ChangeCloud(ChangeEventArgs e){noCloud=e.Value is true;Update();}
+    private void ChangeMemory(ChangeEventArgs e){memory=e.Value?.ToString()??"";Update();}
+    private void Normalize(){if(interactiveReady)Intake.Normalize();}
+    private void Review(){if(interactiveReady)Intake.Review(true);}
+    private void Deny(){if(interactiveReady)Intake.Review(false);}
+    private void Preview(){if(interactiveReady)Intake.Preview();}
+    private void Choose()
+    {
+        if(!interactiveReady)return;
+        var n=int.TryParse(memory,System.Globalization.NumberStyles.None,System.Globalization.CultureInfo.InvariantCulture,out var parsed)?parsed:-1;
+        var result=ModelPolicy.Choose(capability,noCloud,n);choice=$"{result.Outcome}\n{result.Profile}\n{result.Detail}";
+    }
+}

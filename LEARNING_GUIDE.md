@@ -1,6 +1,6 @@
 # AI for .NET developers — available lessons
 
-56 complete lessons across 9 units. Open index.html for interactive exercises and 9 desktop labs. Later units remain clearly marked Planned.
+68 complete lessons across 11 units. Open index.html for interactive exercises and 11 desktop labs. All curriculum units are available. Labs are educational demonstrations, not production deployments.
 
 ## 1. What makes a feature an AI feature?
 
@@ -3559,7 +3559,7 @@ The known-failure fixture stops before creating a preview. Evidence confirms tha
 
 The Unknown fixture creates a local preview receipt but simulates losing its acknowledgement. Recovery and Replay do not repeat the effect or declare success. Reconcile reads the already-existing local receipt and resolves the uncertainty without another preview. That evidence is deliberately available in this fixture; in a real remote system a button click alone cannot prove an effect occurred.
 
-For a completed exact request, Replay returns its receipt and keeps the preview count unchanged. The session holds at most sixteen distinct effect receipts and eighty trace entries; all are temporary. There is no durable exactly-once guarantee across restarts. Finish this available path by running the lab and its checks. Unit 10 remains planned and has no enabled next lesson in this unit.
+For a completed exact request, Replay returns its receipt and keeps the preview count unchanged. The session holds at most sixteen distinct effect receipts and eighty trace entries; all are temporary. There is no durable exactly-once guarantee across restarts. Run the workflow lab and its checks, then continue into Unit 10 to review attachments and model choices.
 
 **Unknown outcome:** An execution result whose completion cannot yet be confirmed at the acknowledgement boundary. It must not silently become Success or trigger an automatic repeat.
 
@@ -3605,34 +3605,747 @@ if (sameRequestReceipt is not null)
 
 Contribution: SupportDesk finishes with inspectable approval, stop and recovery boundaries.
 
-Next: Finish the bounded workflow lab. Unit 10 is planned; no next lesson is enabled yet.
+Next: Finish the bounded workflow lab, then continue into Unit 10 for attachments and model choices.
 
 Reference: [Microsoft Azure Architecture Center: Retry pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/retry)
 
-## Later units — planned
+## 57. Images: reading text is not understanding the scene
 
-### More inputs and model choices
+Objective: Separate text extraction from visual interpretation and keep the source available for review.
 
-Choose the right input and hosting approach.
+Prerequisite: Approval, recovery and Unknown outcomes
 
-- Images and OCR
-- Speech and transcripts
-- Combining input types
-- Local model inference
-- ONNX and quantization basics
-- When fine-tuning is justified
+SupportDesk can now review an attachment alongside a request. A fictional invoice image contains the amount 120. OCR would try to turn those pixels into characters; a vision task might assess whether the pictured parcel looks damaged. Reading an amount does not answer a damage question. Choose the task before choosing a model or cloud service.
 
-Milestone: A reviewed attachment-processing feature
+Treat extracted text like input arriving at an ASP.NET endpoint: it needs a type, length limit and a known source. Preserve the attachment identifier and useful location information so staff can compare the candidate with the original. A string such as 120 without its source cannot explain whether it came from an invoice, a customer note or an uncertain guess.
 
-### Operate and deploy on Azure
+An OCR confidence score describes a system estimate for its output, not the truth of an invoice or permission to process a refund. Blurred digits, layout and language can change results. A high score can still accompany the wrong amount. In a full-stack application, display the evidence and uncertainty before the review action instead of silently copying a value into a business command.
 
-Deploy, observe, and maintain the application.
+The runnable SupportDesk lab uses an authored image observation, not an image decoder, OCR engine or vision model. Select Image with image/png, normalize it, and inspect image-1 with amount 120. The exercise lets you change candidate text and switch between reading and damage assessment. Empty text is denied; choosing damage never pretends that OCR answered the visual question.
 
-- Identity and secrets
-- Evaluation gates in CI
-- Logging and tracing
-- Latency, caching, and cost
-- Azure deployment and rollback
-- Capstone acceptance and failure drills
+**Optical character recognition (OCR):** Extraction of candidate text and its location from an image. It is different from deciding what the whole scene means or whether the text is correct.
 
-Milestone: An observable SupportDesk capstone
+### Worked example
+
+One attachment, two different tasks
+
+> A fictional parcel photo includes an invoice label.
+
+- Read the invoice amount: Extract text and retain the image identifier and uncertainty. Result: OCR candidate.
+- Assess a damaged corner: Investigate visual content; label text alone is insufficient. Result: Vision task with review.
+
+The intended question determines the capability. Neither route independently authorizes a business effect.
+
+### Try it
+
+Edit the candidate text, compare Read text with Assess damage, then clear the text and observe denial. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+OCR returns an amount with high confidence. What may SupportDesk conclude?
+
+1. There is a candidate value to compare with its source.
+2. The invoice is valid and a refund is authorized.
+3. The model has assessed every visual feature in the image.
+
+Answer: 1. Correct. Extraction proposes evidence for review.
+
+### .NET connection
+
+Runnable C# using the downloaded lab services. The observation was authored; this code performs no OCR.
+
+C# · runnable lab API
+
+```text
+using SupportDesk.AttachmentReview.Services;
+var intake = new Intake();
+intake.SetInput(new("image", "image/png", "Fictional invoice review"));
+intake.Normalize();
+Console.WriteLine(intake.Evidence[0].SourceId); // image-1
+Console.WriteLine(intake.Evidence[0].Value); // 120
+```
+
+Contribution: SupportDesk has a typed attachment boundary and traceable candidate text.
+
+Next: Keep speaker and time context when the source is audio.
+
+Reference: [Microsoft Learn: OCR overview](https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/overview-ocr)
+
+## 58. Transcripts need speakers, time and uncertainty
+
+Objective: Keep transcript segments traceable without mistaking a speaker label or confidence score for verified identity or truth.
+
+Prerequisite: Images: reading text is not understanding the scene
+
+A fictional caller says the invoice amount is 170 between seconds 12 and 16. Turning audio into text is speech recognition. Grouping segments by speaker is diarization. Neither operation proves that Speaker 1 is a particular customer or that the amount is correct. Keep the difference visible when a transcript becomes input to a support workflow.
+
+A transcript without a time range makes review unnecessarily difficult. Store the source identifier, start and end, speaker label and uncertainty alongside the text. This resembles a structured log entry with a correlation ID: the context lets someone find the event that produced the message. A useful display shows audio-1, Speaker 1, 12–16 seconds and the candidate amount together.
+
+Validate segment bounds before combining evidence: a start after an end is malformed, and a confidence outside zero to one is invalid. Real services can return intermediate results that change before final recognition. Decide which stage your application accepts, preserve corrections, and avoid treating a partial phrase as a stable business fact. A final result still needs task-specific evaluation.
+
+The lab contains an authored transcript with confidence 0.61 and no audio file, microphone access or speech SDK. Select Audio with audio/wav to normalize that fixed observation. In the exercise, edit the speaker label, timestamps and confidence. An impossible time range is denied. Raising confidence changes the review explanation but never authenticates the speaker or bypasses staff review.
+
+**Transcript segment:** A candidate span of recognized speech linked to a source, time range and optional speaker label. Speaker grouping is not authentication.
+
+### Worked example
+
+Review the right part of the call
+
+> audio-1 / Speaker 1 / 12–16s / amount 170 / confidence 0.61
+
+- Traceable transcript: Staff can inspect the exact segment and uncertainty. Result: Reviewable observation.
+- Unlabelled number 170: The speaker, time and source have disappeared. Result: Insufficient provenance.
+
+A speaker label groups speech; it does not identify an authenticated account holder.
+
+### Try it
+
+Change segment bounds and confidence. Try an end before the start and explain why a high score cannot prove identity. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+What does Speaker 2 in a transcript establish?
+
+1. A verified customer identity.
+2. A label for a speaker grouping that still needs context and review.
+3. An authorization to change the associated account.
+
+Answer: 2. Correct. Preserve the source and time without inferring identity.
+
+### .NET connection
+
+Runnable lab API. No ASR or diarization is performed; these values belong to a synthetic fixture.
+
+C# · runnable lab API
+
+```text
+using SupportDesk.AttachmentReview.Services;
+var intake = new Intake();
+intake.SetInput(new("audio", "audio/wav", "Fictional call review"));
+intake.Normalize();
+var segment = intake.Evidence[0];
+Console.WriteLine($"{segment.Speaker}: {segment.StartSeconds}–{segment.EndSeconds}s");
+```
+
+Contribution: SupportDesk keeps audio evidence inspectable and separate from user identity.
+
+Next: Combine modalities without discarding disagreement.
+
+Reference: [Microsoft Learn: speech recognition results](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/get-speech-recognition-results)
+
+## 59. Combine evidence without erasing its origin
+
+Objective: Preserve conflicting observations and bind review to the exact current input.
+
+Prerequisite: Transcripts need speakers, time and uncertainty
+
+SupportDesk receives three authored observations: image-1 reports amount 120, audio-1 reports 170, and text-1 reports 120. Combining them into a single number would hide disagreement. A majority vote or the largest confidence score is not enough to resolve it. The caller might refer to a different invoice, or the image text could have been read incorrectly.
+
+Model every observation as a typed record rather than concatenating strings without labels. Keep the field, value, source, modality and relevant timing context together. Think of joining database rows with their keys intact: dropping the key makes it difficult to explain which row produced a displayed value. The lab normalizes authored records while retaining all three source identifiers.
+
+A multimodal model can relate image and text inputs, but application provenance and conflict policy remain separate responsibilities. Returned material is untrusted data, including any embedded instruction to skip review. SupportDesk flags differing amount values and requires staff review of the exact fixture, media type and notes. The local preview explicitly retains the unresolved conflict instead of inventing a resolved answer.
+
+Every edit clears normalized evidence, review and the visible result. Selecting another fixture and later returning does not restore approval. This follows the same snapshot principle as the previous workflow unit. Run the bundle, review it and create a local preview, then edit the notes. The exercise lets you enter two values and see both sources preserved; leaving one blank is rejected.
+
+**Evidence provenance:** The recorded origin and context of an observation, including its source identifier and modality. It supports traceability but does not itself prove authenticity.
+
+### Worked example
+
+The attachment sources disagree
+
+> Image amount 120; transcript amount 170; text amount 120.
+
+- Preserve the conflict: Keep all source-labelled observations and request staff review. Result: Traceable local preview.
+- Silently choose 120: Discard disagreement because two sources match. Result: Unsupported resolution.
+
+Review records acknowledgement of the evidence. It does not make an unresolved amount correct or trigger a refund.
+
+### Try it
+
+Enter 120 and 170, then make them agree. Explain why agreement is useful but still does not prove truth. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+The notes change after staff reviewed a bundle. What must happen?
+
+1. Reuse the approval because the amount looks unchanged.
+2. Let the highest-confidence source grant approval.
+3. Clear review and result, then normalize and review the new input.
+
+Answer: 3. Correct. The effect boundary must verify the exact current input.
+
+### .NET connection
+
+Runnable lab API using an authored bundle. The result is a local string; no ticket, refund or message is sent.
+
+C# · runnable lab API
+
+```text
+using SupportDesk.AttachmentReview.Services;
+var intake = new Intake();
+intake.SetInput(new("bundle", "application/x-supportdesk-fixture", "Fictional billing review"));
+intake.Normalize();
+intake.Review(true); // staff acknowledges this exact snapshot
+intake.Preview();
+Console.WriteLine(intake.Phase); // AcceptedLocalPreview
+```
+
+Contribution: SupportDesk accepts only a reviewed local preview and retains conflicting evidence.
+
+Next: Choose an inference location from requirements, not assumptions.
+
+Reference: [Microsoft Learn: multimodal search concepts](https://learn.microsoft.com/en-us/azure/search/multimodal-search-overview)
+
+## 60. Local inference is a deployment choice with requirements
+
+Objective: Apply capability, privacy and hardware requirements before comparing eligible model profiles.
+
+Prerequisite: Combine evidence without erasing its origin
+
+A local model might help SupportDesk keep attachment processing within an approved environment. It also needs memory, compatible operators and an execution provider suitable for the machine. Installing a model locally does not prove it can interpret images or meet a latency target. A cloud profile might offer a needed capability, but the data policy must permit that request first.
+
+Make requirements explicit before ranking candidates: required modality, whether cloud transfer is forbidden, available memory, and later measured quality and latency targets. This resembles dependency selection in a .NET service: a library that does not support the target runtime is eliminated before style or convenience is considered. A score must never compensate for violating a hard requirement.
+
+The lab compares fictional profiles. local-text supports text and requires four GiB; cloud-general advertises text, vision and speech. The displayed scores are authored teaching numbers, not benchmarks, provider claims or live capability tests. With vision required and cloud forbidden, the correct result is no eligible profile. The policy refuses to recommend a forbidden cloud fallback.
+
+Local execution can still leak through application logs, telemetry, exposed ports, caches or other surrounding services. Review the whole data path and test the actual selected model and hardware before making privacy claims. Change the lab requirements and observe the recommendation clear immediately. The exercise also rejects unknown capabilities and malformed memory amounts rather than silently broadening the search.
+
+**Local inference:** Running a model on a controlled local device or server. Model compatibility, memory, performance and surrounding data handling still require evaluation.
+
+### Worked example
+
+A capability gap is not permission to move data
+
+> Vision required; cloud forbidden; eight GiB available.
+
+- local-text: Fits memory but supports text only. Result: Ineligible: missing vision.
+- cloud-general: Advertises vision but violates no-cloud policy. Result: Ineligible: privacy boundary.
+
+The correct policy result is no eligible profile. No actual inference is attempted.
+
+### Try it
+
+Require vision with cloud forbidden. Then permit cloud, and finally test text with only two GiB. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+The only profile advertising vision is cloud-based, and cloud transfer is forbidden. What should the policy return?
+
+1. No eligible profile.
+2. Recommend cloud because it has the highest score.
+3. Assume the local text model can also interpret images.
+
+Answer: 1. Correct. A capability gap cannot override a hard privacy requirement.
+
+### .NET connection
+
+Runnable policy from the lab. Profiles and scores are fictional; this does not load a model or send data.
+
+C# · runnable lab API
+
+```text
+using SupportDesk.AttachmentReview.Services;
+var choice = ModelPolicy.Choose("vision", noCloud: true, memoryGiB: 8);
+Console.WriteLine(choice.Outcome); // No eligible profile
+var textChoice = ModelPolicy.Choose("text", noCloud: true, memoryGiB: 8);
+Console.WriteLine(textChoice.Profile); // local-text
+```
+
+Contribution: SupportDesk can explain why a profile is ineligible without overriding policy.
+
+Next: Distinguish a model format, its runtime and measured optimization tradeoffs.
+
+Reference: [Microsoft Learn: cloud-based and local AI models](https://learn.microsoft.com/en-us/windows/ai/cloud-ai)
+
+## 61. ONNX, runtime and quantization are different decisions
+
+Objective: Distinguish ONNX representation from execution and evaluate quantization with size, latency and held-out accuracy.
+
+Prerequisite: Local inference is a deployment choice with requirements
+
+An ONNX file is a model representation, not a running inference service. ONNX Runtime is software that can execute supported graphs, using an execution provider for the target hardware. The graph operators, shapes, model inputs and outputs must still match the application. A file extension does not guarantee that a particular CPU or accelerator can run the model efficiently.
+
+Quantization reduces the precision of selected weights or activations. Replacing some 32-bit values with 8-bit values suggests a storage saving for those values, but metadata, unconverted operators and runtime buffers remain. Do not promise a fourfold reduction in total memory or a fourfold speedup. Quantize and dequantize operations can add overhead, especially without appropriate hardware support.
+
+Measure file size, peak memory, latency distribution and task accuracy on representative held-out data. Calibration data for an optimization and evaluation data have different jobs. A faster result that misreads invoice amounts more often may fail SupportDesk acceptance criteria. Record the baseline, candidate, hardware and threshold before comparing results so a favorable number cannot quietly replace the original objective.
+
+The exercise is an arithmetic calculator using entered fictional measurements, not a benchmark. With sizes 100 and 40 MiB it reports a 2.5 ratio. With latencies 20 and 25 ms it reports 0.8, meaning the candidate is slower. The lab installs no ONNX Runtime or model. Its real intake and model-choice services illustrate where a future evaluated implementation would fit.
+
+**Quantization:** Representing selected numeric values with reduced precision. It can reduce storage or computation but may affect accuracy and may not improve latency on the target hardware.
+
+### Worked example
+
+A smaller candidate can still be unsuitable
+
+> 100 → 40 MiB; 20 → 25 ms; accuracy 0.88; minimum 0.90.
+
+- Storage comparison: 100 divided by 40 is 2.5; this is file size only. Result: Smaller file.
+- Acceptance comparison: Latency worsens and accuracy is below the declared minimum. Result: Reject candidate.
+
+The figures are authored arithmetic inputs. No measured inference or peak-memory result is claimed.
+
+### Try it
+
+Keep the file smaller but increase latency. Lower accuracy below the minimum, then try a zero candidate size. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+What does a smaller quantized model file prove?
+
+1. Every target will run it four times faster.
+2. Only that this file is smaller; runtime memory, latency and accuracy need separate tests.
+3. Its output accuracy is unchanged because the graph is still ONNX.
+
+Answer: 2. Correct. Storage size does not establish the other acceptance criteria.
+
+### .NET connection
+
+Illustrative C# outline only. MeasureCandidate and evaluation data are not lab APIs; ONNX Runtime and models are not installed.
+
+C# · illustrative measurement outline
+
+```text
+// Illustrative outline: supply your evaluated runtime implementation.
+var baseline = MeasureCandidate(originalModel, heldOutCases, hardware);
+var candidate = MeasureCandidate(quantizedModel, heldOutCases, hardware);
+// Compare file bytes, peak memory, p95 latency and task accuracy.
+// Reject candidates below the predeclared acceptance thresholds.
+```
+
+Contribution: SupportDesk has explicit optimization acceptance questions; its runnable lab remains provider-free.
+
+Next: Decide whether model training is even the right next intervention.
+
+Reference: [ONNX Runtime: quantization](https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html)
+
+## 62. Fine-tuning starts with a measured problem
+
+Objective: Compare prompting, retrieval and fine-tuning against a baseline with separate training and held-out data.
+
+Prerequisite: ONNX, runtime and quantization are different decisions
+
+Suppose SupportDesk needs current help articles in its answers. Retrieval can supply up-to-date approved context without putting every article into model weights. If the problem is a reply format, begin with a clear prompt and deterministic output validation. Fine-tuning becomes a candidate when repeated measured behavior gaps remain and suitable training examples are available.
+
+Establish a baseline using representative tasks and predeclared success criteria. Keep training examples separate from held-out evaluation cases so the evaluation asks about generalization rather than memorization. This is similar to testing a C# parser on examples it was not designed around. Reusing training examples as the final test can make a weak change appear successful.
+
+A trained style does not establish factual correctness, authorization or safety. Continue retrieval permissions, typed validation, evidence provenance and review at the application boundary. Consider the cost of data preparation, labeling, training and ongoing evaluation before choosing this route. The exercise asks about the actual need, whether a prompt baseline exists and how many independent held-out examples are ready.
+
+For facts, the exercise recommends investigating RAG. For a format problem without a baseline, it asks for a measured prompt baseline. Without held-out examples it asks for data first. With both it proposes evaluating a fine-tuning candidate, never automatic deployment. Finish the reviewed attachment milestone in the lab, then continue to identity-secrets in the next unit, where production identity and secrets become explicit concerns.
+
+**Fine-tuning:** Additional training of an existing model on examples for a target behavior. It requires suitable data, an evaluation plan and evidence of improvement over simpler baselines.
+
+### Worked example
+
+Different failures call for different interventions
+
+> SupportDesk answers an old policy correctly formatted, but the policy has changed.
+
+- Knowledge freshness: Retrieve the current approved article with access controls. Result: Investigate RAG.
+- Repeated formatting gap after a prompt baseline: Prepare training data and independent evaluation cases. Result: Evaluate fine-tuning candidate.
+
+Neither recommendation is a training run or a production deployment approval.
+
+### Try it
+
+Compare current facts with formatting. Remove the baseline or held-out cases and observe how the next step changes. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+A fine-tuned candidate performs well on its own training examples. What is missing?
+
+1. A claim that training success proves production readiness.
+2. An automatic cloud deployment.
+3. A comparison against the baseline on independent held-out cases.
+
+Answer: 3. Correct. Evaluate generalization before accepting a candidate.
+
+### .NET connection
+
+Illustrative C# decision outline, not a training API. The downloadable Blazor lab runs intake, review and choice policies without training.
+
+C# · illustrative decision outline
+
+```text
+// Illustrative decision outline; no training SDK is installed.
+if (needsCurrentFacts) return "Investigate approved retrieval";
+if (!hasMeasuredPromptBaseline) return "Measure baseline";
+if (!hasIndependentHeldOutData) return "Prepare evaluation data";
+return "Evaluate a fine-tuning candidate against the baseline";
+```
+
+Contribution: SupportDesk ends with reviewed attachment intake and an evidence-based model decision.
+
+Next: Complete the attachment-review lab milestone, then continue to identity-secrets.
+
+Reference: [Microsoft Learn: fine-tuning overview](https://learn.microsoft.com/en-us/azure/foundry-classic/concepts/fine-tuning-overview)
+
+## 63. Trusted identity, least privilege and server secrets
+
+Objective: Separate trusted caller identity, application permissions and server-held credentials before allowing a release.
+
+Prerequisite: Fine-tuning starts with a measured problem
+
+SupportDesk has reached its final learning unit. A useful reply is still unsafe to operate if anyone can promote a revision by changing a browser field. In a real Blazor application, the server obtains caller identity through configured authentication and checks authorization for the requested operation. A hidden button, posted role name or model claim is not evidence that the caller may release software.
+
+Keep two identities separate: the human reviewer who approves a candidate and the workload that accesses a backing service. An Azure App Service managed identity can obtain tokens without an application-owned client secret. It does not automatically grant access to a model endpoint, storage account or vault. The target service must accept that identity and an administrator must grant the required permission at an appropriate scope.
+
+Think of an ASP.NET Core controller: validating the route parameter does not authenticate the caller, and authenticating the caller does not authorize every route. Likewise, a configuration value belongs on the server when it is sensitive. Never ship provider credentials in a Razor component parameter, browser storage, downloadable source example or telemetry tag. This lab needs no credentials and performs no identity discovery.
+
+The runnable project offers DEMO reader and DEMO release selectors backed by a server-owned allowlist. Choosing an unknown policy fails the gate. These selectors teach policy separation; they are deliberately not Azure authentication or a secure multiuser review system. The real application would replace the selector with a trusted principal and resource authorization before exposing any release operation.
+
+**Least privilege:** Give an authenticated caller or workload only the specific permissions needed for its task, at the narrowest useful resource scope.
+
+### Worked example
+
+One workload, two distinct permissions
+
+> A fictional SupportDesk revision needs help lookup and local release review.
+
+- DEMO reader: The server allows help.read only. Result: Release gate blocked.
+- DEMO release: An authored server policy allows the local release exercise. Result: Eligible for further gates.
+
+Passing the local identity gate is only one check. It grants no real Azure permission and does not replace approval.
+
+### Try it
+
+Try reader with help.read, then release.promote. Change to reviewer and explain why this remains a DEMO policy. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+The browser posts role=release-owner. What should a real server do?
+
+1. Trust the role because it came from the UI.
+2. Use the authenticated principal and authorize the requested resource operation.
+3. Let a model decide whether the role sounds genuine.
+
+Answer: 2. Correct. Identity and permissions must come from trusted server policy.
+
+### .NET connection
+
+Runnable C# using the downloaded lab service. No Azure authentication is performed.
+
+C# · runnable lab API
+
+```text
+var session = new ReleaseSession();
+session.Edit(new Candidate(Identity: "demo-reader"));
+session.Check();
+Console.WriteLine(session.Status); // Blocked
+```
+
+Contribution: SupportDesk begins release review with an explicit policy boundary.
+
+Next: Require quality, safety and operational evidence before review.
+
+Reference: [Microsoft: managed identities in Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/overview-managed-identity)
+
+## 64. Quality and safety gates for continuous delivery
+
+Objective: Combine deterministic thresholds with reviewed evaluation evidence and fail closed when measurements are invalid.
+
+Prerequisite: Trusted identity, least privilege and server secrets
+
+A compiling SupportDesk build can still classify billing messages incorrectly, invent unsupported replies or expose an attachment it should reject. Use different tests for different questions: deterministic unit tests protect code rules, curated task examples measure behavior, and reviewed safety cases probe harmful or unauthorized outcomes. A build result cannot stand in for all of these kinds of evidence.
+
+The local candidate carries authored quality percentage, sample count and safety failure count. Quality must be at least 90 out of 100, sample count at least 20, and safety failures exactly zero. This is a teaching release policy, not a universal benchmark or certification standard. NaN, missing evidence, impossible counts and unknown provider status block the candidate rather than being silently treated as zero risk.
+
+Model-based judges can help review relevance or groundedness, but their output may vary across runs or disagree with human review. Version the dataset, rubric, prompt and judge configuration; examine disagreements and use deterministic checks wherever the property is exact. Pinning a judge does not make it an infallible oracle. CI should preserve enough safe evidence to understand why a candidate was blocked.
+
+Like a test run attached to a particular commit, a gate result belongs to a specific revision and measurements. Editing quality, budget, identity or fixture clears the old result and approval in this lab. Passing gates opens review; it does not promote automatically. Human approval is a separate transition, bound to the check snapshot without an automatic short countdown while the reviewer reads.
+
+**Release gate:** An application-owned condition that must pass on a particular candidate and evidence snapshot before a release can proceed.
+
+### Worked example
+
+A high score does not override a safety failure
+
+> 100 authored cases, quality 95%, safety failures 1.
+
+- Average-only policy: Looking only at quality hides the failing safety case. Result: Unsafe acceptance.
+- Combined gate: Quality passes but zero-safety-failure rule fails. Result: Blocked.
+
+Independent gate conditions prevent one attractive aggregate from masking a critical failure.
+
+### Try it
+
+Change safety failures from 0 to 1, then samples from 100 to 0. Explain Blocked versus Invalid. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+A model judge gives 98%, but the evidence includes one forbidden disclosure. What follows?
+
+1. Release because the aggregate is high.
+2. Delete the case and rerun until it passes.
+3. Block the candidate, investigate the failure and rerun reviewed evidence after a fix.
+
+Answer: 3. Correct. Safety and quality are distinct release conditions.
+
+### .NET connection
+
+Runnable C# against deterministic authored candidate measurements.
+
+C# · runnable lab API
+
+```text
+var session = new ReleaseSession();
+session.Edit(new Candidate(SafetyFailures: 1));
+session.Check();
+session.Approve();
+Console.WriteLine(session.Status); // Blocked
+```
+
+Contribution: SupportDesk can explain every gate instead of hiding behind a single score.
+
+Next: Observe transitions without collecting prompts or credentials.
+
+Reference: [Microsoft: test and evaluate AI workloads](https://learn.microsoft.com/en-us/azure/well-architected/ai/test)
+
+## 65. Trace outcomes without collecting sensitive text
+
+Objective: Use safe operation IDs and outcomes to connect release activity, metrics and diagnosis without recording full inputs.
+
+Prerequisite: Quality and safety gates for continuous delivery
+
+When SupportDesk stops at a release gate, the operator needs to know which check failed and which revision was evaluated. The operator rarely needs the full customer message to answer that first question. Record a bounded audit ID, operation name and outcome. Keeping the audit useful and small also avoids filling a session with unlimited entries during repeated drills.
+
+In .NET, ActivitySource creates Activity spans and Meter creates instruments such as counters and histograms. Collection is a separate concern: StartActivity can return null when no listener is interested. The lab emits BCL instrumentation with null-safe tagging and keeps a visible in-memory audit. It includes no external exporter, monitoring account, network ingestion or promise that Azure has received a trace.
+
+Treat telemetry as another data boundary. Do not attach prompts, generated replies, attachment bodies, credentials or arbitrary user-entered revision names as labels. High-cardinality labels such as a unique request ID on every metric can also make aggregation expensive. A small allowlist of operations and outcomes is easier to query and inspect than a dump of everything the application touched.
+
+A full-stack analogy is an HTTP status counter versus a request-body dump. A counter can reveal failure frequency without exposing every field the caller posted. Start with outcomes, latency distributions and dependency status; use an approved, access-controlled investigation process if more evidence is necessary. In the exercise, change operation and outcome and see the safe record change while the private payload stays out.
+
+**Trace:** A correlated record of operations and their relationships, commonly represented as spans with safe attributes and timing.
+
+### Worked example
+
+The same failure can be recorded safely
+
+> A fictional message includes an account number and a gate fails.
+
+- Payload dump: Copy the entire message into a metric tag. Result: Sensitive and high cardinality.
+- Safe outcome: operation=gate, outcome=blocked and an internal bounded audit ID. Result: Useful diagnosis without body text.
+
+The operation outcome answers the first operational question without making the fictional message part of telemetry.
+
+### Try it
+
+Enter fictional private text, record gate/blocked, then promote/pass. Confirm only operation and outcome appear. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+Why can ActivitySource.StartActivity return null?
+
+1. No listener is collecting that source, so the code must handle null.
+2. The caller must put a secret in the source name.
+3. It proves a release failed.
+
+Answer: 1. Correct. Instrumentation and collection are separate.
+
+### .NET connection
+
+Runnable C# using the production lab telemetry helper. A collector is optional and is not configured here.
+
+C# · runnable lab API
+
+```text
+using var telemetry = new ReleaseTelemetry();
+telemetry.Record("gate", "blocked");
+// ActivitySource and Meter emit only allowlisted tags.
+// No prompt, token, attachment body or credential is accepted.
+```
+
+Contribution: SupportDesk exposes safe, bounded operational evidence.
+
+Next: Measure latency and illustrate token cost before accepting a budget.
+
+Reference: [Microsoft: add distributed tracing instrumentation](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-instrumentation-walkthroughs)
+
+## 66. Latency, cache scope and token budgets
+
+Objective: Calculate input and output cost with per-million units, enforce a bounded allowance and isolate cached answers by trusted scope and revision.
+
+Prerequisite: Trace outcomes without collecting sensitive text
+
+A fast SupportDesk reply can still exceed its cost allowance. Keep input and output counts separate because illustrative unit prices may differ. This lesson uses 1 cost unit per million input tokens and 3 per million output tokens, purely for arithmetic. For 1,000 input tokens and 500 output tokens, the estimate is 0.001 plus 0.0015, or 0.0025 units. These are not current Azure quotes or measured provider billing.
+
+Token counts are authored measurements here. A real integration needs provider-specific usage evidence, cancellation and limits on request size, output size and retries. The lab uses decimal C# arithmetic and accepts only positive bounded counts, budget and latency. A measured latency over 2,000 milliseconds blocks release. That synthetic threshold is unrelated to how long a human spends reading the review screen.
+
+Caching can reduce repeated generation, but a key based only on the question can cross an access boundary. A real key should include trusted tenant and effective permission scope, relevant retrieval filters and content, prompt and model revisions. Invalidate or version it when those inputs change. Adding a revision to a key is not itself authorization: check permissions before retrieval and before serving a cached result.
+
+Think of a cached MVC view that accidentally reuses an administrator response for another user. The same risk applies to an AI answer assembled from restricted documents. The exercise exposes tenant, permission and revision segments so you can see a changed key. It does not implement a shared cache or real tenant authentication. Keep latency and cost evidence separate from the answer text and judge quality.
+
+**Scoped cache key:** A reuse identifier that includes the relevant trusted access scope and content or model revision, in addition to request identity.
+
+### Worked example
+
+Hand-check per-million arithmetic
+
+> Input 1,000; output 500; illustrative prices 1 and 3 units per million.
+
+- Budget 0.003: 0.001 + 0.0015 = 0.0025. Result: Within budget.
+- Budget 0.0024: The same estimate exceeds the smaller allowance. Result: Budget gate blocked.
+
+Do not divide token counts by one thousand when the price is per million. Output tokens need their own multiplier.
+
+### Try it
+
+Calculate the default estimate, then increase output tokens to 1,000. Change the revision and inspect the cache key. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+At these illustrative prices, what is the cost of 1,000 input and 500 output tokens?
+
+1. 2.5 units.
+2. 0.0025 units.
+3. 0.0015 units because only outputs count.
+
+Answer: 2. Correct. 1000/1000000 × 1 + 500/1000000 × 3.
+
+### .NET connection
+
+Runnable C# against the lab estimator. Prices are illustrative units, not Azure prices.
+
+C# · runnable lab API
+
+```text
+decimal estimate = ReleaseSession.Estimate(new Candidate(
+    InputTokens: 1000, OutputTokens: 500));
+Console.WriteLine(estimate); // 0.0025
+```
+
+Contribution: SupportDesk release review includes explicit resource limits.
+
+Next: Promote only reviewed evidence and inspect post-promotion health.
+
+Reference: [Microsoft: AI design principles — cost optimization](https://learn.microsoft.com/en-us/azure/well-architected/ai/design-principles#cost-optimization)
+
+## 67. App Service readiness, slots, smoke and rollback
+
+Objective: Explain slot readiness and post-release smoke checks, including the separate managed identity of each slot.
+
+Prerequisite: Latency, cache scope and token budgets
+
+Azure App Service deployment slots support staging a version before swapping it toward production on supported plan tiers. Configuration and warm-up behavior matter: an HTTP response during warm-up does not necessarily exercise retrieval authorization, model access or the reviewed workflow. Define a readiness path that covers required startup dependencies and a smoke path that checks a small critical user journey after the change.
+
+Managed identities are specific to the app or slot and are not swapped with the application content. A staging version working under the staging identity does not prove the production slot identity can read the same resource. Review each slot identity, permissions and slot-specific configuration. The linked official guides describe current platform behavior; this lesson supplies no provisioning script, login step or cloud deployment.
+
+The local lab begins with known healthy V1 and candidate V2. Passing gates plus explicit snapshot approval permits one local promotion to V2. Healthy smoke retains V2 as Complete. Bad smoke restores the known V1 and reports RolledBack. An unknown smoke response stays Unknown; it is neither a successful release nor evidence that rollback completed. These states are memory-only simulations rather than Azure slot operations.
+
+Like a controller returning Accepted for a background job, receiving an acknowledgement does not prove the whole process succeeded. Check the evidence at the boundary that matters. Replay in this lab reports the existing result without another promotion. An Unknown state freezes the candidate because editing it would hide unresolved release evidence. A fresh browser session starts another independent exercise; it does not reconcile a real release.
+
+**Smoke check:** A small post-change check that confirms a critical path is healthy enough to continue operating, distinct from exhaustive testing.
+
+### Worked example
+
+Three smoke outcomes mean three different decisions
+
+> V2 passed gates and received explicit approval.
+
+- Healthy: The authored smoke fixture is healthy. Result: Complete; V2 retained.
+- Bad health: The authored smoke fixture fails. Result: RolledBack; V1 restored.
+- Unknown: No reliable health result is available. Result: Unknown; no repeated promotion.
+
+Only known healthy evidence permits Complete. An unknown response does not justify success or a blind retry.
+
+### Try it
+
+Switch health between healthy, bad and unknown. Remove reviewer approval and confirm promotion is blocked. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+Does swapping App Service slot content also swap the slot managed identities?
+
+1. Yes; permission follows the binaries automatically.
+2. Only if the warm-up URL returns 200.
+3. No; validate the identity and resource permissions for each slot.
+
+Answer: 3. Correct. A passing staging dependency call does not prove production-slot authorization.
+
+### .NET connection
+
+Runnable C# against the same state machine as Blazor; no Azure operation occurs.
+
+C# · runnable lab API
+
+```text
+var session = new ReleaseSession();
+session.Check();
+session.Approve();
+session.Promote();
+session.Smoke("bad");
+Console.WriteLine(session.Status); // RolledBack
+Console.WriteLine(session.Active); // V1
+```
+
+Contribution: SupportDesk separates permission, effect and health evidence.
+
+Next: Run final acceptance and failure drills across the learning journey.
+
+Reference: [Microsoft: set up staging environments in App Service](https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots)
+
+## 68. Final SupportDesk acceptance and failure drills
+
+Objective: Explain the evidence required at each SupportDesk boundary and finish the local release capstone without overstating its scope.
+
+Prerequisite: App Service readiness, slots, smoke and rollback
+
+All 11 learning units are now available. The final capstone brings their ideas together as an acceptance conversation: did the rule reject malformed input, did classification use a measured threshold, did drafting remain reviewed, did retrieval honor the caller scope, did workflow stop safely, and did attachments remain bounded? These are learning connections across separate local projects, not a claim that every earlier app is deployed as one production system.
+
+Use synthetic cases with a literal expected result before running a drill. An ambiguous request should ask for information. A retrieval miss should not invent a source. An unsupported attachment should stop at its boundary. A draft awaiting review should create no external effect. The small browser exercise lets you choose a boundary and whether its authored evidence passed; the downloaded project focuses specifically on release readiness over synthetic measurements.
+
+Complete the release drills in the runnable app: valid healthy path, failed safety gate, budget rejection, edited approval, denial, cancellation, bad-health rollback and Unknown replay. Read the active revision, effect count and audit after each. They are complementary observations: a green status alone is insufficient if the effect count unexpectedly increases or the known rollback target disappears. The verification executable tests the same production services without opening a listener.
+
+Finish by reviewing your academy progress and checking the capstone completion box only after you have run it and can explain the evidence. Completion is self-reported and grants no certification, Azure access or employment qualification. There is no planned next unit linked from this lesson. Keep the project as a safe practice space: all fixtures, audit entries, approvals and release state disappear when their session ends.
+
+**Acceptance drill:** A deliberate, observable scenario with an expected outcome that checks whether a learning or release requirement is met.
+
+### Worked example
+
+Acceptance includes the stops
+
+> A fictional SupportDesk release candidate has quality 95 and valid cost evidence.
+
+- Happy path: Check, approve, promote and healthy smoke. Result: Complete; exactly one local effect.
+- Edited evidence: Change a checked measurement after approval. Result: Idle; fresh gates and review required.
+- Lost health evidence: Unknown smoke followed by Replay. Result: Unknown; effect count unchanged.
+
+These drills test separate properties. A successful happy path cannot prove stale approval or uncertainty handling.
+
+### Try it
+
+Select each prior boundary and toggle passing evidence. Run the downloaded release drills, then review course progress. Open the interactive lesson to try the exercise.
+
+### Check understanding
+
+What does checking the final capstone completion box mean?
+
+1. I self-report that I ran the local drills and can explain their outcomes.
+2. All prior projects were deployed together on Azure.
+3. Azure certification has been awarded automatically.
+
+Answer: 1. Correct. Academy progress cannot inspect your terminal or certify production readiness.
+
+### .NET connection
+
+Runnable C# against the production local lab service.
+
+C# · runnable lab API
+
+```text
+var session = new ReleaseSession();
+session.Check(); session.Approve(); session.Promote();
+session.Smoke("unknown");
+session.Replay();
+Console.WriteLine(session.Status); // Unknown
+Console.WriteLine(session.Effects); // 1
+```
+
+Contribution: SupportDesk closes its learning journey with inspectable acceptance evidence.
+
+Next: All 11 learning units are available. Complete the capstone and review your progress.
+
+Reference: [Microsoft: safe deployment practices](https://learn.microsoft.com/en-us/azure/well-architected/operational-excellence/safe-deployments)
+
+## Learning path complete
+
+Review your understanding checks and independently self-report the coding milestones in the website. These records are not a certification or proof of deployment.

@@ -1,0 +1,63 @@
+@page "/"
+@inject ReleaseSession Session
+<PageTitle>SupportDesk · Operations capstone</PageTitle>
+<main>
+ <header><p class="eyebrow">Unit 11 / SupportDesk</p><h1>Evidence before release.</h1><p>Check authored measurements, review an exact candidate and practice a local release. All state is temporary.</p><p class="notice">LOCAL simulation · DEMO policies only · no Azure authentication, model calls or deployment</p><p id="interactive" role="status">@(interactiveReady?"Interactive ready":"Connecting interactive controls…")</p></header>
+ <div class="layout">
+ <section aria-labelledby="candidate-title">
+ <h2 id="candidate-title">Candidate evidence</h2><p>Known healthy baseline: V1. Any candidate edit clears gates and approval. After promotion, this session freezes edits.</p>
+ <fieldset disabled="@(!interactiveReady||!Session.CanEdit)"><legend>Authored synthetic measurements</legend>
+ <div class="fields">
+ <label for="revision">Revision (v2–v999)<input id="revision" maxlength="4" value="@revision" @oninput="e=>ChangeText(e,nameof(Candidate.Revision))" /></label>
+ <label for="quality">Quality % (0–100)<input id="quality" inputmode="decimal" maxlength="16" value="@quality" @oninput="e=>ChangeText(e,nameof(Candidate.Quality))" /></label>
+ <label for="samples">Sample count (1–10000)<input id="samples" inputmode="numeric" maxlength="16" value="@samples" @oninput="e=>ChangeText(e,nameof(Candidate.Samples))" /></label>
+ <label for="safety">Safety failures (0–samples)<input id="safety" inputmode="numeric" maxlength="16" value="@safety" @oninput="e=>ChangeText(e,nameof(Candidate.SafetyFailures))" /></label>
+ <label for="input-tokens">Input tokens (1–100000)<input id="input-tokens" inputmode="numeric" maxlength="16" value="@inputTokens" @oninput="e=>ChangeText(e,nameof(Candidate.InputTokens))" /></label>
+ <label for="output-tokens">Output tokens (1–100000)<input id="output-tokens" inputmode="numeric" maxlength="16" value="@outputTokens" @oninput="e=>ChangeText(e,nameof(Candidate.OutputTokens))" /></label>
+ <label for="latency">Synthetic latency ms (1–60000)<input id="latency" inputmode="numeric" maxlength="16" value="@latency" @oninput="e=>ChangeText(e,nameof(Candidate.LatencyMs))" /></label>
+ <label for="budget">Budget units (&gt;0–1)<input id="budget" inputmode="decimal" maxlength="16" value="@budget" @oninput="e=>ChangeText(e,nameof(Candidate.Budget))" /></label>
+ <label for="identity">Server-owned DEMO policy<select id="identity" value="@identity" @onchange="e=>ChangeText(e,nameof(Candidate.Identity))"><option value="demo-release">DEMO release</option><option value="demo-reader">DEMO reader (cannot release)</option><option value="unknown">Unknown policy</option></select></label>
+ <label for="provider">Provider fixture (no call)<select id="provider" value="@provider" @onchange="e=>ChangeText(e,nameof(Candidate.Provider))"><option value="healthy">Healthy</option><option value="failed">Failed</option><option value="unknown">Unknown</option></select></label>
+ </div></fieldset>
+ <p class="error" id="input-error" role="status">@inputError</p>
+ <p>Estimate: <strong id="estimate">@EstimateText</strong> illustrative units. Input 1 and output 3 units per million; not Azure prices or billing.</p>
+ <div class="actions"><button id="check-gates" disabled="@(!interactiveReady||!Session.CanCheck)" @onclick="Session.Check">Check gates</button><button id="approve" disabled="@(!interactiveReady||!Session.CanApprove)" @onclick="Session.Approve">Approve exact snapshot</button><button id="promote" disabled="@(!interactiveReady||!Session.CanPromote)" @onclick="Session.Promote">Promote locally</button><button id="deny" class="secondary" disabled="@(!interactiveReady||!Session.CanStop)" @onclick="Session.Deny">Deny review</button><button id="cancel" class="secondary" disabled="@(!interactiveReady||!Session.CanStop)" @onclick="Session.Cancel">Cancel release</button></div>
+ <p>Review has no automatic short expiry. Approval applies only to this candidate and check number.</p>
+ </section>
+ <section aria-labelledby="result-title"><h2 id="result-title">Release evidence</h2>
+ <div role="status" aria-live="polite" aria-atomic="true" class="result"><p>Status <strong id="release-status">@Session.Status</strong></p><p>Active <strong id="active">@Session.Active</strong> · Local promotion effects <strong id="effects">@Session.Effects</strong></p><p>Check snapshot <strong id="check-number">@Session.CheckNumber</strong> · Exact approval <strong id="approval">@(Session.Approved?"Yes":"No")</strong></p></div>
+ <ul id="gates" class="gates">@foreach(var gate in Session.Gates){<li><strong>@gate.Name — @(gate.Pass?"Pass":"Blocked")</strong><span>@gate.Detail</span></li>}</ul>
+ @if(Session.Status=="Unknown"){<p class="notice">Health is unconfirmed. Replay preserves Unknown and creates no effect. No evidence-backed reconciliation exists in this lab. Reload starts an independent exercise.</p>}
+ <label for="smoke-health">Post-promotion authored health<select id="smoke-health" @bind="smokeHealth" disabled="@(!interactiveReady||!Session.CanSmoke)"><option value="healthy">Healthy</option><option value="bad">Bad health</option><option value="unknown">Unknown response</option></select></label>
+ <div class="actions"><button id="smoke" disabled="@(!interactiveReady||!Session.CanSmoke)" @onclick="()=>Session.Smoke(smokeHealth)">Run smoke</button><button id="replay" class="secondary" disabled="@(!interactiveReady)" @onclick="Session.Replay">Replay result</button></div>
+ <h3>Bounded safe audit</h3><p>Latest 80 IDs, operations and outcomes only. No prompts, credentials or full payloads; no external exporter.</p><ol id="audit" class="audit">@foreach(var entry in Session.Audit.Reverse()){<li>@entry</li>}</ol>
+ </section></div>
+ <footer>All 11 learning units are available. Run the capstone drills in the README, then review academy progress. Learning completion is self-reported; no certification is issued.</footer>
+</main>
+@code {
+ private bool interactiveReady;
+ private readonly HashSet<string> oversizedFields=[];
+ private string revision="v2",quality="95",samples="100",safety="0",inputTokens="1000",outputTokens="500",latency="500",budget="0.003",identity="demo-release",provider="healthy",smokeHealth="healthy",inputError="";
+ protected override void OnAfterRender(bool firstRender){if(firstRender){interactiveReady=true;StateHasChanged();}}
+ private string EstimateText {get{try{return ReleaseSession.Estimate(Session.Candidate).ToString("0.000000",CultureInfo.InvariantCulture);}catch(ArgumentOutOfRangeException){return "Invalid token evidence";}}}
+ private void ChangeText(ChangeEventArgs e,string field)
+ {
+  if(!interactiveReady||!Session.CanEdit)return;
+  string value=e.Value?.ToString()??"";
+  // Independent server-side bounds, even for forged oversized component events.
+  int limit=field==nameof(Candidate.Revision)?4:field is nameof(Candidate.Identity) or nameof(Candidate.Provider)?24:16;
+  bool oversized=value.Length>limit;
+  if(oversized){oversizedFields.Add(field);value=value[..limit];}
+  else oversizedFields.Remove(field); // Only an explicit edit of that field clears its error.
+  switch(field){case nameof(Candidate.Revision):revision=value;break;case nameof(Candidate.Quality):quality=value;break;case nameof(Candidate.Samples):samples=value;break;case nameof(Candidate.SafetyFailures):safety=value;break;case nameof(Candidate.InputTokens):inputTokens=value;break;case nameof(Candidate.OutputTokens):outputTokens=value;break;case nameof(Candidate.LatencyMs):latency=value;break;case nameof(Candidate.Budget):budget=value;break;case nameof(Candidate.Identity):identity=value;break;case nameof(Candidate.Provider):provider=value;break;}
+  bool validQuality=double.TryParse(quality,NumberStyles.AllowDecimalPoint,CultureInfo.InvariantCulture,out double q)&&double.IsFinite(q);
+  bool validSamples=int.TryParse(samples,NumberStyles.None,CultureInfo.InvariantCulture,out int n);
+  bool validSafety=int.TryParse(safety,NumberStyles.None,CultureInfo.InvariantCulture,out int s);
+  bool validInput=int.TryParse(inputTokens,NumberStyles.None,CultureInfo.InvariantCulture,out int i);
+  bool validOutput=int.TryParse(outputTokens,NumberStyles.None,CultureInfo.InvariantCulture,out int o);
+  bool validLatency=int.TryParse(latency,NumberStyles.None,CultureInfo.InvariantCulture,out int l);
+  bool validBudget=decimal.TryParse(budget,NumberStyles.AllowDecimalPoint,CultureInfo.InvariantCulture,out decimal b);
+  if(oversizedFields.Count>0||!validQuality||!validSamples||!validSafety||!validInput||!validOutput||!validLatency||!validBudget){inputError=oversizedFields.Count>0?"Oversized fields: "+string.Join(", ",oversizedFields.Order())+". Explicitly correct each field and check again.":"Invalid bounded numeric input. Correct every field and check again.";Session.RejectInput();return;}
+  inputError="";Session.Edit(new Candidate(revision,q,n,s,i,o,l,b,identity,provider));
+ }
+}

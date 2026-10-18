@@ -9,10 +9,12 @@ const specs=[
   ['search','supportdesk-semantic-search','SEARCH_LAB_PORT',5110],
   ['rag','supportdesk-grounded-answers','RAG_LAB_PORT',5112],
   ['retrieval','supportdesk-retrieval-quality','RETRIEVAL_LAB_PORT',5114],
-  ['workflow','supportdesk-bounded-workflow','WORKFLOW_LAB_PORT',5116]
+  ['workflow','supportdesk-bounded-workflow','WORKFLOW_LAB_PORT',5116],
+  ['inputs','supportdesk-attachment-review','INPUTS_LAB_PORT',5118],
+  ['operations','supportdesk-operations-capstone','OPERATIONS_LAB_PORT',5120]
 ];
 const selected=process.argv.slice(2);
-assert.ok(selected.every(name=>specs.some(row=>row[0]===name)),'Expected search, rag, retrieval or workflow');
+assert.ok(selected.every(name=>specs.some(row=>row[0]===name)),'Expected search, rag, retrieval, workflow, inputs or operations');
 const run=(command,args,cwd,env=process.env)=>execFileSync(command,args,{cwd,env,stdio:'inherit',windowsHide:true});
 const sha=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 async function ready(server,url,logs){

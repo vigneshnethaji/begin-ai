@@ -188,8 +188,6 @@
     { id: 'reliable-outputs', title: 'Reliable prompts and outputs', outcome: 'Validate a structured ticket summary in C# and review its meaning.', topics: reliable.lessons.map(x=>x.short), milestone: 'A validated ticket summary in Blazor', available: true },
     { id: 'tools-actions', title: 'Tools and safe actions', outcome: 'Review and authorize a narrowly scoped C# ticket lookup.', topics: tools.lessons.map(x=>x.short), milestone: 'A reviewed read-only ticket-lookup tool', available: true },
     ...advanced.stages,
-    { id: 'model-choices', title: 'More inputs and model choices', outcome: 'Choose the right input and hosting approach.', topics: ['Images and OCR', 'Speech and transcripts', 'Combining input types', 'Local model inference', 'ONNX and quantization basics', 'When fine-tuning is justified'], milestone: 'A reviewed attachment-processing feature' },
-    { id: 'azure-operations', title: 'Operate and deploy on Azure', outcome: 'Deploy, observe, and maintain the application.', topics: ['Identity and secrets', 'Evaluation gates in CI', 'Logging and tracing', 'Latency, caching, and cost', 'Azure deployment and rollback', 'Capstone acceptance and failure drills'], milestone: 'An observable SupportDesk capstone' }
   ];
   for(const stage of stages)stage.lessonIds=lessons.filter(x=>x.unitId===stage.id).map(x=>x.id);
   const labs=[{id:'rules-baseline',title:'C# rules baseline',url:'#lab'},{id:'mlnet-classifier',title:'ML.NET ticket classifier',url:'#lab/mlnet-classifier'},{id:'draft-replies',title:'Blazor draft replies',url:'#lab/draft-replies'},{id:'ticket-summary',title:'Validated ticket summary',url:'#lab/ticket-summary'},{id:'ticket-lookup',title:'Reviewed ticket lookup',url:'#lab/ticket-lookup'},...advanced.labs];

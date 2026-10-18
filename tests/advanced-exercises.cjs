@@ -33,6 +33,25 @@ let pw;try{pw=require('playwright');}catch{pw=require('C:/Users/vignesh.murugan/
    ['workflow-or-agent','fixed','Workflow'],['workflow-state','reload','Checkpoint lost'],['workflow-budgets','loop','BudgetExceeded'],
    ['agent-framework','approval','Application policy'],['mcp-capabilities','send_email','Denied'],['workflow-recovery','unknown','Unknown']
   ]){await go(id);await page.locator('[data-workflow-choice]').selectOption(choice);await act('workflow','run');const result=JSON.parse(await out('workflow'));assert.equal(result.outcome,expected);if(id==='workflow-budgets')assert.equal(result.steps,3);if(id==='workflow-recovery')assert.equal(result.effects,1);}
-  assert.deepEqual(errors,[]);console.log('PASS: six integrated workflow exercises, decision ownership, volatile state, hard budget, framework policy, MCP denial and Unknown');
+  console.log('PASS: six integrated workflow exercises, decision ownership, volatile state, hard budget, framework policy, MCP denial and Unknown');
+  for(const [id,prefix,expected]of [
+   ['images-ocr','inputs','OCR text candidate'],['speech-transcripts','inputs','Needs review'],
+   ['multimodal-inputs','inputs','Conflict: staff review'],['local-inference','inputs','local-text'],
+   ['onnx-quantization','inputs','Accuracy gate met: measure remaining requirements'],['finetuning-decision','inputs','Try RAG'],
+   ['identity-secrets','operations','Allowed DEMO'],['evaluation-gates','operations','Pass'],
+   ['observability','operations','private payload omitted'],['latency-cost','operations','0.002500'],
+   ['azure-release','operations','Complete: V2'],['capstone-drills','operations','Accepted: validated input']
+  ]){
+   await go(id);
+   const action=page.locator(prefix==='inputs'?'[data-inputs-action="run"]':'[data-operations-run]');
+   await action.click();
+   const result=page.locator('.experiment-body [role="status"]');
+   assert.ok((await result.innerText()).includes(expected),`${id}: ${await result.innerText()}`);
+   assert.equal(await result.getAttribute('aria-live'),'polite');
+   assert.equal(await result.getAttribute('aria-atomic'),'true');
+   assert.ok(await action.evaluate(n=>n.getBoundingClientRect().height>=44));
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,id);
+  }
+  assert.deepEqual(errors,[]);console.log('PASS: twelve integrated inputs and operations exercises, published dispatch, live outcomes and mobile control sizes');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

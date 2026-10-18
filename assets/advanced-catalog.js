@@ -1,9 +1,9 @@
-/* Units 6–9 metadata: one mapping for navigation, ownership and lab routes. */
+/* Units 6–11 metadata: one mapping for navigation, ownership and lab routes. */
 (function(root,factory){
   const node=typeof module==='object'&&module.exports;
-  const value=factory(node?require('./search-content.js'):root.AcademySearchContent,node?require('./rag-content.js'):root.AcademyRagContent,node?require('./retrieval-content.js'):root.AcademyRetrievalContent,node?require('./workflow-content.js'):root.AcademyWorkflowContent);
+  const value=factory(node?require('./search-content.js'):root.AcademySearchContent,node?require('./rag-content.js'):root.AcademyRagContent,node?require('./retrieval-content.js'):root.AcademyRetrievalContent,node?require('./workflow-content.js'):root.AcademyWorkflowContent,node?require('./inputs-content.js'):root.AcademyInputsContent,node?require('./operations-content.js'):root.AcademyOperationsContent);
   if(node)module.exports=value;else root.AcademyAdvanced=value;
-})(typeof globalThis!=='undefined'?globalThis:this,function(search,rag,retrieval,workflow){
+})(typeof globalThis!=='undefined'?globalThis:this,function(search,rag,retrieval,workflow,inputs,operations){
   'use strict';
   const definitions=[
   {
@@ -113,9 +113,63 @@
       "buttonLabel": "workflow",
       "renderer": "AcademyWorkflowLab"
     }
+  },
+{
+  "id": "model-choices",
+  "title": "More inputs and model choices",
+  "outcome": "Review fictional attachments and choose a suitable model approach.",
+  "milestone": "A reviewed attachment-processing feature",
+  "navLabel": "Input and model lessons",
+  "preview": {
+    "heading": "Reviewed attachments",
+    "input": "Synthetic image, audio and text observations",
+    "result": "Validate → preserve sources → review",
+    "note": "Authored OCR/transcript samples, not live inference"
+  },
+  "lab": {
+    "id": "attachment-review",
+    "title": "Reviewed attachments",
+    "url": "#lab/attachment-review",
+    "unitId": "model-choices",
+    "related": [
+      "local-inference",
+      "onnx-quantization",
+      "finetuning-decision"
+    ],
+    "description": "Inspect fictional inputs, provenance, review and model-choice constraints.",
+    "buttonLabel": "inputs",
+    "renderer": "AcademyInputsLab"
   }
+},
+{
+  "id": "azure-operations",
+  "title": "Operate and deploy on Azure",
+  "outcome": "Evaluate release readiness and rehearse deployment failure recovery locally.",
+  "milestone": "An observable SupportDesk capstone",
+  "navLabel": "Operations lessons",
+  "preview": {
+    "heading": "Operations capstone",
+    "input": "Synthetic candidate release and evaluation results",
+    "result": "Gates → approval → simulated promote → health check",
+    "note": "Local release simulation; no Azure resources created"
+  },
+  "lab": {
+    "id": "operations-capstone",
+    "title": "Operations capstone",
+    "url": "#lab/operations-capstone",
+    "unitId": "azure-operations",
+    "related": [
+      "latency-cost",
+      "azure-release",
+      "capstone-drills"
+    ],
+    "description": "Run release gates, review, synthetic smoke checks and rollback drills.",
+    "buttonLabel": "operations",
+    "renderer": "AcademyOperationsLab"
+  }
+}
 ];
-  const modules=[search,rag,retrieval,workflow];
+  const modules=[search,rag,retrieval,workflow,inputs,operations];
   return {
     lessons:modules.flatMap(content=>content.lessons),
     references:Object.assign({},...modules.map(content=>content.references)),

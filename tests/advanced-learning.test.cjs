@@ -40,8 +40,8 @@ test('all nine milestones and mixed old/new understanding survive backup without
   assert.equal(state.lessons.rules.checked,true);
   assert.equal(state.lessons['fake-agent'],undefined);
 });
-test('only Units10 and11 remain planned with no dangling lesson prerequisite',()=>{
-  assert.equal(C.lessons.length,56);
-  assert.deepEqual(C.stages.filter(x=>!x.available).map(x=>x.id),['model-choices','azure-operations']);
+test('the completed curriculum has no dangling lesson prerequisite',()=>{
+  assert.equal(C.lessons.length,68);
+  assert.deepEqual(C.stages.filter(x=>!x.available).map(x=>x.id),[]);
   for(const lesson of C.lessons)for(const id of lesson.prerequisites)assert.ok(core.getLesson(id),`${lesson.id} requires missing ${id}`);
 });

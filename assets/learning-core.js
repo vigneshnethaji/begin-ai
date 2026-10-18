@@ -38,6 +38,15 @@
     const state = sanitizeProgress(input);
     return (getLesson(id)?.prerequisites || []).filter(x => !state.lessons[x]?.checked).map(getLesson);
   }
+  function courseEvidence(input) {
+    const state=sanitizeProgress(input);
+    const checked=content.lessons.filter(lesson=>state.lessons[lesson.id]?.checked).length;
+    const completedLabs=content.labs.filter(lab=>state.labs[lab.id]===true).length;
+    const totalChecks=content.lessons.length,totalLabs=content.labs.length;
+    const checksComplete=totalChecks>0&&checked===totalChecks;
+    const labsComplete=totalLabs>0&&completedLabs===totalLabs;
+    return {checked,totalChecks,completedLabs,totalLabs,checksComplete,labsComplete,courseComplete:checksComplete&&labsComplete};
+  }
   function classifyRule(message, keyword) {
     if (!String(message).trim() || !String(keyword).trim()) return 'General';
     return String(message).toLowerCase().includes(String(keyword).trim().toLowerCase()) ? 'Billing' : 'General';
@@ -50,5 +59,5 @@
     if (!backup.progress || typeof backup.progress !== 'object' || Array.isArray(backup.progress)) throw new Error('The backup has no valid progress object.');
     return sanitizeProgress(backup.progress);
   }
-  return { getLesson, lessonsForUnit, unitForLesson, sanitizeProgress, grade, recordAnswer, nextLesson, missingPrerequisites, classifyRule, readBackup };
+  return { getLesson, lessonsForUnit, unitForLesson, sanitizeProgress, grade, recordAnswer, nextLesson, missingPrerequisites, courseEvidence, classifyRule, readBackup };
 });

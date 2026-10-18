@@ -1,4 +1,4 @@
-// End-to-end navigation, grading, progress and portable artifacts for Units6–9.
+// End-to-end navigation, grading, progress and portable artifacts for Units6–11.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -9,7 +9,9 @@ const units=[
   {id:'semantic-search',lab:'semantic-search',prefix:'search',name:'Search lessons'},
   {id:'document-answers',lab:'grounded-answers',prefix:'rag',name:'RAG lessons'},
   {id:'production-retrieval',lab:'retrieval-quality',prefix:'retrieval',name:'Retrieval lessons'},
-  {id:'agents-workflows',lab:'bounded-workflow',prefix:'workflow',name:'Workflow lessons'}
+  {id:'agents-workflows',lab:'bounded-workflow',prefix:'workflow',name:'Workflow lessons'},
+  {id:'model-choices',lab:'attachment-review',prefix:'inputs',name:'Input and model lessons'},
+  {id:'azure-operations',lab:'operations-capstone',prefix:'operations',name:'Operations lessons'}
 ];
 (async()=>{
   fs.mkdirSync(out,{recursive:true});
@@ -74,8 +76,8 @@ const units=[
       const routes=units.flatMap(u=>[...C.lessons.filter(l=>l.unitId===u.id).map(l=>`#lesson/${l.id}/try`),'#lab/'+u.lab]);
       for(const hash of routes){await go(hash);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`overflow ${width} ${hash}`);responsive++;}
     }
-    await go('#home');assert.match(await page.locator('main').innerText(),/56 complete lessons across 9 available units/);
-    await go('#map');assert.equal(await page.locator('.stage-status.available').count(),9);
-    assert.deepEqual(errors,[]);console.log(`PASS: ${responsive} new responsive routes; nine available units; no page errors or missing assets`);
+    await go('#home');assert.match(await page.locator('main').innerText(),/68 complete lessons across 11 available units/);
+    await go('#map');assert.equal(await page.locator('.stage-status.available').count(),11);
+    assert.deepEqual(errors,[]);console.log(`PASS: ${responsive} new responsive routes; eleven available units; no page errors or missing assets`);
   }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});
