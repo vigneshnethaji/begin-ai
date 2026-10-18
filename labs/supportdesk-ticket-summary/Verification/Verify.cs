@@ -37,10 +37,58 @@ public static class Verify
         Check("default port is isolated", LabPort.Parse(null) == 5105);
         Check("optional port", LabPort.Parse("5115") == 5115);
         var comparison = new PromptComparison(validator);
-        Check("v1 hand-reviewed fixture totals", comparison.Evaluate("v1", Fixtures.ReviewedCases, false) == new ComparisonScore("v1", 4, 3, 2, 2));
-        Check("v2 hand-reviewed fixture totals", comparison.Evaluate("v2", Fixtures.ReviewedCases, true) == new ComparisonScore("v2", 4, 4, 4, 4));
+        var v1 = comparison.Evaluate("v1", Fixtures.ReviewedCases, false);
+        var v2 = comparison.Evaluate("v2", Fixtures.ReviewedCases, true);
+        Check("v1 browser-parity shape/category/exact-facts totals", (v1.Total, v1.ValidShape, v1.CorrectLabels, v1.RequiredFactsPresent) == (4, 4, 3, 3));
+        Check("v2 browser-parity shape/category/exact-facts totals", (v2.Total, v2.ValidShape, v2.CorrectLabels, v2.RequiredFactsPresent) == (4, 4, 3, 4));
+        Check("v1 passes two cases and three missing-information lists", v1.CasesPassed == 2 && v1.CorrectMissingInformation == 3);
+        Check("v2 passes three cases and four missing-information lists", v2.CasesPassed == 3 && v2.CorrectMissingInformation == 4);
+        var general = Fixtures.ReviewedCases.Single(item => item.ExpectedCategory == "General");
+        Check("General category passes v1 but regresses in v2", comparison.Evaluate("v1", [general], false).CorrectLabels == 1 && comparison.Evaluate("v2", [general], true).CorrectLabels == 0);
         var changed = new ReviewedCase("changed", "Ticket", "Billing", ["Required fact"], new(SampleStatus.Completed, good), new(SampleStatus.Completed, good));
-        Check("evaluation compares required facts rather than hardcoded totals", comparison.Evaluate("custom", [changed], true) == new ComparisonScore("custom", 1, 1, 1, 0));
+        Check("evaluation compares exact facts rather than hardcoded totals", comparison.Evaluate("custom", [changed], true) == new ComparisonScore("custom", 1, 1, 1, 0) { CorrectMissingInformation = 1 });
+        foreach (string[] actual in new string[][] { ["First", "Second", "Extra"], ["Second", "First"], ["First", "Second", "Second"], ["first", "Second"] })
+        {
+            var response = new SampleResponse(SampleStatus.Completed, JsonSerializer.Serialize(new SummaryDto("Facts", "Billing", actual, [])));
+            var exact = new ReviewedCase("exact facts", "Ticket", "Billing", ["First", "Second"], response, response);
+            Check("exact facts reject additions, reordering, duplicates and changed case", comparison.Evaluate("custom", [exact], true).RequiredFactsPresent == 0);
+        }
+        foreach (string[] actual in new string[][] { [], ["First"], ["First", "Second", "Extra"], ["Second", "First"], ["First", "Second", "Second"], ["first", "Second"] })
+        {
+            var response = new SampleResponse(SampleStatus.Completed, JsonSerializer.Serialize(new SummaryDto("Missing details", "Billing", ["Supported fact"], actual)));
+            var exact = new ReviewedCase("exact missing information", "Ticket", "Billing", ["Supported fact"], response, response)
+                { ExpectedMissingInformation = ["First", "Second"] };
+            var score = comparison.Evaluate("custom", [exact], true);
+            Check("missing-information mismatch alone fails a case", score is { ValidShape: 1, CorrectLabels: 1, RequiredFactsPresent: 1, CorrectMissingInformation: 0, CasesPassed: 0 });
+        }
+        var billing = Fixtures.ReviewedCases.Single(item => item.Name == "billing");
+        var invalid = billing with { V2 = new(SampleStatus.Completed, "{}") };
+        Check("invalid shape fails every comparison measure", comparison.Evaluate("custom", [invalid], true) == new ComparisonScore("custom", 1, 0, 0, 0));
+        var refused = billing with { V2 = billing.V2 with { Status = SampleStatus.Refused } };
+        Check("refusal blocks comparison even with a complete-looking object", comparison.Evaluate("custom", [refused], true) == new ComparisonScore("custom", 1, 0, 0, 0));
+        Check("empty case set has zero counts and denominator", comparison.Evaluate("empty", [], true) == new ComparisonScore("empty", 0, 0, 0, 0));
+        var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        bool[] CaseChecks(ReviewedCase item, bool useV2)
+        {
+            var score = comparison.Evaluate(useV2 ? "v2" : "v1", [item], useV2);
+            return [score.ValidShape == 1, score.CorrectLabels == 1, score.RequiredFactsPresent == 1, score.CorrectMissingInformation == 1];
+        }
+        // Machine-readable verification output, using actual fixtures and evaluator.
+        // The Node consumer compares it against the browser mount/click results.
+        Console.WriteLine("PROMPT_COMPARISON_JSON " + JsonSerializer.Serialize(new
+        {
+            cases = Fixtures.ReviewedCases.Select(item => new
+            {
+                id = item.Name,
+                input = item.Ticket,
+                expected = new { category = item.ExpectedCategory, facts = item.RequiredFacts, missingInformation = item.ExpectedMissingInformation },
+                v1 = JsonSerializer.Deserialize<JsonElement>(item.V1.Content),
+                v2 = JsonSerializer.Deserialize<JsonElement>(item.V2.Content),
+                checks = new[] { CaseChecks(item, false), CaseChecks(item, true) }
+            }),
+            scores = new[] { v1, v2 },
+            prompts = new[] { Fixtures.PromptV1, Fixtures.PromptV2 }
+        }, jsonOptions));
         Check("unsupported claim passes shape validation", validator.Validate(Fixtures.Scenarios.Single(s => s.Id == "unsupported-claim").Response) is ValidSummary);
         var services = new ServiceCollection();
         services.AddLogging();

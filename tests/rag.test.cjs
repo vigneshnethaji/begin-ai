@@ -4,7 +4,6 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {spawnSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..');
 function exercises(){
   const file=path.join(root,'assets/rag-experiments.js');
@@ -56,11 +55,4 @@ test('retrieval evaluation counts unique relevant evidence independently of answ
   const r=exercises();
   assert.deepEqual(r.evaluate(['a','a','b'],['a','c']),{hits:1,precision:0.5,recall:0.5});
   assert.deepEqual(r.evaluate([],['a']),{hits:0,precision:0,recall:0});
-});
-test('the runnable C# verification uses actual production services without a listener',()=>{
-  const project=path.join(root,'labs/supportdesk-grounded-answers/SupportDesk.GroundedAnswers.csproj');
-  assert.ok(fs.existsSync(project),'Unit 7 runnable project is required');
-  const result=spawnSync('dotnet',['run','--project',project,'--','--verify'],{encoding:'utf8',timeout:120000});
-  assert.equal(result.status,0,result.stdout+'\n'+result.stderr);
-  assert.match(result.stdout,/PASS: .*checks/);
 });

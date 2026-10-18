@@ -11,10 +11,11 @@ const specs=[
   ['retrieval','supportdesk-retrieval-quality','RETRIEVAL_LAB_PORT',5114],
   ['workflow','supportdesk-bounded-workflow','WORKFLOW_LAB_PORT',5116],
   ['inputs','supportdesk-attachment-review','INPUTS_LAB_PORT',5118],
-  ['operations','supportdesk-operations-capstone','OPERATIONS_LAB_PORT',5120]
+  ['operations','supportdesk-operations-capstone','OPERATIONS_LAB_PORT',5120],
+  ['summary','supportdesk-ticket-summary','SUMMARY_LAB_PORT',5122]
 ];
 const selected=process.argv.slice(2);
-assert.ok(selected.every(name=>specs.some(row=>row[0]===name)),'Expected search, rag, retrieval, workflow, inputs or operations');
+assert.ok(selected.every(name=>specs.some(row=>row[0]===name)),'Expected search, rag, retrieval, workflow, inputs, operations or summary');
 const run=(command,args,cwd,env=process.env)=>execFileSync(command,args,{cwd,env,stdio:'inherit',windowsHide:true});
 const sha=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 async function ready(server,url,logs){
@@ -38,7 +39,7 @@ function stop(server){
   const artifacts=path.join(root,'.artifacts');fs.mkdirSync(artifacts,{recursive:true});
   const fresh=fs.mkdtempSync(path.join(artifacts,'advanced-packages-'));
   const results=[];
-  for(const [prefix,folder,setting,port]of specs.filter(row=>!selected.length||selected.includes(row[0]))){
+  for(const [prefix,folder,setting,port]of specs.filter(row=>selected.length?selected.includes(row[0]):row[0]!=='summary')){
     const manifest=require(path.join(root,'assets',prefix+'-files.js'));
     const destination=path.join(fresh,prefix),archive=path.join(root,'downloads',folder+'.zip');
     assert.ok(fs.existsSync(archive),'Missing complete archive '+archive);

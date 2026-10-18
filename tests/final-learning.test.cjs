@@ -6,11 +6,11 @@ const units=[
  ['azure-operations','operations-capstone',['identity-secrets','evaluation-gates','observability','latency-cost','azure-release','capstone-drills'],'finetuning-decision']
 ];
 for(const [unit,lab,ids,before]of units){
- test(`${unit} publishes its six actual lessons with exact prerequisites and lab ownership`,()=>{
+ test(`${unit} publishes its six actual lessons with reading sequence and lab ownership`,()=>{
   assert.equal(C.stages.find(x=>x.id===unit).available,true);
   assert.deepEqual(core.lessonsForUnit(unit).map(x=>x.id),ids);
   ids.forEach((id,index)=>{
-   const l=core.getLesson(id);assert.equal(l.labId,lab);assert.deepEqual(l.prerequisites,[index?ids[index-1]:before]);
+   const l=core.getLesson(id);assert.equal(l.labId,lab);assert.deepEqual(l.sequenceAfter,[index?ids[index-1]:before]);
    assert.ok(C.references[l.reference]);assert.equal(core.grade(id,l.quiz.answer).correct,true);
   });
   assert.equal(C.labs.find(x=>x.id===lab).url,'#lab/'+lab);

@@ -30,7 +30,7 @@ Local antiforgery protection is ephemeral. Its separate framework startup key re
 1. Inspect the synthetic ticket and choose an authored response fixture.
 2. Load the response, inspect/edit its JSON, and validate the exact contract.
 3. Read the typed preview, compare facts with the source, and review locally.
-4. Compare prompt v1's broad request with v2's explicit contract and grounding instructions.
+4. Compare prompt v1's broad request with v2's request for reported facts and missing details.
 5. Run the deterministic four-case reviewed fixture comparison and inspect its saved responses.
 6. Complete the milestone: explain schema validation versus factual truth, status gating, and evaluation limits.
 
@@ -55,14 +55,18 @@ Razor encodes preview text. For example, put `<b>Demo title</b>` in the title st
 
 ## Prompt comparison: authored fixtures, not a benchmark
 
-Prompt texts and saved responses live in `Services/Fixtures.cs`; neither prompt is executed. The four reviewed tickets cover Billing, Account, Technical and General. Each supplies an expected category and exact required fact strings. `PromptComparison` runs the production validator, compares the category exactly, and checks that **all** required strings occur in `Facts`. Invalid responses count as failures for all measures, with a denominator of four in every column.
+Prompt texts and saved responses live in `Services/Fixtures.cs`; neither prompt is executed. The browser Unit 4 `reliable-compare` activity and this C# lab use the **same four literal inputs, candidate objects and reviewed expectations**, covering Billing, Account, Technical and General. `PromptComparison.Evaluate` runs the existing production validator, compares categories exactly, and uses ordinal, ordered equality for the entire facts and missing-information lists. Additions, omissions, duplicates, reordering and different casing fail exact matching. All four rules must pass for a case to pass. Invalid responses count as failures for all measures, with a denominator of four in every column.
 
-| Authored set | Valid shape | Correct category | All required facts present |
-|---|---:|---:|---:|
-| v1 | 3 / 4 | 2 / 4 | 2 / 4 |
-| v2 | 4 / 4 | 4 / 4 | 4 / 4 |
+| Authored set | Cases passed | Valid shape | Correct category | Exact facts | Exact missing information |
+|---|---:|---:|---:|---:|---:|
+| v1 | 2 / 4 | 4 / 4 | 3 / 4 | 3 / 4 | 3 / 4 |
+| v2 | 3 / 4 | 4 / 4 | 3 / 4 | 4 / 4 | 4 / 4 |
 
-These counts are deliberately constructed teaching examples, **not a model benchmark and not evidence that v2 improves any real model**. Exact matching can reject a correct paraphrase and does not catch every unsupported extra claim. The fixture panel exposes expectations and saved outputs so you can review the calculation. The unsupported-claim scenario is a separate exercise, outside these four comparison cases.
+Regression: **General passes v1 but fails v2**, because v2 incorrectly chooses Account. V1 also fails Billing evidence/missing information and Account category; Technical passes both versions.
+
+These counts are authored simulations, **not a model benchmark and not evidence that v2 improves any real model**. Exact matching rejects extra fact strings but can reject a correct paraphrase; it does not perform semantic fact verification. Titles must pass the existing shape rules but do not need to equal a reviewed title. The fixture panel exposes expected categories, facts, missing information and saved outputs. The unsupported-claim scenario is a separate exercise, outside these four comparison cases.
+
+The existing positional constructors for `ReviewedCase` and `ComparisonScore`, and the `PromptComparison.Evaluate` signature, remain available. `ReviewedCase.ExpectedMissingInformation` is an additive init property (default empty). `ComparisonScore.CorrectMissingInformation` and `CasesPassed` are additive counts. The legacy `RequiredFactsPresent` property now counts **exact fact-list matches**, not subset membership. `SummaryDto` and all production validator limits are unchanged.
 
 ## Verify
 
@@ -71,6 +75,8 @@ dotnet run -- --verify
 ```
 
 This runs deterministic, package-free C# checks and exits with zero on success or nonzero on failure; it starts no server and reads no application configuration or credentials. All test code lives in `Verification/`; parsing and evaluation live in production `Services/`. Tests cover valid typed data, strict shape, statuses, size/depth/bounds, allowed categories, loopback-port input, real comparison results and the deliberate factual-error example.
+
+From the repository root, `node tests/prompt-parity-integration.cjs` also exercises the browser activity and executes C# `--verify` with build artifacts in a temporary directory. It compares every literal input, expected value, candidate and per-case rule result, then checks the aggregate scores and safe draft-lab first-run commands. C# verification emits a `PROMPT_COMPARISON_JSON` line containing only these authored fixtures and computed scores for that cross-runtime check.
 
 Browser checks: load/validate valid, check review, edit JSON and confirm preview/review clear; validate malformed or refused and confirm no DTO; load unsupported-claim and confirm shape success plus unverified warning; render literal HTML text; compare four cases. Before checking the page, verify `http://localhost:5105/_framework/blazor.web.js` returns HTTP 200. An enabled Load button and a working Load/Validate click prove the interactive circuit, not merely prerendered HTML. Check at 320px and with keyboard focus. Stop the server after verification.
 

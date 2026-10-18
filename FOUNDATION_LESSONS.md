@@ -65,6 +65,24 @@ Next: Decide which responsibilities should stay ordinary C#.
 
 Reference: [Microsoft Learn: AI in .NET](https://learn.microsoft.com/en-us/dotnet/ai/overview)
 
+### Find this concept in the project
+
+File: labs/supportdesk-rules/Program.cs
+
+Method or type: Route
+
+Scope: Illustrative pattern backed by lab
+
+Task: Inspect Route and classify its decision as an authored condition or a learned pattern. Explain whether adding a chat bubble would change that classification.
+
+Expected result: Route checks whitespace and a refund substring. There is no fitted model or training data; changing the presentation would not make this rule AI.
+
+From the extracted project folder:
+
+```powershell
+Get-Content Program.cs
+```
+
 ## 2. When ordinary C# rules are enough
 
 Objective: Choose an explicit C# rule when the requirement has an exact, testable answer.
@@ -131,11 +149,29 @@ Next: Learn what goes inside the model component.
 
 Reference: [Microsoft Learn: Create a .NET console app](https://learn.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio-code)
 
+### Find this concept in the project
+
+File: labs/supportdesk-rules/Program.cs
+
+Method or type: Route
+
+Scope: Runnable C# rule
+
+Task: Predict Route for "REFUND PLEASE", "Please return my payment", and three spaces before running the checks. Explain why related meanings do not guarantee the same route.
+
+Expected result: The results are Billing, General, and Rejected respectively. The verifier checks those cases; case-insensitive substring matching handles letters, not meaning.
+
+From the extracted project folder:
+
+```powershell
+dotnet run -- --verify
+```
+
 ## 3. What a model does
 
 Objective: Identify a model’s input, its output, and the application decisions outside its responsibility.
 
-Prerequisite: When ordinary C# rules are enough
+Prerequisite: What makes a feature an AI feature?
 
 In C#, you already work with components through contracts. A tax service accepts an amount and returns a calculation. You can use the service without knowing every internal step.
 
@@ -194,6 +230,24 @@ Contribution: You separate a category suggestion from saving or acting on a requ
 Next: Understand how the model gets its behavior before your API calls it.
 
 Reference: [Microsoft Learn: How ML.NET works](https://learn.microsoft.com/en-us/dotnet/machine-learning/how-does-mldotnet-work)
+
+### Find this concept in the project
+
+File: labs/supportdesk-rules/Program.cs
+
+Method or type: Route
+
+Scope: Illustrative pattern backed by lab
+
+Task: Trace the string input and category output of Route. Write a hypothetical replacement contract for a category model, then mark authorization and refunds as application responsibilities.
+
+Expected result: The real file returns a category string and performs no refund. A model boundary is a conceptual replacement here: this lab contains an explicit rule, not a learned model.
+
+From the extracted project folder:
+
+```powershell
+Get-Content Program.cs
+```
 
 ## 4. Training and using a model are different
 
@@ -260,11 +314,29 @@ Next: Check why a trained model can still make mistakes.
 
 Reference: [Microsoft Learn: How ML.NET works](https://learn.microsoft.com/en-us/dotnet/machine-learning/how-does-mldotnet-work)
 
+### Find this concept in the project
+
+File: labs/supportdesk-rules/Program.cs
+
+Method or type: Route
+
+Scope: Illustrative pattern backed by lab
+
+Task: Inspect Route and predict whether calling it again can teach it a new synonym. Identify what is missing for training and describe what a later fitted classifier would reuse during inference.
+
+Expected result: Repeated calls do not alter Route: this lab does not train anything. Training would fit learned parameters from examples; inference would reuse them for a new input.
+
+From the extracted project folder:
+
+```powershell
+Get-Content Program.cs
+```
+
 ## 5. Why predictions can be wrong
 
 Objective: Explain why a model prediction needs evaluation and an appropriate response to mistakes.
 
-Prerequisite: Training and using a model are different
+Prerequisite: What a model does, When ordinary C# rules are enough
 
 A support model learned from examples, not from every possible customer message. New wording, unclear requests, and patterns missing from training data can lead to a wrong category.
 
@@ -324,11 +396,29 @@ Next: Choose the smallest suitable approach for each feature.
 
 Reference: [Microsoft Learn: How ML.NET works](https://learn.microsoft.com/en-us/dotnet/machine-learning/how-does-mldotnet-work)
 
+### Find this concept in the project
+
+File: labs/supportdesk-rules/Program.cs
+
+Method or type: Route
+
+Scope: Illustrative pattern backed by lab
+
+Task: Compare the General result for "Please return my payment" with a fictional reviewer who wants Billing. Explain the difference between implementing the specified rule correctly and meeting a routing need.
+
+Expected result: General is correct for the implemented substring rule but can miss the reviewed intent. This is a rule limitation, not a measured model error rate; a future model also needs held-out evaluation.
+
+From the extracted project folder:
+
+```powershell
+Get-Content Program.cs
+```
+
 ## 6. Choose rules, machine learning, or an LLM
 
 Objective: Select a reasonable starting approach based on a feature’s output and need for exactness.
 
-Prerequisite: Why predictions can be wrong
+Prerequisite: When ordinary C# rules are enough, What a model does, Why predictions can be wrong
 
 You now have three useful starting points. Rules implement exact decisions you can specify. A traditional machine-learning classifier learns to choose a label from examples. A large language model can generate text and also perform tasks such as classification.
 
@@ -386,3 +476,21 @@ Contribution: You can justify the first three capabilities in the SupportDesk ro
 Next: Complete the desktop rules lab, then continue into labelled data and ML.NET.
 
 Reference: [Microsoft Learn: AI in .NET](https://learn.microsoft.com/en-us/dotnet/ai/overview)
+
+### Find this concept in the project
+
+File: labs/supportdesk-rules/Program.cs
+
+Method or type: Route
+
+Scope: Conceptual decision backed by lab
+
+Task: Write three decisions beside Route: empty-message validation, ambiguous category suggestion, and a reply draft. For each, choose an approach and specify the evidence and review it would need.
+
+Expected result: Keep empty checks in C#; consider an evaluated classifier for categories and a reviewed language model for drafts. The runnable milestone implements only the rules baseline.
+
+From the extracted project folder:
+
+```powershell
+Get-Content Program.cs
+```

@@ -20,17 +20,19 @@ All 11 units are available: 68 short lessons, each with Understand, Example, Try
 
 ## How to learn
 
-Start on Home, then select Start the foundation lessons. Read the explanation, inspect the example, change an exercise input, answer the check, and read the .NET connection. Recommended prerequisites do not lock lessons.
+Start on Home, then select Start the foundation lessons. Read the explanation, inspect the example, change an exercise input, answer the check, and read the .NET connection. Recommended conceptual prerequisites do not lock lessons; the default reading sequence is recorded separately.
+
+Every lesson has a verified source-file/method reference, a concrete practice task and expected result. All 11 units have a recap with three explained scenarios and an independent challenge. These activities do not automatically award lesson checks or certify terminal work. Optional microtopics unpack token prediction, output variation, MCP and ONNX-related decisions. The searchable 67-term glossary and .NET AI toolkit connect terms/tools to their lessons.
 
 Each lab is its own project in `labs/`. Extract each download into a separate directory, follow its README and run its checks. SupportDesk connects the examples as one fictional scenario; the downloads are not one integrated application. Read on a phone; run .NET 10 coding projects on a desktop.
 
 Every Course map milestone name links to its project page, where learners can read the instructions and optionally download the complete source ZIP. The map does not offer direct downloads. All 11 labs have complete ZIPs, including the rules baseline. Individual source downloads remain on the project pages. The portable standalone edition embeds the same ZIPs for offline use.
 
-Learn resumes the next unchecked lesson. After all checks pass, it opens the next unfinished lab. Once checks and self-reported lab milestones are recorded, it opens the progress summary. Reading alone does not award understanding. Lab completion is self-reported, not certified or inferred from downloads.
+Learn recommends the next unchecked lesson within a unit, then that unit's unfinished lab before advancing. Unit endings also offer a recap/project handoff and an unrestricted next-unit link. Resume where I stopped reopens the last visited lesson and section independently of the recommendation. Save lesson maintains a personal reading list. Bookmarks and resume survive compatible exports/imports; old version-1 backups remain accepted. Reading or visiting alone does not award understanding. Lab completion is self-reported, not certified or inferred from downloads.
 
 ## Interface and delivery
 
-The dark Material Blue interface uses neutral charcoal surfaces, blue actions and highlights, system fonts, visible keyboard focus, semantic navigation and a modal mobile drawer. Both `index.html` and `standalone.html` work offline without a CDN or runtime package installation. The standalone includes lab downloads. `LEARNING_GUIDE.md` is the complete readable edition and the no-JavaScript fallback.
+The dark Material Blue interface uses neutral charcoal surfaces, blue actions and highlights, system fonts, visible keyboard focus, semantic navigation and a modal mobile drawer. Mobile lesson goals/preparation are available in an expandable section; progress is grouped by unit. Project-page download jumps move keyboard focus as well as scrolling. Both `index.html` and `standalone.html` work offline without a CDN or runtime package installation. The standalone includes lab downloads and all new study resources. `LEARNING_GUIDE.md` includes code references, microtopics, recaps, challenges and glossary as the no-JavaScript fallback.
 
 Progress is stored in this browser on this device. Export a backup before clearing site data, moving between file and HTTP origins, or resetting progress. Import and reset require confirmation. The original academy and its files remain under `original-v2/` with separate progress.
 
@@ -42,6 +44,6 @@ These independent projects are not a production platform. They provide no durabl
 
 ## Quality records and future work
 
-See [quality review](QUALITY_REVIEW.md) for test commands, scope, accessibility findings and review limits. The automated and engineering walkthrough is not a study with human beginners or a screen-reader certification.
+See [learning upgrade](LEARNING_UPGRADE.md) for current delivery verification and [quality review](QUALITY_REVIEW.md) for the earlier review snapshot and limits. The automated and engineering walkthrough is not a study with human beginners or a screen-reader certification.
 
 A unified SupportDesk application and live integrations are a separate future phase. They require their own design, provider/runtime choices and explicit decisions about credentials, cost, data and deployment; they are not unfinished units in this course.

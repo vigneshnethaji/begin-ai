@@ -75,18 +75,18 @@
     <section class="panel" aria-labelledby="comparison-heading">
         <p class="step">05 / Evaluate reviewed examples</p>
         <h2 id="comparison-heading">Compare four authored fixtures</h2>
-        <p>Each case has a reviewed category and required fact strings. C# validates the saved responses, compares categories exactly, and checks that every required fact is present. Invalid responses count as failures for all measures.</p>
+        <p>The browser lesson and this lab use the same four literal inputs, saved candidates and expectations. A case passes only with valid shape, the exact reviewed category, the exact ordered facts list and the exact ordered missing-information list. Invalid responses count as failures for all measures.</p>
         <button id="compare-prompts" type="button" @onclick="Compare" disabled="@(!interactiveReady)">Compare prompts</button>
         <div id="comparison-result" role="region" aria-label="Authored fixture comparison" aria-live="polite">
             @if (scores is not null)
             {
-                <div class="table-scroll"><table><caption>Authored fixtures, not a model benchmark</caption><thead><tr><th>Saved response set</th><th>Valid shape</th><th>Correct label</th><th>All required facts</th></tr></thead><tbody>
-                    @foreach (var score in scores) { <tr><th>@score.Prompt</th><td>@score.ValidShape / @score.Total</td><td>@score.CorrectLabels / @score.Total</td><td>@score.RequiredFactsPresent / @score.Total</td></tr> }
+                <div class="table-scroll"><table><caption>Authored simulations, not a model benchmark</caption><thead><tr><th>Saved response set</th><th>Cases passed</th><th>Valid shape</th><th>Correct label</th><th>Exact facts</th><th>Exact missing information</th></tr></thead><tbody>
+                    @foreach (var score in scores) { <tr><th>@score.Prompt</th><td>@score.CasesPassed / @score.Total</td><td>@score.ValidShape / @score.Total</td><td>@score.CorrectLabels / @score.Total</td><td>@score.RequiredFactsPresent / @score.Total</td><td>@score.CorrectMissingInformation / @score.Total</td></tr> }
                 </tbody></table></div>
-                <p>No prompts were executed. These deterministic counts describe four hand-authored examples, not evidence that v2 improves any real model. Exact fact matching does not detect every unsupported extra claim.</p>
+                <p>Regression: General passes v1 but fails v2 because v2 incorrectly chooses Account. No prompts were executed. These four authored simulations are not evidence that v2 improves any real model. Exact list matching rejects additions, omissions and reordering, but can reject correct paraphrases; it is not semantic fact verification.</p>
                 @foreach (var item in Fixtures.ReviewedCases)
                 {
-                    <details><summary>@item.Name · reviewed expectations and saved outputs</summary><p>@item.Ticket</p><p>Expected category: @item.ExpectedCategory</p><ul>@foreach (var fact in item.RequiredFacts) { <li>@fact</li> }</ul><h4>Authored v1 response</h4><pre>@item.V1.Content</pre><h4>Authored v2 response</h4><pre>@item.V2.Content</pre></details>
+                    <details><summary>@item.Name · reviewed expectations and saved outputs</summary><p>@item.Ticket</p><p>Expected category: @item.ExpectedCategory</p><h4>Expected facts (exact order)</h4><ul>@foreach (var fact in item.RequiredFacts) { <li>@fact</li> }</ul><h4>Expected missing information (exact order)</h4>@if (item.ExpectedMissingInformation.Length == 0) { <p>Empty list.</p> } else { <ul>@foreach (var missing in item.ExpectedMissingInformation) { <li>@missing</li> }</ul> }<h4>Authored v1 response</h4><pre>@item.V1.Content</pre><h4>Authored v2 response</h4><pre>@item.V2.Content</pre></details>
                 }
             }
         </div>

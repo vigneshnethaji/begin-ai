@@ -1,5 +1,7 @@
 # Beginner journey and accessibility review
 
+Earlier review snapshot. See [learning upgrade](LEARNING_UPGRADE.md) for the subsequent resource/navigation changes and current verification. Current developer dependencies are pinned at the repository root; the temporary-tool installation below records the earlier method.
+
 Reviewed 18 October 2026. This record covers the existing offline learning website, not a new unified SupportDesk application. See [current scope](CURRENT_SCOPE.md).
 
 ## Work completed

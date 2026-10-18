@@ -34,8 +34,8 @@ const sections=['understand','example','try','check','dotnet'];
      const keep=[];
      for(const n of v.nodes){
       const link=document.querySelector(n.target[0]);const href=link?.getAttribute('href');
-      const known=['#learn','#lab',...window.AcademyContent.stages.map(s=>'#map/'+s.id)];
-      if(link?.closest('#mobile-navigation')&&known.includes(href))spaRouteExceptions.push({rule:v.id,href,target:n.target,reason:'JavaScript route, not a native skip link; target focus checked by keyboard journey.'});
+     const known=['#learn','#lab','#glossary','#toolkit','#resume',...window.AcademyContent.stages.flatMap(s=>['#map/'+s.id,'#review/'+s.id])];
+      if(link?.closest('#mobile-navigation')&&known.includes(href))spaRouteExceptions.push({rule:v.id,href,target:n.target,reason:'JavaScript route, not a native skip link; activation, modal closure and heading focus checked by beginner-journey.cjs and learning-upgrade-browser.cjs.'});
       else keep.push(n);
      }
      if(keep.length)violations.push(compact({...v,nodes:keep}));
@@ -47,9 +47,10 @@ const sections=['understand','example','try','check','dotnet'];
    if(scans.length%25===0)console.log('Scanned '+scans.length+' rendered states');
   }
   const lessons=sample?C.stages.map(s=>C.lessons.find(l=>l.unitId===s.id)):C.lessons;
-  const routes=['#home','#map','#progress',...lessons.flatMap(l=>sections.map(s=>'#lesson/'+l.id+'/'+s)),...C.labs.map(l=>l.url)];
+  const studyRoutes=['#glossary','#toolkit',...C.stages.map(s=>'#review/'+s.id)];
+  const routes=['#home','#map','#progress',...studyRoutes,...lessons.flatMap(l=>sections.map(s=>'#lesson/'+l.id+'/'+s)),...C.labs.map(l=>l.url)];
   const jobs=routes.map(hash=>[hash,1440]);
-  for(const hash of ['#home','#map','#progress',...(sample?lessons:C.lessons).map(l=>'#lesson/'+l.id+'/try'),...C.labs.map(l=>l.url)])jobs.push([hash,320]);
+  for(const hash of ['#home','#map','#progress',...studyRoutes,...(sample?lessons:C.lessons).map(l=>'#lesson/'+l.id+'/try'),...C.labs.map(l=>l.url)])jobs.push([hash,320]);
   for(const hash of ['#home','#map','#lesson/ai-features/understand','#lab/operations-capstone','#progress'])jobs.push([hash,320,'drawer']);
   for(const state of ['wrong','correct'])jobs.push(['#lesson/ai-features/check',390,state]);
   jobs.push(['#map',390,'empty-search']);

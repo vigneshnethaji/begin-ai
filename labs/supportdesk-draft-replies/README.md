@@ -13,14 +13,18 @@ send operation**. A checked review box records only local UI state.
 Prerequisite: the .NET 10 SDK. From the repository root:
 
 ```powershell
+$env:DRAFT_REPLY_PROVIDER = 'Sample'
 dotnet run --project labs/supportdesk-draft-replies
 ```
 
 Open [http://localhost:5103](http://localhost:5103). Stop the server with Ctrl+C.
-From this lab folder, `dotnet run` also works. Port 5103 is the default. If busy,
+The explicit Sample selection overrides any inherited provider selection before
+startup. From this lab folder, set `$env:DRAFT_REPLY_PROVIDER = 'Sample'` and then
+use `dotnet run`. Port 5103 is the default. If busy,
 choose an alternate loopback port (integer 1024–65535) and use its matching URL:
 
 ```powershell
+$env:DRAFT_REPLY_PROVIDER = 'Sample'
 $env:DRAFT_REPLY_PORT = '5104'
 dotnet run --project labs/supportdesk-draft-replies
 # Open http://localhost:5104

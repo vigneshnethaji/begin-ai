@@ -28,7 +28,7 @@ test('recommendation advances across all new boundaries instead of looping to fo
     const stop=C.lessons.findIndex(x=>x.id===previous);
     const state={lessons:Object.fromEntries(C.lessons.slice(0,stop+1).map(x=>[x.id,{checked:true}]))};
     assert.equal(core.nextLesson(state).id,next);
-    assert.deepEqual(core.missingPrerequisites({},next).map(x=>x.id),[previous]);
+    assert.deepEqual(core.getLesson(next).sequenceAfter,[previous]);
   }
 });
 test('all nine milestones and mixed old/new understanding survive backup without forged evidence',()=>{

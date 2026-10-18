@@ -180,7 +180,7 @@
       reference: 'overview'
     }
   ];
-  const lessons = [...foundationLessons.map(x=>({...x,unitId:'foundations',labId:'rules-baseline'})),...mlnet.lessons,...language.lessons,...reliable.lessons,...tools.lessons,...advanced.lessons];
+  const lessons = [...foundationLessons.map(x=>({...x,unitId:'foundations',labId:'rules-baseline'})),...mlnet.lessons,...language.lessons,...reliable.lessons,...tools.lessons,...advanced.lessons].map(lesson=>({...lesson}));
   const stages = [
     { id: 'foundations', title: 'Foundations', outcome: 'Explain where AI belongs in a .NET application.', topics: foundationLessons.map(x=>x.short), milestone: 'SupportDesk rules baseline', available: true },
     { id: 'first-mlnet-model', title: 'Data and your first ML.NET model', outcome: 'Train and evaluate a small category classifier.', topics: mlnet.lessons.map(x=>x.short), milestone: 'A measured message classifier', available: true },
@@ -198,5 +198,12 @@
     {id:'ticket-lookup',title:'Reviewed ticket lookup',url:'#lab/ticket-lookup',archive:'downloads/supportdesk-ticket-lookup.zip'},
     ...advanced.labs
   ];
-  return { lessons, stages, references, labs, version: 1, labId: 'rules-baseline' };
+  const support=typeof module==='object'&&module.exports?require('./learning-support.js'):globalThis.AcademySupport;
+  for(const lesson of lessons){
+    const entry=support.lessons[lesson.id];
+    if(!entry)throw new Error('Missing learning reference: '+lesson.id);
+    lesson.sequenceAfter=[...lesson.prerequisites];lesson.prerequisites=[...entry.prerequisites];
+    lesson.support=entry;lesson.keywords=[...entry.keywords];
+  }
+  return { lessons, stages, references, labs, glossary:support.glossary,unitSupport:support.units,version: 1, labId: 'rules-baseline' };
 });

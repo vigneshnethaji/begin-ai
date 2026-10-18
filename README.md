@@ -2,13 +2,15 @@
 
 A guided, mobile-first AI learning website for developers who know C#, ASP.NET Core, Blazor, SQL, and basic testing, but are new to AI.
 
-See [current product scope](docs/CURRENT_SCOPE.md) for the up-to-date learning path and boundaries, and [quality review](docs/QUALITY_REVIEW.md) for accessibility and beginner-walkthrough evidence. Dated design notes describe historical milestones, not missing units.
+See [current product scope](docs/CURRENT_SCOPE.md) for the up-to-date learning path and boundaries, [learning upgrade](docs/LEARNING_UPGRADE.md) for current delivery evidence, and [quality review](docs/QUALITY_REVIEW.md) for the earlier accessibility and beginner-walkthrough snapshot. Dated design notes describe historical milestones, not missing units.
 
 ## Open the website
 
 Double-click **index.html** in Edge or Chrome. No website build, account, server, CDN, or AI key is required. The website opens on **Home**, which explains its purpose, intended audience, learning method, project, and available content.
 
-Use **Start the foundation lessons** to begin, or **Continue learning** when you have saved progress. **Learn** opens the next unchecked topic, then your unfinished coding labs, then the progress summary. **Course map** shows the complete path; **My progress** shows evidence and backups. The logo always returns to Home. Phones have a persistent, labelled bottom navigation bar and a course drawer.
+Use **Start the foundation lessons** to begin, **Recommended next step** to follow the learning sequence, or **Resume where I stopped** to return to your last lesson section. **Learn** recommends lessons and the current unit's unfinished project, then the next unit or final progress summary. **Course map** shows the complete path; **My progress** shows grouped evidence, saved lessons and backups. The logo always returns to Home. Phones have a persistent, labelled bottom navigation bar and a course drawer.
+
+The learning upgrade adds true **Resume where I stopped**, **Save lesson**, conceptual prerequisites, full-content/alias search, a **67-term AI glossary**, the **.NET AI toolkit**, **68 source-file/method practice references**, and **11 unit recaps with independent challenges**. Learn offers the current unit's unfinished lab before the next unit. Course Map milestone names remain links; ZIP downloads and mobile download jumps stay on project pages. See [delivery and verification](docs/LEARNING_UPGRADE.md).
 
 Side navigation follows the active page: Course map lists all 11 units and jumps to the selected section, lessons show the current unit's lesson sequence, each desktop lab shows related prerequisites, and Progress shows relevant next actions. The map highlights the unit currently in view; all 11 units link to real lessons. The mobile course drawer follows the same context.
 
@@ -58,7 +60,7 @@ The website uses a dark theme: charcoal canvas and reading surfaces, Material Bl
 
 ## Learning progress
 
-The new workspace uses its own key: `dotnet-ai-workspace-progress-v1`. Existing foundation IDs and progress remain valid. Finishing the six foundation checks continues into ML.NET; finishing ML.NET continues into Language models in C#; finishing that unit continues into Reliable prompts and outputs, then into Tools and safe actions, semantic search, grounded answers, retrieval quality, bounded workflows, input/model choices, and operations. After all checks pass, Learn opens the first unfinished lab. Once all checks and self-reported lab milestones are recorded, it opens the evidence summary instead of repeating the last lesson. These records are not a certification or proof of deployment. Existing progress is retained; completing earlier available lessons now recommends the first unfinished lesson in the extended path. It does not reinterpret the original academy’s day checkmarks. “Read” is self-reported; “Check” records a correct answer; each lab milestone is self-reported.
+The workspace uses its own key: `dotnet-ai-workspace-progress-v1`. Existing IDs, read/check/lab evidence and version-1 backups remain valid. The default sequence continues from foundations through ML.NET, language models, reliable outputs, tools, search, grounded answers, retrieval quality, workflows, model choices and operations. Learn offers each completed unit's unfinished lab before recommending the next unit. Once all checks and self-reported lab milestones are recorded, it opens the evidence summary. Resume stores only a validated lesson/section; bookmarks store known lesson IDs. Neither feature awards checks. Storage updates from another tab do not republish a visit or clear an unfinished lesson exercise. These records are not certification or proof of deployment, and do not reinterpret the original academy's separate day checkmarks.
 
 Progress stays in the browser for the current origin/file location. It does not automatically follow you to another browser, URL, device, or copy of the website. Use **My progress → Export progress** to back it up, and **Import backup** to restore. Import and reset ask before replacing data.
 
@@ -68,7 +70,10 @@ Progress stays in the browser for the current origin/file location. It does not 
 index.html                      Website shell and semantic navigation
 styles.css                      Tokens, desktop layout, mobile layout, focus styles
 assets/
-  curriculum.js                 Canonical authored lessons and proposed course map
+  curriculum.js                 Canonical lessons, published map and support integration
+  learning-support-{a,b}.js      Authored code references, glossary and unit practice
+  learning-support.js           Combined support data and extracted-project commands
+  learning-resources.js         Glossary, toolkit, reviews and practice rendering
   mlnet-content.js              Eight small ML.NET lessons with explicit unit ownership
   language-content.js           Six small language-model lessons
   language-experiments.js       Offline generation, context, security and stream exercises
@@ -141,6 +146,15 @@ The root `app.js`, `course-data.js`, `course-data.json`, `AI_LEARNING_ROADMAP.md
 
 ## Maintain and verify
 
+Developer-only tooling is pinned in `package-lock.json`: run `npm ci --ignore-scripts`, then `npx playwright install chromium` on a new development machine. Learners need neither Node nor these packages. The local Codex runtime remains a fallback on the original machine.
+
+- `npm test`: pure Node tests; no C# builds, providers or listeners.
+- `npm run test:integration`: explicit .NET compilation/verification and isolated PowerShell command-consumer checks; no paid calls.
+- `npm run test:journey`: new learning resources, resume/bookmarks, all references/recaps, mobile and standalone flows. Start the local host first.
+- `node tests/cross-tab-browser.cjs`: isolated shared-storage tabs; visit-loop, unfinished-input, focus and read/lab-control regressions.
+- `npm run check:distributions`: read-only source/archive/embedded consistency for all 11 labs.
+- `npm run build`: regenerate the portable site, readable guides and ZIPs after source changes.
+
 Edit the canonical sources in `assets/`, then regenerate derived editions:
 
 ```shell
@@ -178,6 +192,8 @@ All six advanced labs use temporary in-memory state. Attachment samples do not p
 Run `node tests/advanced-exercises.cjs` for the 36 integrated advanced activities, and `node tests/rag-accessibility.cjs` for actual live-result updates in an isolated local component. After regenerating downloads, `node scripts/verify-advanced-packages.cjs` extracts fresh copies of all six advanced projects, compares source hashes, compiles and verifies C#, and tests their actual Blazor circuits. It requires Windows PowerShell for extraction and uses ports 5110/5112/5114/5116/5118/5120. Optional arguments `search`, `rag`, `retrieval`, `workflow`, `inputs`, or `operations` restrict the package checks. Temporary extracted folders and machine-readable results are retained in `.artifacts/`; the checker stops its own temporary app processes.
 
 Verification screenshots/results are generated in ignored `.artifacts/`; C# build output is also ignored. No Git commit or publication is included in this delivery.
+
+Use `node scripts/verify-advanced-packages.cjs summary` to verify the Unit 4 summary ZIP from a fresh extraction, including its C# checks and real Blazor UI on port 5122. With no selector, this script retains its six-advanced-project default.
 
 ## Design references
 
