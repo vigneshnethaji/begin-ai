@@ -1,6 +1,6 @@
 # SupportDesk — C# rules baseline
 
-Build the first code milestone in the AI for .NET developers preview. This is a deterministic console application, not a trained model. All messages are fictional. No account, API, database, or additional package is needed.
+Build the first code milestone in AI for .NET developers. This is a deterministic console application, not a trained model. All messages are fictional. No account, API, database, or additional package is needed.
 
 ## Prerequisites
 
@@ -8,7 +8,9 @@ Use a desktop terminal with the .NET 10 SDK. `dotnet --version` should start wit
 
 ## Run the supplied files
 
-Put `SupportDesk.Rules.csproj` and `Program.cs` in the same folder. Open a terminal there:
+Download the complete rules lab ZIP from its project page and extract it. The archive contains `SupportDesk.Rules.csproj`, `Program.cs`, and this README. Open a terminal in the extracted folder containing the `.csproj` file. If you download individual files instead, save both source files in the same folder.
+
+Run:
 
 ```shell
 dotnet run

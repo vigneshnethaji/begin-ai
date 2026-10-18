@@ -22,6 +22,7 @@
       "id": "semantic-search",
       "title": "Semantic search",
       "url": "#lab/semantic-search",
+      "archive": "downloads/supportdesk-semantic-search.zip",
       "unitId": "semantic-search",
       "related": [
         "embedding-storage",
@@ -49,6 +50,7 @@
       "id": "grounded-answers",
       "title": "Grounded answers",
       "url": "#lab/grounded-answers",
+      "archive": "downloads/supportdesk-grounded-answers.zip",
       "unitId": "document-answers",
       "related": [
         "context-assembly",
@@ -76,6 +78,7 @@
       "id": "retrieval-quality",
       "title": "Retrieval quality",
       "url": "#lab/retrieval-quality",
+      "archive": "downloads/supportdesk-retrieval-quality.zip",
       "unitId": "production-retrieval",
       "related": [
         "retrieval-permissions",
@@ -103,6 +106,7 @@
       "id": "bounded-workflow",
       "title": "Bounded workflow",
       "url": "#lab/bounded-workflow",
+      "archive": "downloads/supportdesk-bounded-workflow.zip",
       "unitId": "agents-workflows",
       "related": [
         "agent-framework",
@@ -130,6 +134,7 @@
     "id": "attachment-review",
     "title": "Reviewed attachments",
     "url": "#lab/attachment-review",
+    "archive": "downloads/supportdesk-attachment-review.zip",
     "unitId": "model-choices",
     "related": [
       "local-inference",
@@ -157,6 +162,7 @@
     "id": "operations-capstone",
     "title": "Operations capstone",
     "url": "#lab/operations-capstone",
+    "archive": "downloads/supportdesk-operations-capstone.zip",
     "unitId": "azure-operations",
     "related": [
       "latency-cost",

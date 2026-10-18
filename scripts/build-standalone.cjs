@@ -7,8 +7,8 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 html=html.replace('<link rel="stylesheet" href="styles.css">',()=>`<style>\n${read('styles.css')}\n</style>`);
 const labDownloads={};
 fs.mkdirSync(path.join(root,'downloads'),{recursive:true});
-for(const [folder,manifest]of [['supportdesk-classifier','lab-files'],['supportdesk-draft-replies','draft-files'],['supportdesk-ticket-summary','summary-files'],['supportdesk-ticket-lookup','lookup-files'],['supportdesk-semantic-search','search-files'],['supportdesk-grounded-answers','rag-files'],['supportdesk-retrieval-quality','retrieval-files'],['supportdesk-bounded-workflow','workflow-files'],['supportdesk-attachment-review','inputs-files'],['supportdesk-operations-capstone','operations-files']]){
-  const labFiles=require('../assets/'+manifest+'.js').map(([file])=>file);
+for(const [folder,manifest]of [['supportdesk-rules',['SupportDesk.Rules.csproj','Program.cs','README.md']],['supportdesk-classifier','lab-files'],['supportdesk-draft-replies','draft-files'],['supportdesk-ticket-summary','summary-files'],['supportdesk-ticket-lookup','lookup-files'],['supportdesk-semantic-search','search-files'],['supportdesk-grounded-answers','rag-files'],['supportdesk-retrieval-quality','retrieval-files'],['supportdesk-bounded-workflow','workflow-files'],['supportdesk-attachment-review','inputs-files'],['supportdesk-operations-capstone','operations-files']]){
+  const labFiles=Array.isArray(manifest)?manifest:require('../assets/'+manifest+'.js').map(([file])=>file);
   const sourceZip=require('./source-zip.cjs')(path.join(root,'labs',folder),labFiles);
   fs.writeFileSync(path.join(root,'downloads',folder+'.zip'),sourceZip);
   labDownloads['downloads/'+folder+'.zip']='data:application/zip;base64,'+sourceZip.toString('base64');

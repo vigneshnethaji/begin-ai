@@ -190,6 +190,13 @@
     ...advanced.stages,
   ];
   for(const stage of stages)stage.lessonIds=lessons.filter(x=>x.unitId===stage.id).map(x=>x.id);
-  const labs=[{id:'rules-baseline',title:'C# rules baseline',url:'#lab'},{id:'mlnet-classifier',title:'ML.NET ticket classifier',url:'#lab/mlnet-classifier'},{id:'draft-replies',title:'Blazor draft replies',url:'#lab/draft-replies'},{id:'ticket-summary',title:'Validated ticket summary',url:'#lab/ticket-summary'},{id:'ticket-lookup',title:'Reviewed ticket lookup',url:'#lab/ticket-lookup'},...advanced.labs];
+  const labs=[
+    {id:'rules-baseline',title:'C# rules baseline',url:'#lab',archive:'downloads/supportdesk-rules.zip'},
+    {id:'mlnet-classifier',title:'ML.NET ticket classifier',url:'#lab/mlnet-classifier',archive:'downloads/supportdesk-classifier.zip'},
+    {id:'draft-replies',title:'Blazor draft replies',url:'#lab/draft-replies',archive:'downloads/supportdesk-draft-replies.zip'},
+    {id:'ticket-summary',title:'Validated ticket summary',url:'#lab/ticket-summary',archive:'downloads/supportdesk-ticket-summary.zip'},
+    {id:'ticket-lookup',title:'Reviewed ticket lookup',url:'#lab/ticket-lookup',archive:'downloads/supportdesk-ticket-lookup.zip'},
+    ...advanced.labs
+  ];
   return { lessons, stages, references, labs, version: 1, labId: 'rules-baseline' };
 });

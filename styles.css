@@ -54,6 +54,8 @@ body[data-view=home] #main-content{padding:0 44px 28px}
 @media(max-width:420px){.mobile-menu,.header-link{width:44px;min-width:44px}.section-tabs a{font-size:13px}.reading p{font-size:16px}.brand-name{font-size:11px}}
 @media print{.app-header,.course-sidebar,.section-tabs,.section-footer,.context-rail,.page-bottom,.toast{display:none!important}.app-layout,.workspace-grid,.lab-layout{display:block}#main-content{padding:0}.lesson-panel{border:0;padding:0}body{background:white;color:#242424}pre{white-space:pre-wrap;color:#242424;background:#f5f5f5}a{color:inherit}}
 /* Fixed navigation follows actual content height, including resized text. */
+/* Milestone names are inline references; source downloads live on project pages. */
+.milestone a{font-weight:600}
 .app-header{height:auto;min-height:var(--header);padding-top:8px;padding-bottom:8px}
 .brand{flex-shrink:1;min-width:0}.brand-mark{min-width:2.7em;min-height:2.45em;flex-shrink:0}.brand-name{min-width:0;overflow-wrap:anywhere}
 body{overflow-wrap:anywhere}html{scroll-padding-top:calc(var(--header-offset,var(--header)) + 24px)}

@@ -24,6 +24,8 @@ Start on Home, then select Start the foundation lessons. Read the explanation, i
 
 Each lab is its own project in `labs/`. Extract each download into a separate directory, follow its README and run its checks. SupportDesk connects the examples as one fictional scenario; the downloads are not one integrated application. Read on a phone; run .NET 10 coding projects on a desktop.
 
+Every Course map milestone name links to its project page, where learners can read the instructions and optionally download the complete source ZIP. The map does not offer direct downloads. All 11 labs have complete ZIPs, including the rules baseline. Individual source downloads remain on the project pages. The portable standalone edition embeds the same ZIPs for offline use.
+
 Learn resumes the next unchecked lesson. After all checks pass, it opens the next unfinished lab. Once checks and self-reported lab milestones are recorded, it opens the progress summary. Reading alone does not award understanding. Lab completion is self-reported, not certified or inferred from downloads.
 
 ## Interface and delivery

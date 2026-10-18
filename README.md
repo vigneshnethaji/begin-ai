@@ -12,6 +12,8 @@ Use **Start the foundation lessons** to begin, or **Continue learning** when you
 
 Side navigation follows the active page: Course map lists all 11 units and jumps to the selected section, lessons show the current unit's lesson sequence, each desktop lab shows related prerequisites, and Progress shows relevant next actions. The map highlights the unit currently in view; all 11 units link to real lessons. The mobile course drawer follows the same context.
 
+Each Course map milestone name links to its project page. Read the prerequisites, run commands and expected results there, then download the complete source ZIP if needed. All 11 units include a ZIP, including the C# rules baseline. Extract each ZIP into its own folder; the projects are independent. Project links and ZIP downloads also work in the portable standalone edition.
+
 For a portable single-file edition, open **standalone.html**. It embeds the styling, lessons, interactions, and downloadable C# lab sources. Keep the original-v2 folder nearby only if you want the comparison link to the old academy to work. Keep **LEARNING_GUIDE.md** alongside it if you need the readable fallback with JavaScript disabled.
 
 Optional local hosting with Node:
@@ -105,7 +107,7 @@ labs/supportdesk-retrieval-quality/ Local evaluation, freshness and demo access 
 labs/supportdesk-bounded-workflow/ Bounded local state machine, review and recovery
 labs/supportdesk-attachment-review/ Fictional multimodal evidence and review policy
 labs/supportdesk-operations-capstone/ Local release gates, promotion/smoke/rollback
-downloads/                     Generated complete classifier and Blazor source ZIPs
+downloads/                     Generated complete source ZIPs for all 11 labs
 FOUNDATION_LESSONS.md            Generated readable edition of the six foundation lessons
 LEARNING_GUIDE.md                Generated readable edition of all 68 available lessons
 standalone.html                 Generated portable edition, including lab downloads
@@ -116,6 +118,7 @@ scripts/
 tests/
   learning.test.cjs              Node tests for learning/progress behavior
   browser.cjs                   Real Chromium interaction and responsive checks
+  milestone-browser.cjs         All 11 milestone references, project downloads and mobile/standalone flows
   language-browser.cjs          Third-unit routes, mobile drawer and portable downloads
   reliable-browser.cjs          Fourth-unit mapping, exercises, mobile and portable downloads
   summary-app-browser.cjs       Actual summary-lab Blazor circuit and responsive tests
@@ -162,7 +165,7 @@ dotnet run --project labs/supportdesk-attachment-review -- --verify
 dotnet run --project labs/supportdesk-operations-capstone -- --verify
 ```
 
-For browser checks, start the local host in a separate terminal and run `node tests/browser.cjs`, `node tests/language-browser.cjs`, `node tests/reliable-browser.cjs`, `node tests/tools-browser.cjs`, and `node tests/advanced-browser.cjs`. The test uses an installed Playwright package or the bundled Codex runtime package on this machine. Other machines need Playwright and Chromium installed to run that developer-only check. Learners do not need Node or Playwright.
+For browser checks, start the local host in a separate terminal and run `node tests/browser.cjs`, `node tests/milestone-browser.cjs`, `node tests/language-browser.cjs`, `node tests/reliable-browser.cjs`, `node tests/tools-browser.cjs`, and `node tests/advanced-browser.cjs`. These checks use an installed Playwright package or the bundled Codex runtime package on this machine. Other machines need Playwright and Chromium installed to run these developer-only checks. Learners do not need Node or Playwright.
 
 For each new Blazor app, run `dotnet run` from its lab folder. Default loopback ports are 5109 (search), 5111 (grounded answers), 5113 (retrieval quality), 5115 (workflow), 5117 (attachments), and 5119 (operations). The corresponding `tests/*-app-browser.cjs` scripts accept an optional local URL argument, so extracted ZIPs can be checked on separate ports. The README in each source project documents its validated optional port setting.
 
