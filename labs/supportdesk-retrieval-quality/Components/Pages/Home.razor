@@ -1,0 +1,112 @@
+@page "/"
+@inject RetrievalEngine Engine
+@using System.Text.Json
+<PageTitle>SupportDesk retrieval quality</PageTitle>
+<main>
+    <header>
+        <p class="badge">SupportDesk / Production retrieval concepts</p>
+        <h1>Find the right evidence.<br />Respect its boundary.</h1>
+        <p class="intro">A local retrieval workbench with fictional documents. Compare useful evidence, published versions and current access before trusting a result.</p>
+        <p class="notice">This lab uses lexical counts and a fixed title weight. No embeddings, learned reranker, generated answer, provider, database or external network runs. All data and state are temporary.</p>
+        <p id="retrieval-ready" role="status" aria-live="polite">@(interactiveReady ? "Ready. Local interactive session connected." : "Connecting to the local interactive session…")</p>
+    </header>
+    <div class="workspace">
+        <section class="panel" aria-labelledby="search-heading">
+            <h2 id="search-heading">Retrieve authorized excerpts</h2>
+            <p class="hint">The identity picker is a demo simulation, not login or authentication. The server owns the fictional team and document scopes.</p>
+            <fieldset disabled="@(!interactiveReady)">
+                <label for="retrieval-identity">Simulated caller scope</label>
+                <select id="retrieval-identity" @bind="caller" @bind:after="Clear">
+                    <option value="teamA">Team A reader</option><option value="teamB">Team B reader</option><option value="none">No access</option>
+                </select>
+                <label for="retrieval-query">Search words (maximum 160 characters)</label>
+                <input id="retrieval-query" maxlength="160" @bind="query" @bind:event="oninput" @bind:after="Clear" />
+                <label for="retrieval-target">Optional document ID (maximum 16 characters)</label>
+                <input id="retrieval-target" maxlength="16" @bind="target" @bind:event="oninput" @bind:after="Clear" />
+                <p class="hint">Blank searches your readable documents. Compare A-101, manager-only A-104, other-team B-201 and unknown A-999.</p>
+                <div class="fields">
+                    <div><label for="retrieval-ranking">Toy ranking</label><select id="retrieval-ranking" @bind="ranking" @bind:after="Clear"><option value="baseline">Baseline: body counts</option><option value="tuned">Tuned: body + 4 × title</option></select></div>
+                    <div><label for="retrieval-k">Maximum results</label><select id="retrieval-k" @bind="k" @bind:after="Clear"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+                </div>
+                <button id="retrieve" disabled="@(!interactiveReady)" @onclick="Retrieve">Retrieve excerpts</button>
+            </fieldset>
+            <p id="retrieval-status" class="hint" role="status" aria-live="polite">@status</p>
+        </section>
+        <section class="panel" aria-labelledby="result-heading">
+            <h2 id="result-heading">Evidence returned to this caller</h2>
+            <p class="hint">Excerpts are retrieved text, not generated answers. Unknown and inaccessible documents share the same response.</p>
+            <div id="retrieval-result" aria-live="polite" aria-atomic="true">@if (Current is not { } current)
+                {<span>No current result.</span>}
+                else if (current.Items.Length == 0)
+                {<span>Document unavailable.</span>}
+                else
+                {@foreach (var hit in current.Items)
+                    {<article class="excerpt"><h3>@hit.Id · @hit.Title</h3><p class="hint">Document version @hit.Version · index revision @current.Revision · toy score @hit.Score</p><p>@hit.Text</p></article>}}
+            </div>
+        </section>
+    </div>
+    <section class="panel" aria-labelledby="freshness-heading">
+        <h2 id="freshness-heading">Source changes and searchable snapshots</h2>
+        <p>This demonstration editor changes only A-101 in this session. Source edits do not update the index until you publish. A tombstone blocks stale reads immediately; publication removes its index entry.</p>
+        <div class="version-strip"><span id="source-version">Source version @Engine.SourceVersion</span><span id="index-revision">Index revision @Engine.Revision</span><span>@(Engine.ResetDeleted ? "Source tombstoned" : "Source active")</span><span>@(Engine.ResetRevoked ? "Reset access revoked" : "Original demo access")</span></div>
+        <div class="actions">
+            <button id="edit-source" disabled="@(!interactiveReady || Engine.ResetDeleted)" @onclick="EditSource">Edit source to five minutes</button>
+            <button id="publish-index" disabled="@(!interactiveReady)" @onclick="PublishIndex">Publish index snapshot</button>
+            <button id="delete-source" disabled="@(!interactiveReady || Engine.ResetDeleted)" @onclick="DeleteSource">Tombstone reset guide</button>
+            <button id="revoke-access" disabled="@(!interactiveReady || Engine.ResetRevoked)" @onclick="RevokeAccess">Revoke reset-guide access</button>
+        </div>
+        <p class="hint">Reload the page for a fresh fixture session. Request edits, scope changes and these mutations clear the earlier response. All cache returns still recheck authorization.</p>
+    </section>
+    <div class="workspace">
+        <section class="panel" aria-labelledby="evaluation-heading">
+            <h2 id="evaluation-heading">Compare two labelled queries</h2>
+            <p>Labels: password reset → A-101; export timeout → A-105. Compare Recall@1 and MRR@1 on fresh original fixtures, independently of your current edited session.</p>
+            <button id="compare-rankings" disabled="@(!interactiveReady)" @onclick="Compare">Compare tiny evaluation</button>
+            <div id="retrieval-evaluation" aria-live="polite">@if (evaluation is not null)
+                {<table><caption>Two hand-labelled cases; not a benchmark</caption><thead><tr><th>Toy ranking</th><th>Mean Recall@@1</th><th>MRR@@1</th></tr></thead><tbody>@foreach (var row in evaluation)
+                    {<tr><td>@row.Ranking</td><td>@row.Recall.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)</td><td>@row.Mrr.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)</td></tr>}</tbody></table>}
+                else
+                {<p class="hint">Compare to see how repeated keywords can outrank a useful guide.</p>}
+            </div>
+        </section>
+        <section class="panel" aria-labelledby="trace-heading">
+            <h2 id="trace-heading">Trace the evidence path</h2>
+            <p>Only local request ID, revision, bounded stages and authorized returned IDs. No raw query, full document payload or hidden count.</p>
+            <pre id="retrieval-trace" aria-live="polite">@(Current is { } traced ? JsonSerializer.Serialize(traced.Trace, new JsonSerializerOptions { WriteIndented = true }) : "No current trace.")</pre>
+        </section>
+    </div>
+    <section class="panel">
+        <h2>Try an untrusted document</h2>
+        <p>As Team A reader, search <strong>injection</strong> with target <strong>A-103</strong>. Read its hostile instruction as literal text. Then search <strong>password reset</strong> with target <strong>B-201</strong>. It remains unavailable. Document words cannot grant a server-owned scope or execute code.</p>
+        <p class="hint">Literal text rendering is not a model injection detector or guarantee. The service permission check remains necessary even when content inspection reports no attack. In a real application, authentication, durable ingestion and broader evaluation require separate design.</p>
+    </section>
+</main>
+
+@code {
+    private bool interactiveReady;
+    private string caller = "teamA", query = "password reset", ranking = "tuned", target = "";
+    private int k = 1;
+    private SearchResult? response;
+    private Evaluation[]? evaluation;
+    private string status = "Wait for the interactive session.";
+    private SearchResult? Current => response is null ? null : Engine.Recheck(response);
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+        interactiveReady = true;
+        status = "Choose a scope and retrieve a local excerpt.";
+        StateHasChanged();
+    }
+    private void Clear() { response = null; status = "Request changed. Earlier response and trace cleared."; }
+    private void Retrieve()
+    {
+        if (!interactiveReady) return;
+        response = Engine.Search(caller, query, ranking, k, target);
+        status = response.Cached ? "Cache hit after current scope recheck." : "Current request checked against the local index.";
+    }
+    private void EditSource() { if (!interactiveReady) return; Engine.UpdateReset(); Clear(); status = "Source edited. Publish to update the searchable snapshot."; }
+    private void PublishIndex() { if (!interactiveReady) return; Engine.Publish(); Clear(); status = "New index snapshot published. Version-bound cache cleared."; }
+    private void DeleteSource() { if (!interactiveReady) return; Engine.DeleteReset(); Clear(); status = "Source tombstoned. Reads blocked immediately; publish to remove its index entry."; }
+    private void RevokeAccess() { if (!interactiveReady) return; Engine.RevokeReset(); Clear(); status = "Access revision changed. Earlier response and cached disclosure invalidated."; }
+    private void Compare() { if (interactiveReady) evaluation = Engine.Evaluate(); }
+}

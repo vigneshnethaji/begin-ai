@@ -1,0 +1,116 @@
+@page "/"
+@inject SearchEngine Engine
+<PageTitle>SupportDesk · Understand search ranking</PageTitle>
+<main>
+    <header>
+        <p class="eyebrow">SupportDesk / Unit 6 / Semantic search</p>
+        <h1>Same question.<br />Different words.</h1>
+        <p class="intro">Search fictional help articles and inspect the numbers behind each match.</p>
+    </header>
+    <aside class="notice">Local teaching approximation: these are hand-authored toy topic vectors, not pretrained embeddings. No learned model, LLM generation, provider, keys, database, SDK or MCP network integration. All six articles are synthetic.</aside>
+    <div class="workspace">
+        <section class="panel" aria-labelledby="query-heading">
+            <h2 id="query-heading">Compare retrieval methods</h2>
+            <p>Start with <strong>money back</strong>. Keyword matching misses the refund article; our explicit synonym rules connect it.</p>
+            <label for="search-query">Search query (maximum 240 characters)</label>
+            <input id="search-query" type="text" maxlength="240" @bind="query" @bind:event="oninput" @bind:after="Changed" disabled="@(!ready)" aria-describedby="query-help" />
+            <p id="query-help" class="hint">Try money back, refund password, invoice, export or an unmapped phrase such as reimburse me.</p>
+            <label for="search-mode">Ranking mode</label>
+            <select id="search-mode" @bind="mode" @bind:after="Changed" disabled="@(!ready)">
+                <option value="keyword">Keyword · literal token overlap</option>
+                <option value="vector">Toy vector · cosine similarity</option>
+                <option value="hybrid">Hybrid · 65% cosine + 35% keyword</option>
+            </select>
+            <label for="search-category">Category filter (applied before top-k)</label>
+            <select id="search-category" @bind="category" @bind:after="Changed" disabled="@(!ready)">
+                <option>All</option><option>Billing</option><option>Account</option><option>Technical</option>
+            </select>
+            <label for="search-k">Maximum results (top-k)</label>
+            <select id="search-k" @bind="k" @bind:after="Changed" disabled="@(!ready)">
+                @for (var i = 1; i <= 6; i++) { <option value="@i">@i</option> }
+            </select>
+            <label for="search-space">Query model space</label>
+            <select id="search-space" @bind="space" @bind:after="Changed" disabled="@(!ready)">
+                <option value="toy-topics/v1/4">toy-topics/v1/4 · compatible</option>
+                <option value="toy-topics/v2/4">toy-topics/v2/4 · incompatible version</option>
+                <option value="toy-topics/v1/3">toy-topics/v1/3 · incompatible dimensions</option>
+            </select>
+            <button id="search-run" disabled="@(!ready)" @onclick="Search">Search articles</button>
+            <p id="search-status" role="status" aria-live="polite" aria-atomic="true">@status</p>
+        </section>
+        <section class="panel" aria-labelledby="results-heading">
+            <h2 id="results-heading">Inspect the ranking</h2>
+            <p>Exact in-memory scan; no approximate nearest-neighbor index. Every eligible article is scored, then sorted by score and ordinal ID before taking k.</p>
+            <pre id="query-vector">@vectorDisplay</pre>
+            <p class="hint">Stored space: toy-topics/v1/4 · 4 dimensions. Toy axes in order: refund, invoice, account, technical. Unknown words contribute zero.</p>
+            <div id="search-results" aria-live="polite">
+                @foreach (var hit in hits)
+                {
+                    <article class="hit" data-search-hit="@hit.Article.Id">
+                        <p class="hint">@hit.Article.Id / @hit.Article.Category</p>
+                        <h3>@hit.Article.Title</h3>
+                        <p>@hit.Article.Text</p>
+                        <dl class="scores">
+                            <div><dt>Rank score</dt><dd>@Format(hit.Score)</dd></div>
+                            <div><dt>Cosine</dt><dd>@Format(hit.VectorScore)</dd></div>
+                            <div><dt>Keyword</dt><dd>@Format(hit.KeywordScore)</dd></div>
+                        </dl>
+                        <code>[@string.Join(", ", hit.Article.Vector)] · 4 dimensions · @hit.Article.Space</code>
+                    </article>
+                }
+            </div>
+            <p class="hint">Keyword score = matched unique query tokens / unique query tokens. Hybrid = 0.65 × max(0, cosine) + 0.35 × keyword. Zero scores are excluded. These scores are not probabilities, confidence, BM25 or a provider formula.</p>
+        </section>
+    </div>
+    <section class="panel arithmetic" aria-labelledby="cosine-heading">
+        <h2 id="cosine-heading">Work the arithmetic</h2>
+        <p>For query [1,0], cosine = dot product / (query length × article length). Scaling a vector does not change its direction.</p>
+        <label for="cosine-case">Article vector to compare with [1,0]</label>
+        <select id="cosine-case" @bind="cosineCase" disabled="@(!ready)">
+            <option value="same">[2,0] · same direction</option><option value="orthogonal">[0,1] · orthogonal</option>
+            <option value="diagonal">[1,1] · diagonal</option><option value="opposite">[-1,0] · opposite</option><option value="zero">[0,0] · zero vector</option>
+        </select>
+        <button id="cosine-run" @onclick="Calculate" disabled="@(!ready)">Calculate cosine</button>
+        <pre id="cosine-result" role="status" aria-live="polite">@cosineResult</pre>
+    </section>
+    <details class="panel">
+        <summary>Inspect all six synthetic source records</summary>
+        @foreach (var article in SearchEngine.Articles)
+        {
+            <p><strong>@article.Id · @article.Title</strong><br />@article.Text<br /><code>@article.Category · [@string.Join(", ", article.Vector)] · @article.Space</code></p>
+        }
+    </details>
+    <footer>All search state is temporary. The category picker teaches metadata filtering; it is not authentication or authorization. Real access filters must come from trusted server-side identity. A learned embedding model may generalize beyond our rules, but its similarity still requires relevance evaluation.</footer>
+</main>
+@code {
+    private bool ready;
+    private string query = "money back", mode = "keyword", category = "All", space = SearchEngine.ModelSpace;
+    private int k = 3;
+    private string status = "Connecting interactive controls…", vectorDisplay = "Run a search to inspect the query vector.";
+    private IReadOnlyList<SearchHit> hits = [];
+    private string cosineCase = "same", cosineResult = "Choose a direction and calculate.";
+    protected override void OnAfterRender(bool firstRender) { if (firstRender) { ready = true; status = "Ready. Choose a method and search the synthetic articles."; StateHasChanged(); } }
+    private static string Format(double value) => value.ToString("F4", System.Globalization.CultureInfo.InvariantCulture);
+    private void Changed() { hits = []; vectorDisplay = "Inputs changed; run this search to calculate a new vector."; status = "Inputs changed. Search again to see current results."; }
+    private void Search()
+    {
+        if (!ready) return;
+        hits = [];
+        try
+        {
+            hits = Engine.Search(query, mode, category, k, space);
+            vectorDisplay = $"Query vector [{string.Join(", ", SearchEngine.Vectorize(query))}]\n4 dimensions · {space}";
+            var eligible = SearchEngine.Articles.Count(x => category == "All" || x.Category == category);
+            status = hits.Count == 0 ? "No matches. Try another category, keyword, or a known toy synonym such as money back." :
+                $"Search complete. {hits.Count} result(s); {eligible} eligible articles scored before top-k {k}.";
+        }
+        catch (ArgumentException error) { vectorDisplay = "Query was rejected before ranking."; status = error.Message; }
+    }
+    private void Calculate()
+    {
+        float[] other = cosineCase switch { "orthogonal" => [0,1], "diagonal" => [1,1], "opposite" => [-1,0], "zero" => [0,0], _ => [2,0] };
+        var length = Math.Sqrt(other.Sum(x => (double)x * x));
+        cosineResult = $"dot = {other[0]}; lengths = 1 and {Format(length)}\nCosine = {Format(SearchEngine.Cosine([1,0], other))}" +
+            (length == 0 ? "\nUndefined mathematically; safe zero-vector policy returns 0." : "\nDirection similarity, not a probability.");
+    }
+}

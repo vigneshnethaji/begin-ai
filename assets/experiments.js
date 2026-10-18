@@ -82,5 +82,9 @@
     else if(type.startsWith('lm-'))AcademyLanguageExperiments.mount(node,type);
     else if(type.startsWith('reliable-'))AcademyReliableExperiments.mount(node,type);
     else if(type.startsWith('tools-'))AcademyToolsExperiments.mount(node,type);
+    else if(type.startsWith('search-'))AcademySearchExperiments.mount(node,type);
+    else if(type.startsWith('rag-'))AcademyRagExperiments.mount(node,type);
+    else if(type.startsWith('retrieval-'))AcademyRetrievalExperiments.mount(node,type);
+    else if(type.startsWith('workflow-'))AcademyWorkflowExperiments.mount(node,type);
   }};
 })();

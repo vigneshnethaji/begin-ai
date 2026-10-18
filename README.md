@@ -22,13 +22,17 @@ Open http://127.0.0.1:4173. The host listens only on the local computer. Stop it
 
 ## What is available
 
-Five units are available, with 32 complete lessons and five runnable labs. The remaining six course-map units are still planned. It includes:
+Nine units are available, with 56 complete lessons and nine runnable labs. Units 10–11 (more inputs/model choices and Azure operations) are still planned. It includes:
 
 - Six fully written foundation lessons: AI features; exact C# rules; models; training versus inference; prediction mistakes; selecting rules, a classifier, or an LLM.
 - Eight ML.NET lessons: examples/datasets; features; labels; data quality; training/test separation; the pipeline; evaluation; saving/loading a model.
 - Six language-model lessons: generated text; tokens/context; a C# provider boundary; server-only credentials; timeouts/cancellation; streaming into Blazor.
 - Six reliable-output lessons: instructions/message roles; prompt examples; useful context; JSON and DTOs; validation/refusals; comparing prompt changes.
 - Six tool lessons: callable functions; typed arguments; proposal versus execution; authorization/approval; safe retries/replays; audit and unknown results.
+- Six vector/search lessons: numeric vectors, cosine similarity, embedding meaning, compatible storage, exact versus approximate indexes, and filtered/hybrid retrieval.
+- Six grounded-answer lessons: retrieval first, chunks, evidence selection, bounded context, citations and support, and separate retrieval testing.
+- Six retrieval-quality lessons: evaluation sets, ranking, index freshness, caller/document access, untrusted document instructions, and safe traces.
+- Six workflow lessons: workflows versus agents, state, budgets, Microsoft Agent Framework concepts, MCP capabilities, and approvals/recovery.
 - Five sections per lesson: Understand, Example, Try it, Check, and .NET.
 - A unique offline exercise for each topic, with explanatory feedback.
 - Explicit prerequisites and links from each concept to the SupportDesk application.
@@ -37,6 +41,7 @@ Five units are available, with 32 complete lessons and five runnable labs. The r
 - A .NET 10 Blazor Interactive Server draft-reply lab with free sample streaming, Stop, explicit staff review, and an optional server-only OpenAI Responses adapter. Download its complete source ZIP from the lab page. Local verification uses controlled HTTP fixtures and never makes paid calls.
 - A free Blazor ticket-summary lab with authored JSON samples, strict C# shape/value validation, separate refusal/incomplete states, staff review, and a four-case prompt-fixture comparison. It makes no model calls and needs no credentials. Valid structure does not establish factual correctness.
 - A free read-only ticket-lookup lab over fictional data: strict tool arguments, simulated caller scope, request-bound approval, deterministic authorization, bounded retries/replays, and audit. No model or external system is called; the identity picker is a learning simulation, not authentication.
+- Four more complete .NET 10 Blazor projects: toy-vector article search, extractive evidence answers, retrieval quality/access checks, and a bounded support-triage state machine. These run without AI accounts, model downloads, provider calls or database setup. Each ZIP includes its source, README and executable checks.
 - A searchable proposed course map from fundamentals through ML.NET, LLMs, tools, RAG, agents, and Azure operations. Later units are clearly labelled **Planned**.
 - Progress export, confirmed import/reset, browser storage warnings, keyboard navigation, and a modal mobile course drawer.
 
@@ -46,7 +51,7 @@ The website uses a dark theme: charcoal canvas and reading surfaces, Material Bl
 
 ## Learning progress
 
-The new workspace uses its own key: `dotnet-ai-workspace-progress-v1`. Existing foundation IDs and progress remain valid. Finishing the six foundation checks continues into ML.NET; finishing ML.NET continues into Language models in C#; finishing that unit continues into Reliable prompts and outputs, then into Tools and safe actions. It does not reinterpret the original academy’s day checkmarks. “Read” is self-reported; “Check” records a correct answer; each lab milestone is self-reported.
+The new workspace uses its own key: `dotnet-ai-workspace-progress-v1`. Existing foundation IDs and progress remain valid. Finishing the six foundation checks continues into ML.NET; finishing ML.NET continues into Language models in C#; finishing that unit continues into Reliable prompts and outputs, then into Tools and safe actions, semantic search, grounded answers, retrieval quality, and bounded workflows. Existing progress is retained; completing earlier available lessons now recommends the first unfinished lesson in the extended path. It does not reinterpret the original academy’s day checkmarks. “Read” is self-reported; “Check” records a correct answer; each lab milestone is self-reported.
 
 Progress stays in the browser for the current origin/file location. It does not automatically follow you to another browser, URL, device, or copy of the website. Use **My progress → Export progress** to back it up, and **Import backup** to restore. Import and reset ask before replacing data.
 
@@ -68,6 +73,11 @@ assets/
   tools-experiments.js          Offline proposal, permissions, retry and audit exercises
   lookup-files.js               Complete read-only tool lab source manifest
   lookup-lab.js                 Guided ticket-lookup lab page
+  advanced-catalog.js           Unit6–9 metadata, navigation, preview and lab ownership
+  search-*.js                   Unit6 lessons, exercises, manifest and guided search lab
+  rag-*.js                      Unit7 lessons, exercises, manifest and grounded-answer lab
+  retrieval-*.js                Unit8 lessons, exercises, manifest and retrieval-quality lab
+  workflow-*.js                 Unit9 lessons, exercises, manifest and bounded-workflow lab
   draft-files.js                Complete Blazor source manifest for downloads
   draft-lab.js                  Guided Blazor lab page
   mlnet-experiments.js           Offline data, pipeline, evaluation and lifecycle exercises
@@ -82,13 +92,18 @@ labs/supportdesk-classifier/     Real ML.NET classifier, synthetic splits and ve
 labs/supportdesk-draft-replies/  Runnable Blazor lab, server-only adapter and local verification
 labs/supportdesk-ticket-summary/ Free Blazor DTO-validation and prompt-fixture lab
 labs/supportdesk-ticket-lookup/  Free reviewed C# lookup, demo scope, replay and audit
+labs/supportdesk-semantic-search/ Toy-vector exact search and hybrid comparison
+labs/supportdesk-grounded-answers/ Chunking, evidence budgets and extractive citations
+labs/supportdesk-retrieval-quality/ Local evaluation, freshness and demo access boundaries
+labs/supportdesk-bounded-workflow/ Bounded local state machine, review and recovery
 downloads/                      Generated complete classifier and Blazor source ZIPs
 FOUNDATION_LESSONS.md            Generated readable edition of the six foundation lessons
-LEARNING_GUIDE.md                Generated readable edition of all 32 available lessons
+LEARNING_GUIDE.md                Generated readable edition of all 56 available lessons
 standalone.html                 Generated portable edition, including lab downloads
 scripts/
   serve.cjs                     Optional local development host
   build-standalone.cjs           Generates standalone HTML and new lesson Markdown
+  verify-advanced-packages.cjs   Fresh ZIP builds, source hashes and real Blazor checks
 tests/
   learning.test.cjs              Node tests for learning/progress behavior
   browser.cjs                   Real Chromium interaction and responsive checks
@@ -97,6 +112,11 @@ tests/
   summary-app-browser.cjs       Actual summary-lab Blazor circuit and responsive tests
   tools-browser.cjs             Fifth-unit mapping, exercises, mobile and portable downloads
   lookup-app-browser.cjs        Actual read-only tool lab execution and scope checks
+  advanced-learning.test.cjs    Unit6–9 ownership, progression and compatible backups
+  advanced-browser.cjs          Unit6–9 grading, contextual navigation, mobile and ZIPs
+  advanced-exercises.cjs        All 24 new exercises through the integrated website
+  {search,rag,retrieval,workflow}.test.cjs  Focused new teaching-algorithm contracts
+  {search,rag,retrieval,workflow}-app-browser.cjs  Actual new Blazor circuits
 docs/superpowers/                Approved design, plan, and verification notes
 original-v2/                    Untouched copy of all nine original ZIP files
 ```
@@ -109,15 +129,33 @@ Edit the canonical sources in `assets/`, then regenerate derived editions:
 
 ```shell
 node scripts/build-standalone.cjs
-node --test tests/learning.test.cjs
+node --test tests/*.test.cjs
 dotnet run --project labs/supportdesk-rules -- --verify
 dotnet run --project labs/supportdesk-classifier -- --verify
 dotnet run --project labs/supportdesk-draft-replies -- --verify
 dotnet run --project labs/supportdesk-ticket-summary -- --verify
 dotnet run --project labs/supportdesk-ticket-lookup -- --verify
+
+dotnet run --project labs/supportdesk-semantic-search -- --verify
+
+dotnet run --project labs/supportdesk-grounded-answers -- --verify
+
+dotnet run --project labs/supportdesk-retrieval-quality -- --verify
+
+dotnet run --project labs/supportdesk-bounded-workflow -- --verify
 ```
 
-For browser checks, start the local host in a separate terminal and run `node tests/browser.cjs`, `node tests/language-browser.cjs`, `node tests/reliable-browser.cjs`, and `node tests/tools-browser.cjs`. The test uses an installed Playwright package or the bundled Codex runtime package on this machine. Other machines need Playwright and Chromium installed to run that developer-only check. Learners do not need Node or Playwright.
+For browser checks, start the local host in a separate terminal and run `node tests/browser.cjs`, `node tests/language-browser.cjs`, `node tests/reliable-browser.cjs`, `node tests/tools-browser.cjs`, and `node tests/advanced-browser.cjs`. The test uses an installed Playwright package or the bundled Codex runtime package on this machine. Other machines need Playwright and Chromium installed to run that developer-only check. Learners do not need Node or Playwright.
+
+For each new Blazor app, run `dotnet run` from its lab folder. Default loopback ports are 5109 (search), 5111 (grounded answers), 5113 (retrieval quality), and 5115 (workflow). The corresponding `tests/*-app-browser.cjs` scripts accept an optional local URL argument, so extracted ZIPs can be checked on separate ports. The README in each source project documents its validated optional port setting.
+
+## What the advanced labs demonstrate
+
+The vector lab uses hand-designed topic features and an exact in-memory scan, not a trained embedding model or approximate vector database. The grounded-answer lab selects local source text, not generated model prose; citation matching is a narrow check and does not prove arbitrary factual correctness. Retrieval-quality scores use a tiny fictional evaluation set, not a production benchmark. Identity selectors demonstrate server-owned demo policies, not real authentication. The workflow is deterministic C# orchestration, not a model-directed agent, Microsoft Agent Framework runtime, or live MCP connection. Framework/provider integration points are explained separately and linked to official documentation.
+
+All four new labs use temporary in-memory state. They do not claim production readiness, durable checkpoints, durable exactly-once execution, or comprehensive prompt-injection prevention.
+
+Run `node tests/advanced-exercises.cjs` for the 24 integrated new activities, and `node tests/rag-accessibility.cjs` for actual live-result updates in an isolated local component. After regenerating downloads, `node scripts/verify-advanced-packages.cjs` extracts fresh copies of all four new projects, compares source hashes, compiles and verifies C#, and tests their actual Blazor circuits. It requires Windows PowerShell for extraction and uses ports 5110/5112/5114/5116. Optional arguments `search`, `rag`, `retrieval`, or `workflow` restrict the package checks. Temporary extracted folders and machine-readable results are retained in `.artifacts/`; the checker stops its own temporary app processes.
 
 Verification screenshots/results are generated in ignored `.artifacts/`; C# build output is also ignored. No Git commit or publication is included in this delivery.
 

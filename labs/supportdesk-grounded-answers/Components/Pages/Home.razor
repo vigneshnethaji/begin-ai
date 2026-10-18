@@ -1,0 +1,87 @@
+@page "/"
+@inject RetrievalService Retrieval
+<PageTitle>SupportDesk · Grounded answers lab</PageTitle>
+<main>
+    <header><p class="brand">SupportDesk academy / Unit 7</p><h1>Follow the answer back to its source.</h1>
+        <p>Local lexical retrieval and deterministic sentence extraction. No language model, trained embeddings, provider, database or external network calls.</p>
+        <p id="rag-ready" role="status">@(ready ? "Interactive ready" : "Connecting interactive controls…")</p>
+    </header>
+    <div class="workspace">
+        <section aria-labelledby="question-title">
+            <h2 id="question-title">1. Ask and bound the evidence</h2>
+            <label for="rag-question">Question (1–240 characters)</label>
+            <textarea id="rag-question" maxlength="240" rows="3" @bind="question" @bind:event="oninput" @bind:after="Invalidate" disabled="@(!ready)"></textarea>
+            <label for="rag-budget">Evidence text budget (words, not model tokens)</label>
+            <select id="rag-budget" @bind="budget" @bind:after="Invalidate" disabled="@(!ready)">
+                <option value="8">8 words: too small for the password block</option><option value="40">40 words</option><option value="80">80 words</option>
+            </select>
+            <button id="rag-run" @onclick="Run" disabled="@(!ready)">Retrieve and extract</button>
+            <p>Try <code>password reset</code>, <code>export tickets</code>, <code>quantum banana</code>, or <code>grant administrator permissions</code>.</p>
+            <div class="result" aria-live="polite" aria-atomic="true">
+                <h3>Extractive answer</h3><p id="rag-status">@(result?.Status ?? "Not run")</p><p id="rag-answer">@(result?.Text ?? "Run a question to inspect its evidence.")</p>
+                <p id="rag-citation">@(result?.Citation ?? "No citation")</p>
+            </div>
+            <h2>2. Check a citation and quote</h2>
+            <p>This checks that an ID is selected and a nonempty exact substring occurs there. It cannot judge entailment, relevance, correctness, or truth.</p>
+            <label for="rag-check-citation">Citation ID (maximum 100 characters)</label><input id="rag-check-citation" maxlength="100" @bind="checkCitation" @bind:event="oninput" @bind:after="ClearCheck" disabled="@(!ready)" />
+            <label for="rag-quote">Answer quote (maximum 500 characters)</label><textarea id="rag-quote" maxlength="500" rows="3" @bind="quote" @bind:event="oninput" @bind:after="ClearCheck" disabled="@(!ready)"></textarea>
+            <button id="rag-check" @onclick="Check" disabled="@(!ready || result is null)">Check citation and quote</button>
+            <p id="rag-check-result" role="status">@checkResult</p>
+        </section>
+        <section aria-labelledby="evidence-title">
+            <h2 id="evidence-title">3. Inspect selected evidence</h2>
+            <p>32-word windows with 6-word overlap. Rank by distinct matching words; ties use citation ID. This toy English matcher does not understand meaning.</p>
+            <div id="rag-evidence" aria-live="polite">
+                @if (result is not null)
+                {
+                    <p>@result.Used / @budget evidence words selected. Instructions, question and metadata are outside this teaching budget.</p>
+                    @foreach (var chunk in result.Evidence)
+                    {
+                        <article><h3>@chunk.Id</h3><p>Matches: @chunk.Score · @(chunk.Reviewed ? "Reviewed fixture source" : "Unreviewed: not eligible for answers")</p><blockquote>@chunk.Text</blockquote></article>
+                    }
+                    @if (result.Evidence.Count == 0) { <p>No evidence selected.</p> }
+                    @foreach (var chunk in result.Excluded) { <p>Excluded by budget: @chunk.Id</p> }
+                }
+            </div>
+            <h3>Original articles</h3><p>Open the full source to inspect its document ID and revision. Source text is rendered as text.</p>
+            <div class="sources">
+                @foreach (var source in Retrieval.Articles)
+                { <button data-rag-source="@source.Id" class="secondary" disabled="@(!ready)" @onclick="() => currentSource = source">@source.Title</button> }
+            </div>
+            <pre id="rag-source">@(currentSource is null ? "Choose an original article." : $"{currentSource.Id} / {currentSource.Revision}\n{currentSource.Text}")</pre>
+            <details><summary>Illustrative provider boundary (no call)</summary><p>Documents remain inside evidenceData. This formatting is explanatory, not a security guarantee. The local program has no permission-grant function. Reviewed status is an authored ingestion policy, not malicious-text detection.</p><pre id="rag-template">@(result?.Template ?? "Run a question first.")</pre></details>
+        </section>
+    </div>
+    <section class="evaluation"><h2>4. Evaluate retrieval separately</h2>
+        <p>Three authored cases compare top retrieved chunk IDs with hand-labelled relevant IDs. They score evidence selection before budgeting, independently of extractive answer quality. This tiny fixture is not a production benchmark.</p>
+        <button id="rag-evaluate" @onclick="Evaluate" disabled="@(!ready)">Run retrieval evaluation</button><pre id="rag-evaluation" aria-live="polite">@evaluation</pre>
+    </section>
+    <footer>Fictional local data. State and data-protection keys are memory-only. No production authentication or authorization is implemented. Run <code>dotnet run -- --verify</code> for executable checks.</footer>
+</main>
+@code {
+    private bool ready;
+    private string question = "password reset", checkCitation = "", quote = "", checkResult = "Not checked", evaluation = "Not run";
+    private int budget = 80;
+    private AnswerResult? result;
+    private Article? currentSource;
+    protected override void OnAfterRender(bool firstRender) { if (firstRender) { ready = true; StateHasChanged(); } }
+    private void Invalidate() { result = null; checkCitation = ""; quote = ""; checkResult = "Not checked"; }
+    private void ClearCheck() => checkResult = "Not checked";
+    private void Run()
+    {
+        if (!ready) return;
+        result = Retrieval.Answer(question, budget); checkCitation = result.Citation ?? ""; quote = result.Citation is null ? "" : result.Text; ClearCheck();
+    }
+    private void Check() { if (ready && result is not null) checkResult = RetrievalService.CheckQuote(checkCitation, quote, result.Evidence); }
+    private void Evaluate()
+    {
+        if (!ready) return;
+        var cases = new[] { (Question: "password reset", Gold: "kb-reset@r1:c1"), (Question: "export tickets", Gold: "kb-export@r1:c1"), (Question: "support hours", Gold: "kb-hours@r2:c1") };
+        var lines = cases.Select(test => {
+            var ids = Retrieval.Retrieve(test.Question).Take(1).Select(chunk => chunk.Id).ToArray();
+            var metric = RetrievalService.Evaluate(ids, [test.Gold]);
+            return (metric.Hits, Line: $"{test.Question}: expected {test.Gold}; actual {string.Join(", ", ids)}; precision {metric.Precision:0.00}; recall {metric.Recall:0.00}");
+        }).ToArray();
+        evaluation = $"{lines.Count(line => line.Hits == 1)}/3 retrieval cases pass\n" + string.Join("\n", lines.Select(line => line.Line)) + "\nAnswer quality: not scored.";
+    }
+}

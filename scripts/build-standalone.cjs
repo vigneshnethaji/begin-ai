@@ -7,7 +7,7 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 html=html.replace('<link rel="stylesheet" href="styles.css">',()=>`<style>\n${read('styles.css')}\n</style>`);
 const labDownloads={};
 fs.mkdirSync(path.join(root,'downloads'),{recursive:true});
-for(const [folder,manifest]of [['supportdesk-classifier','lab-files'],['supportdesk-draft-replies','draft-files'],['supportdesk-ticket-summary','summary-files'],['supportdesk-ticket-lookup','lookup-files']]){
+for(const [folder,manifest]of [['supportdesk-classifier','lab-files'],['supportdesk-draft-replies','draft-files'],['supportdesk-ticket-summary','summary-files'],['supportdesk-ticket-lookup','lookup-files'],['supportdesk-semantic-search','search-files'],['supportdesk-grounded-answers','rag-files'],['supportdesk-retrieval-quality','retrieval-files'],['supportdesk-bounded-workflow','workflow-files']]){
   const labFiles=require('../assets/'+manifest+'.js').map(([file])=>file);
   const sourceZip=require('./source-zip.cjs')(path.join(root,'labs',folder),labFiles);
   fs.writeFileSync(path.join(root,'downloads',folder+'.zip'),sourceZip);
@@ -18,7 +18,7 @@ for(const [folder,manifest]of [['supportdesk-classifier','lab-files'],['supportd
   }
 }
 html=html.replace('<script src="assets/mlnet-content.js"></script>',()=>`<script>window.AcademyLabDownloads=${JSON.stringify(labDownloads)};</script>\n<script src="assets/mlnet-content.js"></script>`);
-for(const file of ['mlnet-content','language-content','reliable-content','tools-content','curriculum','learning-core','mlnet-experiments','language-experiments','reliable-experiments','tools-experiments','experiments','home','lab-files','mlnet-lab','draft-files','draft-lab','summary-files','summary-lab','lookup-files','lookup-lab','workspace']){
+for(const file of ['mlnet-content','language-content','reliable-content','tools-content','search-content','rag-content','retrieval-content','workflow-content','advanced-catalog','curriculum','learning-core','mlnet-experiments','language-experiments','reliable-experiments','tools-experiments','search-experiments','rag-experiments','retrieval-experiments','workflow-experiments','experiments','home','lab-files','mlnet-lab','draft-files','draft-lab','summary-files','summary-lab','lookup-files','lookup-lab','search-files','search-lab','rag-files','rag-lab','retrieval-files','retrieval-lab','workflow-files','workflow-lab','workspace']){
   let source=read(`assets/${file}.js`);
   if(file==='workspace'){
     for(const labFile of ['SupportDesk.Rules.csproj','Program.cs','README.md']){

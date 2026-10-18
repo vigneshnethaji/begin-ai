@@ -1,0 +1,74 @@
+@page "/"
+@inject Workflow Flow
+@implements IDisposable
+<PageTitle>SupportDesk · bounded workflow</PageTitle>
+<main>
+    <header><p class="eyebrow">UNIT 9 / SUPPORTDESK / LOCAL LEARNING LAB</p><h1>Every transition has a boundary.</h1><p class="lede">Classify → look up help → draft → review → local preview.</p><p id="workflow-ready" class="badge" role="status">@(ready ? "Interactive ready" : "Connecting interactive session…")</p></header>
+    <aside class="notice"><strong>Deterministic workflow · fictional data · nothing sent</strong><p>Fixed keyword classification and authored help/replies are local approximations. No trained model, embeddings, provider, database, framework SDK or MCP connection runs. Temporary session state is not durable exactly-once execution.</p></aside>
+    <div class="layout">
+        <section class="panel" aria-labelledby="request-title"><h2 id="request-title">1. Define the request</h2>
+            <label for="workflow-request">Fictional request (maximum 2,000 characters)</label><textarea id="workflow-request" maxlength="2000" rows="4" value="@text" @oninput="ChangeText" disabled="@(!ready || busy)"></textarea>
+            <label for="workflow-scenario">Authored execution fixture</label><select id="workflow-scenario" value="@scenario" @onchange="ChangeScenario" disabled="@(!ready || busy)">
+                <option value="normal">Normal triage</option><option value="loop">Loop (bounded)</option><option value="slow">Slow local work (2.5 seconds)</option><option value="failed">Failed before preview</option><option value="unknown">Acknowledgement lost after preview</option><option value="unknown-capability">Unknown capability (denied)</option>
+            </select>
+            <div class="budget-grid">
+                <div><label for="workflow-max-steps">Maximum steps (1–12)</label><input id="workflow-max-steps" type="number" min="1" max="12" value="@maxSteps" @oninput="ChangeSteps" disabled="@(!ready || busy)" /></div>
+                <div><label for="workflow-max-calls">Maximum lookups (0–3)</label><input id="workflow-max-calls" type="number" min="0" max="3" value="@maxCalls" @oninput="ChangeCalls" disabled="@(!ready || busy)" /></div>
+                <div><label for="workflow-timeout">Wall-clock budget (ms)</label><input id="workflow-timeout" type="number" min="20" max="30000" value="@timeoutMs" @oninput="ChangeTimeout" disabled="@(!ready || busy)" /></div>
+            </div>
+            <p class="muted">Three steps reach review; the preview costs a fourth. The deadline starts at Run and includes review time. Editing any field clears approval and the visible draft.</p>
+            <div class="actions"><button id="run-workflow" @onclick="Run" disabled="@(!ready || busy || Flow.State != Phase.Idle)">Run to review</button><button id="cancel-workflow" class="secondary" @onclick="Cancel" disabled="@(!ready || !busy)">Cancel running work</button></div>
+        </section>
+        <section class="panel" aria-labelledby="state-title"><h2 id="state-title">2. Inspect the checkpoint</h2>
+            <div class="state" role="status" aria-live="polite" aria-atomic="true"><span>Phase</span><strong id="workflow-phase">@Flow.State</strong><p id="workflow-message">@Flow.Message</p></div>
+            <dl class="metrics"><div><dt>Steps</dt><dd id="workflow-steps">@Flow.Steps</dd></div><div><dt>Lookup calls</dt><dd id="workflow-calls">@Flow.Calls</dd></div><div><dt>Session preview effects</dt><dd id="workflow-effects">@Flow.Effects</dd></div></dl>
+            <h3>Exact current snapshot</h3><pre id="workflow-snapshot">@Snapshot()</pre><h3>Authored draft</h3><p id="workflow-draft" class="draft">@(Flow.Draft.Length == 0 ? "No draft." : Flow.Draft)</p>
+            <p id="workflow-approval">@(Flow.Approved ? "Approved for this exact snapshot. No preview yet." : "No active approval.")</p>
+            <div class="actions"><button id="approve-workflow" @onclick="Approve" disabled="@(!ready || busy || Flow.State != Phase.AwaitingApproval || Flow.Approved)">Approve exact snapshot</button><button id="deny-workflow" class="secondary" @onclick="Deny" disabled="@(!ready || busy || Flow.State != Phase.AwaitingApproval)">Deny draft</button><button id="preview-workflow" @onclick="Preview" disabled="@(!ready || busy || Flow.State != Phase.AwaitingApproval || !Flow.Approved)">Create local preview</button></div>
+            <p class="muted">Approval is a local teaching gate, not production authentication. A preview is never sent to anyone.</p>
+        </section>
+        <section class="panel" aria-labelledby="recovery-title"><h2 id="recovery-title">3. Recover from evidence</h2><p>Failed means this fixture stopped before preview. Unknown means acknowledgement is missing. Replay returns a stored receipt without another preview.</p><div class="actions"><button id="recover-workflow" class="secondary" @onclick="Recover" disabled="@(!ready || busy || Flow.State is not (Phase.Failed or Phase.Unknown))">Recover known failure</button><button id="replay-workflow" class="secondary" @onclick="Replay" disabled="@(!ready || busy)">Replay exact request</button><button id="reconcile-workflow" @onclick="Reconcile" disabled="@(!ready || busy || Flow.State != Phase.Unknown)">Reconcile local receipt</button></div><p class="muted">Reconcile checks evidence the authored fixture already stored. A click alone would not prove a remote effect. Receipts are bounded to 16 per session and lost on a fresh session/restart.</p><h3>Bounded transition trace</h3><ol id="workflow-trace">@foreach (var entry in Flow.Trace) { <li>@entry</li> }</ol></section>
+        <section class="panel" aria-labelledby="capability-title"><h2 id="capability-title">4. Inspect authored MCP metadata</h2><p>These are descriptions only. No protocol lifecycle, transport, authentication or invocation occurs. Definitions and returned text cannot authorize execution.</p><label for="workflow-capability">Capability to inspect</label><select id="workflow-capability" @bind="capability" @bind:after="ClearInspector" disabled="@(!ready)"><option value="lookup_help">Tool: lookup_help</option><option value="help://billing">Resource: help://billing</option><option value="triage_prompt">Prompt: triage_prompt</option><option value="send_email">Unknown tool: send_email</option></select><button id="inspect-workflow" class="secondary" @onclick="Inspect" disabled="@(!ready)">Inspect definition only</button><pre id="workflow-inspector" role="status" aria-live="polite">@inspector</pre><p class="muted">A future framework integration could map functions to executors and routes to edges. This app does not use framework APIs.</p></section>
+    </div>
+    <footer>All SupportDesk examples are synthetic. Unit 10 is planned. Stop the terminal host with Ctrl+C when finished.</footer>
+</main>
+@code {
+    private bool ready, busy;
+    private string text = "Fictional billing invoice is missing", scenario = "normal", capability = "lookup_help";
+    private int maxSteps = 5, maxCalls = 1, timeoutMs = 10000;
+    private string inspector = "Select a capability, then inspect its authored definition.";
+    private CancellationTokenSource? cancellation;
+    protected override void OnInitialized() => Update();
+    protected override void OnAfterRender(bool firstRender) { if (firstRender) { ready = true; StateHasChanged(); } }
+    private void Update() => Flow.SetRequest(new(text,scenario,maxSteps,maxCalls,timeoutMs));
+    private void ChangeText(ChangeEventArgs e) { text=e.Value?.ToString()??""; Update(); }
+    private void ChangeScenario(ChangeEventArgs e) { scenario=e.Value?.ToString()??""; Update(); }
+    private static int Number(ChangeEventArgs e) => int.TryParse(e.Value?.ToString(),out var n) ? n : -1;
+    private void ChangeSteps(ChangeEventArgs e) { maxSteps=Number(e); Update(); }
+    private void ChangeCalls(ChangeEventArgs e) { maxCalls=Number(e); Update(); }
+    private void ChangeTimeout(ChangeEventArgs e) { timeoutMs=Number(e); Update(); }
+    private async Task Run()
+    {
+        if (!ready || busy) return;
+        busy=true; cancellation=new();
+        try { await Flow.RunAsync(cancellation.Token); }
+        finally { busy=false; cancellation.Dispose(); cancellation=null; }
+    }
+    private void Cancel() => cancellation?.Cancel();
+    private void Approve() => Flow.Approve(true);
+    private void Deny() => Flow.Approve(false);
+    private void Preview() => Flow.Complete();
+    private Task Recover() => Flow.RecoverAsync();
+    private void Replay() => Flow.Replay();
+    private void Reconcile() => Flow.Reconcile();
+    private string Snapshot() => $"Text: {text}\nFixture: {scenario}\nMax steps: {maxSteps}; max lookups: {maxCalls}; deadline allowance: {timeoutMs} ms";
+    private void ClearInspector() => inspector="Choice changed. Inspect the current definition.";
+    private void Inspect() => inspector=capability switch
+    {
+        "lookup_help" => "Definition only — no execution\n{\n  \"name\": \"lookup_help\",\n  \"inputSchema\": {\n    \"type\": \"object\",\n    \"properties\": { \"topic\": { \"type\": \"string\", \"enum\": [\"billing\", \"login\"] } },\n    \"required\": [\"topic\"],\n    \"additionalProperties\": false\n  }\n}",
+        "help://billing" => "Resource — authored context, not authority\n{ \"uri\": \"help://billing\", \"name\": \"Fictional billing help\", \"mimeType\": \"text/plain\" }",
+        "triage_prompt" => "Prompt — reusable authored message template\n{ \"name\": \"triage_prompt\", \"arguments\": [{ \"name\": \"topic\", \"required\": true }] }",
+        _ => "Denied: send_email is outside the allowlist. No invocation occurred."
+    };
+    public void Dispose() => cancellation?.Cancel();
+}
