@@ -2,6 +2,8 @@
 
 A guided, mobile-first AI learning website for developers who know C#, ASP.NET Core, Blazor, SQL, and basic testing, but are new to AI.
 
+See [current product scope](docs/CURRENT_SCOPE.md) for the up-to-date learning path and boundaries, and [quality review](docs/QUALITY_REVIEW.md) for accessibility and beginner-walkthrough evidence. Dated design notes describe historical milestones, not missing units.
+
 ## Open the website
 
 Double-click **index.html** in Edge or Chrome. No website build, account, server, CDN, or AI key is required. The website opens on **Home**, which explains its purpose, intended audience, learning method, project, and available content.
@@ -10,7 +12,7 @@ Use **Start the foundation lessons** to begin, or **Continue learning** when you
 
 Side navigation follows the active page: Course map lists all 11 units and jumps to the selected section, lessons show the current unit's lesson sequence, each desktop lab shows related prerequisites, and Progress shows relevant next actions. The map highlights the unit currently in view; all 11 units link to real lessons. The mobile course drawer follows the same context.
 
-For a portable single-file edition, open **standalone.html**. It embeds the styling, lessons, interactions, and downloadable C# lab sources. Keep the original-v2 folder nearby only if you want the comparison link to the old academy to work.
+For a portable single-file edition, open **standalone.html**. It embeds the styling, lessons, interactions, and downloadable C# lab sources. Keep the original-v2 folder nearby only if you want the comparison link to the old academy to work. Keep **LEARNING_GUIDE.md** alongside it if you need the readable fallback with JavaScript disabled.
 
 Optional local hosting with Node:
 
@@ -126,7 +128,9 @@ tests/
   advanced-exercises.cjs        All 36 advanced exercises through the integrated website
   {search,rag,retrieval,workflow,inputs,operations}.test.cjs  Focused new teaching-algorithm contracts
   {search,rag,retrieval,workflow,inputs,operations}-app-browser.cjs  Actual advanced Blazor circuits
-docs/superpowers/                Approved design, plan, and verification notes
+docs/CURRENT_SCOPE.md            Current availability, delivery model and boundaries
+docs/QUALITY_REVIEW.md           Usability/accessibility method, evidence and limits
+docs/superpowers/                Historical design, plan and verification records
 original-v2/                    Untouched copy of all nine original ZIP files
 ```
 

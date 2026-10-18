@@ -130,7 +130,7 @@ const KEY='dotnet-ai-workspace-progress-v1';
   await page.waitForFunction(()=>document.querySelector('#backup-message').textContent.includes('not valid JSON'));
   assert.match(await page.locator('#backup-message').innerText(),/not valid JSON/);
   const acceptDialog=dialog=>dialog.accept();page.on('dialog',acceptDialog);
-  await page.getByRole('button',{name:'Reset preview progress'}).click();assert.deepEqual((await readState()).lessons,{});
+  await page.getByRole('button',{name:'Reset learning progress'}).click();assert.deepEqual((await readState()).lessons,{});
   await page.locator('#import-progress').setInputFiles(downloadPath);
   await page.waitForFunction(key=>JSON.parse(localStorage.getItem(key)).lessons['ai-features']?.checked===true,KEY);
   page.off('dialog',acceptDialog);

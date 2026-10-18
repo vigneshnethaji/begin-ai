@@ -29,8 +29,8 @@
     <symbol id="icon-light" viewBox="0 0 24 24"><path d="M8 17c0-3-3-3-3-7a7 7 0 0 1 14 0c0 4-3 4-3 7M8 17h8M9 21h6"/></symbol>
   </svg>
   <header class="app-header">
-    <button class="icon-button mobile-menu" id="open-course" aria-label="Open course navigation" aria-haspopup="dialog"><svg><use href="#icon-menu"/></svg></button>
-    <a class="brand" href="#home" aria-label="AI for .NET developers, home"><span class="brand-mark">.NET</span><span class="brand-name">AI for .NET developers<span>Learning workspace</span></span></a>
+    <button class="icon-button mobile-menu" id="open-course" aria-label="Open course navigation" aria-haspopup="dialog" aria-controls="course-drawer" aria-expanded="false"><svg aria-hidden="true"><use href="#icon-menu"/></svg></button>
+    <a class="brand" href="#home" title="Home"><span class="brand-mark">.NET</span><span class="brand-name">AI for .NET developers<span>Learning workspace</span></span></a>
     <span class="header-separator" aria-hidden="true"></span><span class="header-note">Small concepts. Working software.</span>
     <nav class="header-actions" aria-label="Workspace"><a href="#home" data-route="home" class="header-link">Home</a><a href="#learn" data-route="lesson" class="header-link">Learn</a><a href="#map" data-route="map" class="header-link">Course map</a><a href="#progress" data-route="progress" class="header-link">My progress</a></nav>
   </header>
@@ -44,7 +44,7 @@
     <div id="mobile-navigation"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <noscript><p class="noscript">Enable JavaScript to use the interactive lessons. The original <a href="AI_LEARNING_ROADMAP.md">Markdown roadmap</a> is also available.</p></noscript>
+  <noscript><p class="noscript">Interactive lessons need JavaScript. You can still <a href="LEARNING_GUIDE.md">Read the complete learning guide</a>, including all 68 lessons, examples and answers.</p></noscript>
   <script src="assets/mlnet-content.js"></script>
   <script src="assets/language-content.js"></script>
   <script src="assets/reliable-content.js"></script>
