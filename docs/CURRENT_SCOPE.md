@@ -1,6 +1,6 @@
 # AI for .NET developers — current scope
 
-Current as of 18 October 2026. This is the current product description. Dated design and implementation records under `docs/superpowers/` describe earlier milestones; their old preview counts and Planned labels are historical, not current availability.
+Current as of 19 October 2026. This is the current product description. Dated design and implementation records under `docs/superpowers/` describe earlier milestones; their old preview counts and Planned labels are historical, not current availability.
 
 ## What learners can use
 
@@ -22,7 +22,7 @@ All 11 units are available: 68 short lessons, each with Understand, Example, Try
 
 Start on Home, then select Start the foundation lessons. Read the explanation, inspect the example, change an exercise input, answer the check, and read the .NET connection. Recommended conceptual prerequisites do not lock lessons; the default reading sequence is recorded separately.
 
-Every lesson has a verified source-file/method reference, a concrete practice task and expected result. All 11 units have a recap with three explained scenarios and an independent challenge. These activities do not automatically award lesson checks or certify terminal work. Optional microtopics unpack token prediction, output variation, MCP and ONNX-related decisions. The searchable 67-term glossary and .NET AI toolkit connect terms/tools to their lessons.
+Every lesson has a verified source-file/method reference, a concrete practice task and expected result. All 11 units have a recap with three explained scenarios and an independent challenge. Every one of the 68 lessons also has a short bridging explanation, three-step worked trace, guided practice, transfer to another fictional .NET feature and a later recall prompt. These activities do not automatically award lesson checks or certify terminal work. The training and evaluation lessons include offline numeric-update and binary confusion-matrix demonstrations, not replacement model implementations. Optional microtopics unpack token prediction, output variation, pretraining, attention, MCP and ONNX-related decisions. The searchable glossary and .NET AI toolkit connect terms/tools to their lessons.
 
 Each lab is its own project in `labs/`. Extract each download into a separate directory, follow its README and run its checks. SupportDesk connects the examples as one fictional scenario; the downloads are not one integrated application. Read on a phone; run .NET 10 coding projects on a desktop.
 
@@ -44,6 +44,6 @@ These independent projects are not a production platform. They provide no durabl
 
 ## Quality records and future work
 
-See [learning upgrade](LEARNING_UPGRADE.md) for current delivery verification and [quality review](QUALITY_REVIEW.md) for the earlier review snapshot and limits. The automated and engineering walkthrough is not a study with human beginners or a screen-reader certification.
+See [complete content pass](CONTENT_COMPLETE.md) for the latest delivery verification, [Units 1–3 content depth](CONTENT_DEPTH.md) for the first content pass, [learning upgrade](LEARNING_UPGRADE.md) for the earlier resource/navigation delivery and [quality review](QUALITY_REVIEW.md) for the earlier review snapshot and limits. The automated and engineering walkthrough is not a study with human beginners or a screen-reader certification. Human feedback remains a useful next quality step; it does not block access to any unit.
 
 A unified SupportDesk application and live integrations are a separate future phase. They require their own design, provider/runtime choices and explicit decisions about credentials, cost, data and deployment; they are not unfinished units in this course.

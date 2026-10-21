@@ -2,7 +2,7 @@
 
 A guided, mobile-first AI learning website for developers who know C#, ASP.NET Core, Blazor, SQL, and basic testing, but are new to AI.
 
-See [current product scope](docs/CURRENT_SCOPE.md) for the up-to-date learning path and boundaries, [learning upgrade](docs/LEARNING_UPGRADE.md) for current delivery evidence, and [quality review](docs/QUALITY_REVIEW.md) for the earlier accessibility and beginner-walkthrough snapshot. Dated design notes describe historical milestones, not missing units.
+See [current product scope](docs/CURRENT_SCOPE.md) for the up-to-date learning path and boundaries, [complete content pass](docs/CONTENT_COMPLETE.md) for the latest beginner-content delivery, [Units 1–3 content depth](docs/CONTENT_DEPTH.md) for the initial content pass, [learning upgrade](docs/LEARNING_UPGRADE.md) for the earlier resource/navigation delivery, and [quality review](docs/QUALITY_REVIEW.md) for the earlier accessibility snapshot. Dated design notes describe historical milestones, not missing units.
 
 ## Open the website
 
@@ -10,7 +10,7 @@ Double-click **index.html** in Edge or Chrome. No website build, account, server
 
 Use **Start the foundation lessons** to begin, **Recommended next step** to follow the learning sequence, or **Resume where I stopped** to return to your last lesson section. **Learn** recommends lessons and the current unit's unfinished project, then the next unit or final progress summary. **Course map** shows the complete path; **My progress** shows grouped evidence, saved lessons and backups. The logo always returns to Home. Phones have a persistent, labelled bottom navigation bar and a course drawer.
 
-The learning upgrade adds true **Resume where I stopped**, **Save lesson**, conceptual prerequisites, full-content/alias search, a **67-term AI glossary**, the **.NET AI toolkit**, **68 source-file/method practice references**, and **11 unit recaps with independent challenges**. Learn offers the current unit's unfinished lab before the next unit. Course Map milestone names remain links; ZIP downloads and mobile download jumps stay on project pages. See [delivery and verification](docs/LEARNING_UPGRADE.md).
+The learning resources include true **Resume where I stopped**, **Save lesson**, conceptual prerequisites, full-content/alias search, a searchable **108-term AI glossary**, the **.NET AI toolkit**, **68 source-file/method practice references**, and **11 unit recaps with independent challenges**. Every lesson across all 11 units also includes a **step-by-step worked trace, guided task, different .NET scenario and recall prompt**. The early units include local learning/metrics demonstrations. Learn offers the current unit's unfinished lab before the next unit. Course Map milestone names remain links; ZIP downloads and mobile download jumps stay on project pages. See [current delivery and verification](docs/CONTENT_COMPLETE.md).
 
 Side navigation follows the active page: Course map lists all 11 units and jumps to the selected section, lessons show the current unit's lesson sequence, each desktop lab shows related prerequisites, and Progress shows relevant next actions. The map highlights the unit currently in view; all 11 units link to real lessons. The mobile course drawer follows the same context.
 
@@ -73,6 +73,9 @@ assets/
   curriculum.js                 Canonical lessons, published map and support integration
   learning-support-{a,b}.js      Authored code references, glossary and unit practice
   learning-support.js           Combined support data and extracted-project commands
+  teaching-*.js                 All 11 units' worked/guided/transfer/recall content
+  teaching-complete.js          Shared all-unit teaching registry
+  teaching-math.js              Local illustrative update and confusion-matrix arithmetic
   learning-resources.js         Glossary, toolkit, reviews and practice rendering
   mlnet-content.js              Eight small ML.NET lessons with explicit unit ownership
   language-content.js           Six small language-model lessons
@@ -151,6 +154,7 @@ Developer-only tooling is pinned in `package-lock.json`: run `npm ci --ignore-sc
 - `npm test`: pure Node tests; no C# builds, providers or listeners.
 - `npm run test:integration`: explicit .NET compilation/verification and isolated PowerShell command-consumer checks; no paid calls.
 - `npm run test:journey`: new learning resources, resume/bookmarks, all references/recaps, mobile and standalone flows. Start the local host first.
+- `npm run test:teaching`: all 68 enhanced lessons, local arithmetic demonstrations, no false credit, expanded mobile content and all-unit isolated standalone checks.
 - `node tests/cross-tab-browser.cjs`: isolated shared-storage tabs; visit-loop, unfinished-input, focus and read/lab-control regressions.
 - `npm run check:distributions`: read-only source/archive/embedded consistency for all 11 labs.
 - `npm run build`: regenerate the portable site, readable guides and ZIPs after source changes.

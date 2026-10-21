@@ -17,7 +17,7 @@ for(const [folder,labFiles]of require('./lab-packages.cjs')){
   }
 }
 html=html.replace('<script src="assets/mlnet-content.js"></script>',()=>`<script>window.AcademyLabDownloads=${JSON.stringify(labDownloads)};</script>\n<script src="assets/mlnet-content.js"></script>`);
-for(const file of ['mlnet-content','language-content','reliable-content','tools-content','search-content','rag-content','retrieval-content','workflow-content','inputs-content','operations-content','advanced-catalog','learning-support-a','learning-support-b','learning-support','curriculum','learning-core','mlnet-experiments','language-experiments','reliable-experiments','tools-experiments','search-experiments','rag-experiments','retrieval-experiments','workflow-experiments','inputs-experiments','operations-experiments','experiments','home','learning-resources','lab-files','mlnet-lab','draft-files','draft-lab','summary-files','summary-lab','lookup-files','lookup-lab','search-files','search-lab','rag-files','rag-lab','retrieval-files','retrieval-lab','workflow-files','workflow-lab','inputs-files','inputs-lab','operations-files','operations-lab','workspace']){
+for(const file of ['mlnet-content','language-content','reliable-content','tools-content','search-content','rag-content','retrieval-content','workflow-content','inputs-content','operations-content','advanced-catalog','learning-support-a','learning-support-b','teaching-foundations','teaching-mlnet','teaching-language','teaching-math','teaching-prompts-tools','teaching-search-rag','teaching-retrieval-workflows','teaching-models-operations','teaching-complete','learning-support','curriculum','learning-core','mlnet-experiments','language-experiments','reliable-experiments','tools-experiments','search-experiments','rag-experiments','retrieval-experiments','workflow-experiments','inputs-experiments','operations-experiments','experiments','home','learning-resources','lab-files','mlnet-lab','draft-files','draft-lab','summary-files','summary-lab','lookup-files','lookup-lab','search-files','search-lab','rag-files','rag-lab','retrieval-files','retrieval-lab','workflow-files','workflow-lab','inputs-files','inputs-lab','operations-files','operations-lab','workspace']){
   let source=read(`assets/${file}.js`);
   if(file==='workspace'){
     for(const labFile of ['SupportDesk.Rules.csproj','Program.cs','README.md']){
@@ -30,6 +30,15 @@ for(const file of ['mlnet-content','language-content','reliable-content','tools-
 }
 fs.writeFileSync(path.join(root,'standalone.html'),html);
 const {lessons,references,stages,labs,glossary,unitSupport}=require('../assets/curriculum.js');
+// Human prose can mention HTML/generic syntax. Preserve it as text in Markdown;
+// actual code fields remain fenced verbatim.
+const markdownProse=text=>text.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+function teachingMarkdown(l){
+ const raw=l.support.teaching;if(!raw)return '';
+ const t=JSON.parse(JSON.stringify(raw),(key,value)=>typeof value==='string'&&!['code','starter'].includes(key)?markdownProse(value):value);
+ const code=value=>value?'\n\n```csharp\n'+value+'\n```\n':'';
+ return `\n### ${t.explanation.title}\n\n${t.explanation.text}\n\n### Follow the example step by step\n\n${t.worked.title}\n\n${t.worked.steps.map((s,i)=>`${i+1}. **${s.title}:** ${s.text}${code(s.code)}`).join('\n\n')}\n\n${t.worked.result}\n\n### Practise with a little help\n\n${t.guided.task}${code(t.guided.starter)}\n\nHint: ${t.guided.hint}\n\nExpected approach: ${t.guided.solution}\n\nExpected result: ${t.guided.expected}\n\n### Apply it to another .NET feature\n\n${t.transfer.task}\n\nCompare your reasoning: ${t.transfer.answer}\n\n### Explain it again tomorrow\n\n${t.recall.question}\n\nCompare your explanation: ${t.recall.answer}\n\nOptional practice does not change saved understanding checks or certify project work.\n`;
+}
 let md=`# AI for .NET developers — available lessons\n\n${lessons.length} complete lessons across ${stages.filter(s=>s.available).length} units. Open index.html for interactive exercises and ${labs.length} desktop labs. ${stages.some(s=>!s.available)?'Later units remain clearly marked Planned.':'All curriculum units are available. Labs are educational demonstrations, not production deployments.'}\n`;
 let foundations='# AI for .NET developers — foundations\n\nThe six foundation lessons. Continue into the available ML.NET unit in LEARNING_GUIDE.md or the website.\n';
 for(const [index,l]of lessons.entries()){
@@ -39,7 +48,8 @@ for(const [index,l]of lessons.entries()){
   const source=l.support.source;
   const practice=`\n### Find this concept in the project\n\nFile: ${source.path}\n\nMethod or type: ${source.symbol}\n\nScope: ${source.kind}\n\nTask: ${source.task}\n\nExpected result: ${source.expected}\n\nFrom the extracted project folder:\n\n\`\`\`powershell\n${source.command}\n\`\`\`\n`;
   md+=practice;if(l.unitId==='foundations')foundations+=practice;
-  for(const topic of l.support.microtopics||[])md+=`\n### ${topic.title}\n\n${topic.text}\n\nTry to explain: ${topic.task}\n\nCompare your explanation: ${topic.answer}\n`;
+  const teaching=teachingMarkdown(l);md+=teaching;if(l.unitId==='foundations')foundations+=teaching;
+  for(const topic of l.support.microtopics||[]){const text=`\n### ${markdownProse(topic.title)}\n\n${markdownProse(topic.text)}\n\nTry to explain: ${markdownProse(topic.task)}\n\nCompare your explanation: ${markdownProse(topic.answer)}\n`;md+=text;if(l.unitId==='foundations')foundations+=text;}
 }
 md+=(stages.some(s=>!s.available)?'\n## Later units — planned\n\n':'\n## Learning path complete\n\nReview your understanding checks and independently self-report the coding milestones in the website. These records are not a certification or proof of deployment.\n')+stages.filter(s=>!s.available).map(s=>`### ${s.title}\n\n${s.outcome}\n\n${s.topics.map(x=>`- ${x}`).join('\n')}\n\nMilestone: ${s.milestone}\n`).join('\n');
 md+='\n## Unit recaps and independent challenges\n\nPractice is separate from the saved lesson checks. Use fictional data only.\n';

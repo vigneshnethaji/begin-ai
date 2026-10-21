@@ -21,6 +21,10 @@ const sections=['understand','example','try','check','dotnet'];
    if(state==='wrong')await page.locator('[data-answer="0"]').click();
    if(state==='correct')await page.locator('[data-answer="1"]').click();
    if(state==='empty-search')await page.getByRole('searchbox').fill('no-such-topic-xyz');
+   if(state==='learning-step')await page.getByRole('button',{name:'Take one learning step',exact:true}).click();
+   if(state==='metrics-improved')await page.getByRole('button',{name:'Try a classifier that finds Billing',exact:true}).click();
+   if(state==='teaching-open')await page.locator('.teaching-practice details,.teaching-practice').evaluateAll(nodes=>nodes.forEach(n=>n.open=true));
+   if(state==='microtopics-open')await page.locator('.microtopic,.microtopic details').evaluateAll(nodes=>nodes.forEach(n=>n.open=true));
    await page.addScriptTag({path:axe});
    const result=await page.evaluate(async()=>{
     const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa','best-practice']}});
@@ -54,6 +58,8 @@ const sections=['understand','example','try','check','dotnet'];
   for(const hash of ['#home','#map','#lesson/ai-features/understand','#lab/operations-capstone','#progress'])jobs.push([hash,320,'drawer']);
   for(const state of ['wrong','correct'])jobs.push(['#lesson/ai-features/check',390,state]);
   jobs.push(['#map',390,'empty-search']);
+  jobs.push(['#lesson/training/try',320,'learning-step'],['#lesson/evaluate-model/try',320,'metrics-improved'],['#lesson/first-provider-call/try',320,'teaching-open'],['#lesson/generated-text/understand',320,'microtopics-open']);
+  for(const unit of C.stages.slice(3)){const id=unit.lessonIds[0];jobs.push(['#lesson/'+id+'/try',320,'teaching-open'],['#lesson/'+id+'/example',320]);}
   let cursor=0;await Promise.all(pages.map(async page=>{while(cursor<jobs.length){const job=jobs[cursor++];await scan(page,...job);}}));
   const violations=scans.reduce((n,r)=>n+r.violations.length,0);
   fs.writeFileSync(path.join(out,'accessibility-'+(sample?'sample':'full')+'.json'),JSON.stringify({scans:scans.length,violations,errors,sourceHashes,results:scans},null,2));

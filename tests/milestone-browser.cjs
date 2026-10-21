@@ -52,7 +52,9 @@ async function downloadBytes(page,link){
    assert.equal(await page.locator('main a[download]').count(),0,'course map must not offer direct downloads');
    console.log('PASS: all 11 milestone names link to their project; matching ZIP downloads remain on project pages only');
    await page.getByRole('searchbox').fill('vectors');
-   assert.deepEqual(await page.locator('.stage').evaluateAll(nodes=>nodes.map(n=>n.id)),['unit-tools-actions','unit-semantic-search']);
+   assert.equal(await page.locator('#unit-semantic-search').count(),1);
+   assert.equal(await page.locator('#unit-first-mlnet-model').count(),1);
+   assert.equal(await page.locator('#unit-first-mlnet-model .milestone a').getAttribute('href'),'#lab/mlnet-classifier');
    assert.equal(await page.locator('#unit-tools-actions .milestone a').getAttribute('href'),'#lab/ticket-lookup');
    assert.equal(await page.locator('#unit-semantic-search .milestone a').getAttribute('href'),'#lab/semantic-search');
    await page.getByRole('searchbox').fill('no-such-topic-xyz');

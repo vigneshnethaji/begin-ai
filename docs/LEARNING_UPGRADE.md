@@ -1,5 +1,7 @@
 # Learning website upgrade
 
+Earlier delivery snapshot. The subsequent [content depth upgrade](CONTENT_DEPTH.md) expands Units 1–3 and the glossary; counts and verification below describe the 18 October delivery.
+
 Delivery record: 18 October 2026. Scope is the existing offline AI learning website for .NET full-stack developers. The unified SupportDesk application remains a separate later project, as requested. See [current scope](CURRENT_SCOPE.md); the earlier [quality review](QUALITY_REVIEW.md) is a historical verification snapshot.
 
 ## What changed

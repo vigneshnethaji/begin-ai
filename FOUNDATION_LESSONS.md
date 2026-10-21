@@ -83,6 +83,54 @@ From the extracted project folder:
 Get-Content Program.cs
 ```
 
+### Place the names before choosing a library
+
+AI is the broad field. Machine learning is an approach within it that learns from examples. Deep learning uses neural networks with multiple layers; many modern language models use this approach. These are related ideas, not four interchangeable products. This course starts with observable inputs and outputs before the internal mathematics.
+
+### Follow the example step by step
+
+Follow one routing decision
+
+1. **Receive a message:** SupportDesk receives “Please return my payment.” The application checks that text is present. This first check is ordinary C#.
+
+2. **Choose the decision maker:** A refund-keyword rule returns General because its keyword is absent. A learned classifier could propose Billing from patterns learned earlier. The Billing answer here is illustrative, not a model run.
+
+3. **Handle the suggestion:** The application displays the proposed category. It has not returned money or verified a transaction; those are different jobs.
+
+The key question is who supplied the routing behavior: your explicit condition or a training process? Neither path replaces the surrounding application.
+
+### Practise with a little help
+
+A Blazor catalog highlights products using “price &lt; 20”. Rewrite its feature description so it does not imply learned recommendations.
+
+Hint: Identify where the selection rule came from. A useful feature does not have to be machine learning.
+
+Expected approach: Describe it as products filtered by a price rule. If a future recommender learns from approved examples, describe that separate dependency and evaluate it.
+
+Expected result: The price filter remains ordinary C#, even if the screen looks like a recommendation carousel.
+
+### Apply it to another .NET feature
+
+An invoice page uses a trained model to propose a document type, then C# rejects missing invoice numbers. Which part learned from examples?
+
+Compare your reasoning: The document-type model. Required-field validation is an explicit application rule. Keep the two descriptions separate.
+
+### Explain it again tomorrow
+
+Tomorrow, explain why a chat-shaped screen does not tell you how its response was produced.
+
+Compare your explanation: The same screen could show a fixed sample, a human reply or generated text. Inspect the implementation boundary, not the shape of the UI.
+
+Optional practice does not change saved understanding checks or certify project work.
+
+### A neural network without the mystery
+
+A neural network combines numbers using learned parameters arranged in connected layers. During training, an algorithm adjusts parameters against an objective. Calling an existing model uses those learned values; it does not require your application to retrain the network.
+
+Try to explain: You download a pretrained network and call it from C#. Did you train it by loading its file?
+
+Compare your explanation: No. Loading and running are inference preparation and inference. Training is the separate process that changes learned parameters.
+
 ## 2. When ordinary C# rules are enough
 
 Objective: Choose an explicit C# rule when the requirement has an exact, testable answer.
@@ -167,6 +215,52 @@ From the extracted project folder:
 dotnet run -- --verify
 ```
 
+### Separate an exact answer from an uncertain one
+
+“Is the message empty?” has a definition your code can enforce. “What does the customer mean?” may have several plausible interpretations. A reliable feature can combine both: validate exactly, request a suggestion, then apply exact rules to what may happen next.
+
+### Follow the example step by step
+
+Trace three inputs through Route
+
+1. **Check the guard:** For three spaces, IsNullOrWhiteSpace is true. Route returns Rejected before checking a keyword.
+
+2. **Check literal wording:** For “I need a REFUND”, the case-insensitive refund check succeeds. Route returns Billing.
+
+3. **Find the limitation:** For “Please return my payment”, the same check fails and Route returns General. This failure is about wording coverage, not permissions or payment processing.
+
+An exact implementation can satisfy its written rule and still miss a business intent. Record both the rule and the limitation.
+
+### Practise with a little help
+
+Extend the existing rules lab to recognize “return my payment” while keeping the whitespace guard.
+
+```csharp
+// Keep the empty-input guard first.
+// Match refund OR return my payment, ignoring case.
+```
+
+
+Hint: Add a second Contains condition with OR. Predict the changed test result before editing.
+
+Expected approach: Combine the two case-insensitive Contains checks. Update the supplied phrase case from General to Billing and keep an unrelated message returning General.
+
+Expected result: Both specified phrases route to Billing. “Reverse the charge” can still be missed; do not claim full language understanding.
+
+### Apply it to another .NET feature
+
+A checkout service must prevent a discount above 20%. Should an LLM decide whether to enforce that maximum?
+
+Compare your reasoning: No. Enforce the policy with explicit validated C# logic. A generated explanation of the discount is a different, optional feature.
+
+### Explain it again tomorrow
+
+Without reopening the first lesson, distinguish a learned suggestion from a business rule.
+
+Compare your explanation: The suggestion comes from learned patterns and can be wrong. The rule specifies a requirement the application must enforce.
+
+Optional practice does not change saved understanding checks or certify project work.
+
 ## 3. What a model does
 
 Objective: Identify a model’s input, its output, and the application decisions outside its responsibility.
@@ -248,6 +342,52 @@ From the extracted project folder:
 ```powershell
 Get-Content Program.cs
 ```
+
+### A model has parameters; an application has responsibilities
+
+A parameter is a number stored inside a model that affects its output. Training chooses parameter values from examples. You usually call a model through a service contract without editing those numbers yourself. The contract also lets you replace the dependency with a clearly labelled fixed sample for a test.
+
+### Follow the example step by step
+
+Inspect the boundary, not just the answer
+
+1. **Supply the input:** The model receives “I cannot sign in.” For this category task, the desired output shape is one permitted category, not arbitrary instructions.
+
+2. **Receive a prediction:** An illustrative response is CategorySuggestion("Account"). It is data returned by a dependency, not a command to reset a password.
+
+3. **Decide what to show:** The service validates the category and the UI shows it for review. This conceptual contract is not a running foundation web endpoint.
+
+Changing the model should not silently change who owns validation, authorization or saving a user decision.
+
+### Practise with a little help
+
+Design a small C# record for a product-category suggestion without giving the model permission to edit inventory.
+
+```csharp
+public record ProductCategorySuggestion(string Category);
+// Which service is allowed to change stock?
+```
+
+
+Hint: Return data about a suggestion. Keep inventory writes behind a separately authorized application action.
+
+Expected approach: Return only the proposed category through the inference contract. Let a validated application command handle a separately requested inventory edit.
+
+Expected result: A valid category can be displayed without any stock change. This is a design exercise, not a new implemented service.
+
+### Apply it to another .NET feature
+
+An invoice model returns Total=120. Does that prove the document was read correctly or authorize a payment?
+
+Compare your reasoning: Neither. Validate the extracted amount against the document and policy. Payment requires its own authorized workflow.
+
+### Explain it again tomorrow
+
+Why does adding an interface not turn a fixed sample into a trained model?
+
+Compare your explanation: An interface describes a boundary. How an implementation obtains its answer—fixed text, rules or learned parameters—is a separate question.
+
+Optional practice does not change saved understanding checks or certify project work.
 
 ## 4. Training and using a model are different
 
@@ -332,6 +472,60 @@ From the extracted project folder:
 Get-Content Program.cs
 ```
 
+### Learning means changing the model, not memorizing this screen
+
+Start with an input, a target answer and an imperfect prediction. A training algorithm measures an error and adjusts model parameters to reduce its objective across training examples. Repeating that process is training. Later inference uses the fitted parameters to make a new prediction; it normally does not update them.
+
+### Follow the example step by step
+
+One weight, one prediction, one correction
+
+1. **Choose a tiny numeric task:** Teaching-only regression example: prediction = weight × input. For input 2, the target is 4. Start with weight 0, so the prediction is 0. This is not the text-classification algorithm used by our ML.NET lab.
+
+2. **Measure the error:** The prediction misses by 4. Squared error is (0 − 4)² = 16. This loss is a training objective for this example, not classification accuracy.
+
+3. **Update and compare:** One gradient step with learning rate 0.1 changes the weight to 1.6. Prediction becomes 3.2 and squared error becomes 0.64. Try a larger step in the exercise: an update can make this example worse.
+
+The changed parameter explains the changed output. Improving one training row does not establish quality on new inputs.
+
+### Practise with a little help
+
+Before using the demo, predict the output for weight 2 and input 3. Then explain which of those numbers training would normally change.
+
+```csharp
+double prediction = weight * input;
+// weight = 2; input = 3;
+```
+
+
+Hint: Multiply weight by input. The input describes the example; the weight is the learned parameter.
+
+Expected approach: Prediction is 6. A training algorithm adjusts the weight using training data and a learning objective. At inference, the input can change while the fitted weight stays fixed.
+
+Expected result: You distinguish an input value, a target value and a model parameter. Our one-row demonstration is not a useful trained business model.
+
+### Apply it to another .NET feature
+
+A .NET delivery-time model is loaded once and predicts for a new order. Is each request another training run?
+
+Compare your reasoning: Not in an ordinary inference path. It uses saved parameters. Further training would be an explicit separate process with suitable data and evaluation.
+
+### Explain it again tomorrow
+
+Tomorrow, explain what changes during training and what normally stays fixed during inference.
+
+Compare your explanation: Training updates parameters. Inference uses the fitted parameters with a supplied input. Loading a file, changing a prompt or displaying a result does not itself prove training occurred.
+
+Optional practice does not change saved understanding checks or certify project work.
+
+### Learning rate and loss play different roles
+
+Loss measures the error being optimized. Learning rate controls the size of an update. A larger step is not automatically better. Real training uses many examples, appropriate objectives and safeguards; the small demo only makes the update visible.
+
+Try to explain: If one update raises squared error from 16 to 144, did making a bigger parameter change help this example?
+
+Compare your explanation: No. The example became worse. Compare the objective before and after instead of treating any update as improvement.
+
 ## 5. Why predictions can be wrong
 
 Objective: Explain why a model prediction needs evaluation and an appropriate response to mistakes.
@@ -414,6 +608,46 @@ From the extracted project folder:
 Get-Content Program.cs
 ```
 
+### Correctness and confidence need different evidence
+
+A prediction can be confidently wrong when the input differs from training examples or a label is ambiguous. A score is not automatically a calibrated probability. Decide which mistakes matter, inspect representative held-out cases and provide a useful fallback when the application cannot rely on a suggestion.
+
+### Follow the example step by step
+
+Find the failed assumption in one ticket
+
+1. **Read the whole message:** “The refund screen crashes” contains a payment word, but the reported problem is a broken screen.
+
+2. **Compare with the reviewed label:** For this authored example, a reviewer labels it Technical and a model suggests Billing. Count it as a mismatch even if the model output looks confident.
+
+3. **Choose a correction path:** Let staff correct the category and investigate whether category definitions or representative examples need improvement. Do not train directly on a final test set to repair its score.
+
+An explanation of the error helps you choose an intervention. A percentage alone cannot identify that intervention.
+
+### Practise with a little help
+
+For a fictional photo-upload feature, list one behavior when a document-type suggestion is unsupported.
+
+Hint: A useful fallback helps the user continue without inventing an answer.
+
+Expected approach: Show “Please choose the document type” and let the user select a permitted option. Preserve the original input for the authorized review flow; do not silently label every unknown document as Invoice.
+
+Expected result: The feature handles uncertainty explicitly. A guessed category is not presented as verified evidence.
+
+### Apply it to another .NET feature
+
+A catalog query is outside the supported product range. Should the app show the highest-scoring match as guaranteed correct?
+
+Compare your reasoning: No. Similarity or model scores need task-specific evaluation and an appropriate fallback. Explain no suitable match rather than promising unsupported relevance.
+
+### Explain it again tomorrow
+
+Recall the model boundary: why can your application reject or withhold a model response?
+
+Compare your explanation: The application owns validation and consequences. A model response is input to that decision, not authority over it.
+
+Optional practice does not change saved understanding checks or certify project work.
+
 ## 6. Choose rules, machine learning, or an LLM
 
 Objective: Select a reasonable starting approach based on a feature’s output and need for exactness.
@@ -494,3 +728,43 @@ From the extracted project folder:
 ```powershell
 Get-Content Program.cs
 ```
+
+### Name the output before choosing an approach
+
+Classification chooses a category; regression predicts a number; generation composes an output such as text. Those are different tasks. If a known formula supplies an exact answer, use the formula. Decide whether learning is justified by the requirement and available evidence, not by whether a library has an AI label.
+
+### Follow the example step by step
+
+Three requirements, three decisions
+
+1. **Reject an empty ticket:** The answer follows an explicit definition. Use string.IsNullOrWhiteSpace and test it.
+
+2. **Suggest one support category:** The input has varied wording and the permitted output labels are known. A supervised classifier is a candidate if suitable labelled examples and evaluation justify it.
+
+3. **Draft a readable reply:** Many wordings may be useful. A language model is a candidate, with bounded context, response handling and staff review. A fixed sample can teach the UI before any provider is enabled.
+
+The simplest suitable approach can differ for each part of the same application. AI is not a replacement for the entire stack.
+
+### Practise with a little help
+
+Classify three fictional features by the required output: invoice type, estimated delivery hours, and a draft product description.
+
+Hint: Ask whether the output is one known category, a number or composed language.
+
+Expected approach: Invoice type is classification; predicted delivery hours is regression; a draft description is generation. This identifies task types, not proof that a model is necessary or good enough.
+
+Expected result: You can name the task before choosing a package or provider. Exact scheduled hours from a known timetable may need only a lookup.
+
+### Apply it to another .NET feature
+
+A booking system already has an exact cancellation-fee formula. A new request asks for a plain-language explanation. Where could generation help?
+
+Compare your reasoning: C# should compute the fee. An optional generator could explain the already-computed result, with validation and review appropriate to the use. It must not invent a new fee.
+
+### Explain it again tomorrow
+
+Revisit tomorrow: what evidence would justify replacing your original keyword baseline?
+
+Compare your explanation: A relevant measured improvement on held-out examples, acceptable error consequences and operational constraints. A more advanced model name is not evidence.
+
+Optional practice does not change saved understanding checks or certify project work.

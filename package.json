@@ -8,6 +8,7 @@
     "test:unit": "node --test tests/*.test.cjs",
     "test:integration": "node --test tests/rag-integration.cjs tests/prompt-parity-integration.cjs",
     "test:journey": "node tests/learning-upgrade-browser.cjs",
+    "test:teaching": "node tests/teaching-browser.cjs",
     "test:browser": "node tests/browser.cjs",
     "test:accessibility": "node tests/accessibility-browser.cjs --sample",
     "check:distributions": "node scripts/check-distributions.cjs"
